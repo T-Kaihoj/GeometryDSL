@@ -1,0 +1,6 @@
+package ast
+
+object AST
+{
+
+}
