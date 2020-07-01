@@ -1,58 +1,58 @@
 /*
  * Parser Rules
  */
-grammar Gdsl;
+grammar gdsl;
 //Types must be to find before first use variables must be defined before first use
-gdsl: (typeDefinition | functionDefinition |variableDefinition)* ;
+gdsl: (typeDefinition | functionDefinition | variableDefinition)* ;
 
 typeDefinition: TYPE id=IDENTIFIER '(' declaration (',' declaration)* ')' ;
 
 functionDefinition: functionDeclaration scope ;
 
-functionDeclaration: retType=IDENTIFIER id=IDENTIFIER '(' (declaration (',' declaration)* )? ')' ;
+functionDeclaration: retType=IDENTIFIER functionId=IDENTIFIER '(' (declaration (',' declaration)* )? ')' ;
 
-declaration: id=IDENTIFIER ':' valType=IDENTIFIER ;
+declaration: id=IDENTIFIER ':' type=IDENTIFIER ;
 
 scope: statement
      | '(' statement* ')' ;
 
-statement: conditional
-         | variableDefinition
-         | returnStatement ;
+statement: iif
+            | switchCase
+            | variableDefinition
+            | returnStatement ;
 
 variableDefinition: declaration ASSIGNMENT expression ;
 
 returnStatement: 'return' expression;
 
-conditional: iif | caseswitch ;
-
-caseswitch: 'switch'(variables ( ','variables)*) ('case' expression ':' scope)*;
+switchCase: 'switch'(variables ( ','variables)*) ('case' expression ':' scope)*;
 
 iif: IFT '(' expression ')' scope (iifElset)* elset? ;
 iifElset: (IFELSET '(' expression ')' scope);
 elset: ELSET scope;
 
-
-
-expressionIN:localName=IDENTIFIER IN global=IDENTIFIER ;
+setElementDefinition:localName=IDENTIFIER IN globalName=expression ;
 
 
 expression:
         '(' expression ')' #parenthesisExp
-        |'|' expression '|' #absoluteExp
-        |setL=Expression operator=(UNION | DIFFERENCE| INTERSECTION) setR=Expression #setOperator
-        | quantifier=QUANTIFIER'('expressionIN','  expression ')' #setQuantificationCallExp
+        | '|' expression '|' #absoluteExp
+        | setL=expression operator=(UNION | DIFFERENCE| INTERSECTION) setR=expression #setOperatorExp
+        | quantifier=QUANTIFIER '(' setElementDefinition ','  expression ')' #setQuantificationCallExp
+        //Selects an element from a set
         | CHOOSE expression  #setChooseExp
-        | expression (POWER) expression #powerExp
+        | expression POWER expression #powerExp
         | expression operator=(DIVISION | MULTIPLICATION) expression #divMulExp
         | expression operator=(ADD | SUB) expression #addSubExp
-        | expression (COMPARISON) expression #comparisonExp
-        | expression (AND) expression #andExp
-        | expression (OR) expression #orExp
-        | '{' expressionIN ('|'  )? '|' expression '}'#
-        | '{' expression  (',' expression )* '}'#setLiteral
+        | expression operator=COMPARISON expression #comparisonExp
+        | expression AND expression #andExp
+        | expression OR expression #orExp
+        | '{' setElementDefinition ('|' )? '|' expression '}'#setComprehensionExp
+        | '{' expression  (',' expression )* '}'#setLiteralExp
         | IDENTIFIER '(' (expression (',' expression)*)? ')' #functionCallExp
-        | IDENTIFIER ('.' IDENTIFIER)* #variableExp
+        | expression ('.' IDENTIFIER)+ #dotExp
+        | IDENTIFIER  #variableExp
+        | BOOL #boolExp
         | NUMBER #numberExp ;
 
 variables: IDENTIFIER ('.' IDENTIFIER)*;
@@ -80,12 +80,16 @@ IFELSET: E L S E' ' I F ; //'if'|'else'|'ifelse';
 
 ELSET: E L S E ;
 
-TYPE: T Y P E ;
+TYPE: 'type' ;
 
 //addSub
 ADD: '+' ;
-
 SUB: '-' ;
+
+BOOL: 'true' |'false';
+QUANTIFIER: 'exist'
+          | 'all'
+          | 'select' ;
 
 COMPARISON: '=='
           | '!='
@@ -102,10 +106,10 @@ DIVISION: '/' ;
 MULTIPLICATION: '*' ;
 
 AND: '&&'
-   | A N D ;
+   | 'and' ;
 
 OR: '||'
-  | O R ;
+  | 'or' ;
 
 ASSIGNMENT: ':=' ;
 
@@ -120,7 +124,8 @@ IN: 'in' ;
 
 
 
-NUMBER: ([0-9])+('.'([0-9])*)? ;
+NUMBER: ([0-9])* '.'([0-9])+
+ |([0-9])+;
 
 IDENTIFIER: ([a-z] | [A-Z])+ ([a-zA-Z_0-9])* ;
 
