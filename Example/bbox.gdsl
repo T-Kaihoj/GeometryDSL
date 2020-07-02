@@ -1,0 +1,51 @@
+//Produced by Carl Schultz
+//Tested on the 1/06/2020
+
+type point2d(x:number, y:number)
+type bbox(minX:number, minY:number, maxX:number, maxY:number)
+
+
+number x(p:point2d, p2:point2d) (p.x) 
+number y(p:point2d, p2:point2d) (p.y) 
+
+//Set bbox (A:Set) ()
+
+bool t1() (
+  A := {}
+  A := A union point2d(0,0)
+  A := A union point2d(5,0)
+  A := A union point2d(7,10)
+  A := A union point2d(3,90)
+
+  X := x(A)
+  Y := y(A)
+
+  min_x := min(X)
+  min_y := min(Y)
+  max_x := max(X)
+  max_y := max(Y)
+
+  bbox(min_x, min_y, max_x, max_y)
+
+  //- I confirmed function is working by uncommenting each of these lines are running
+  //min_x
+  //min_y
+  //max_x
+  //max_y
+
+)
+
+Set max (A:Set)
+(
+    select(x in A, all(y in A, gt(x,y) ))
+)
+
+Set min (A:Set)
+(
+    select(x in A, all(y in A, gt(y,x) ))
+)
+
+bool gt (a:number,b:number)
+(
+    a >= b
+)
