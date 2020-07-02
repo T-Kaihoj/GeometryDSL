@@ -1,11 +1,13 @@
 package object ast
 {
+    type Program = List[ProgramEntity]
+
     type Block = List[Statement]
 }
 
 package ast {
     sealed trait ProgramEntity
-    sealed class GDSLProgram(prog: List[ProgramEntity])
+    //sealed case class GDSLProgram(prog: List[ProgramEntity])
 
     sealed trait Type
     case object BoolType extends Type
