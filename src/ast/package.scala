@@ -1,9 +1,11 @@
 package object ast
 {
-    sealed trait ProgramEntity
-    sealed class GDSLProgram(a: List[ProgramEntity])
-
     type Block = List[Statement]
+}
+
+package ast {
+    sealed trait ProgramEntity
+    sealed class GDSLProgram(prog: List[ProgramEntity])
 
     sealed trait Type
     case object BoolType extends Type
@@ -19,7 +21,7 @@ package object ast
 
     sealed trait Statement
     case class Conditional(condition: Expression, trueBlock: Block, falseBlock: Block) extends Statement
-    case class ValDefinition(decl: ValueDeclaration, exp: Expression) extends Statement with ProgramEntity
+    case class ValueDefinition(decl: ValueDeclaration, exp: Expression) extends Statement with ProgramEntity
     case class Return(exp: Expression) extends Statement
 
     sealed trait Expression

@@ -14,7 +14,7 @@ object AST
         case Conditional(cond, t, f) => containsExpression(cond, targetExp) ||
                                         containsExpression(t, targetExp) ||
                                         containsExpression(f, targetExp)
-        case ValDefinition(_, exp) => containsExpression(exp, targetExp)
+        case ValueDefinition(_, exp) => containsExpression(exp, targetExp)
         case Return(exp) => containsExpression(exp, targetExp)
     }
 
