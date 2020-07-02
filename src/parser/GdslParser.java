@@ -1,5 +1,5 @@
-// Generated from gdsl.g4 by ANTLR 4.8
-package Parser;
+// Generated from Gdsl.g4 by ANTLR 4.8
+package parser;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
-public class gdslParser extends Parser {
+public class GdslParser extends Parser {
 	static { RuntimeMetaData.checkVersion("4.8", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
@@ -92,7 +92,7 @@ public class gdslParser extends Parser {
 	}
 
 	@Override
-	public String getGrammarFileName() { return "gdsl.g4"; }
+	public String getGrammarFileName() { return "Gdsl.g4"; }
 
 	@Override
 	public String[] getRuleNames() { return ruleNames; }
@@ -103,7 +103,7 @@ public class gdslParser extends Parser {
 	@Override
 	public ATN getATN() { return _ATN; }
 
-	public gdslParser(TokenStream input) {
+	public GdslParser(TokenStream input) {
 		super(input);
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
@@ -133,11 +133,11 @@ public class gdslParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_gdsl; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterGdsl(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterGdsl(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitGdsl(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitGdsl(this);
 		}
 	}
 
@@ -195,25 +195,25 @@ public class gdslParser extends Parser {
 
 	public static class TypeDefinitionContext extends ParserRuleContext {
 		public Token id;
-		public TerminalNode TYPE() { return getToken(gdslParser.TYPE, 0); }
+		public TerminalNode TYPE() { return getToken(GdslParser.TYPE, 0); }
 		public List<DeclarationContext> declaration() {
 			return getRuleContexts(DeclarationContext.class);
 		}
 		public DeclarationContext declaration(int i) {
 			return getRuleContext(DeclarationContext.class,i);
 		}
-		public TerminalNode IDENTIFIER() { return getToken(gdslParser.IDENTIFIER, 0); }
+		public TerminalNode IDENTIFIER() { return getToken(GdslParser.IDENTIFIER, 0); }
 		public TypeDefinitionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_typeDefinition; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterTypeDefinition(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterTypeDefinition(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitTypeDefinition(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitTypeDefinition(this);
 		}
 	}
 
@@ -276,11 +276,11 @@ public class gdslParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_functionDefinition; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterFunctionDefinition(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterFunctionDefinition(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitFunctionDefinition(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitFunctionDefinition(this);
 		}
 	}
 
@@ -310,9 +310,9 @@ public class gdslParser extends Parser {
 	public static class FunctionDeclarationContext extends ParserRuleContext {
 		public Token retType;
 		public Token functionId;
-		public List<TerminalNode> IDENTIFIER() { return getTokens(gdslParser.IDENTIFIER); }
+		public List<TerminalNode> IDENTIFIER() { return getTokens(GdslParser.IDENTIFIER); }
 		public TerminalNode IDENTIFIER(int i) {
-			return getToken(gdslParser.IDENTIFIER, i);
+			return getToken(GdslParser.IDENTIFIER, i);
 		}
 		public List<DeclarationContext> declaration() {
 			return getRuleContexts(DeclarationContext.class);
@@ -326,11 +326,11 @@ public class gdslParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_functionDeclaration; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterFunctionDeclaration(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterFunctionDeclaration(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitFunctionDeclaration(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitFunctionDeclaration(this);
 		}
 	}
 
@@ -391,9 +391,9 @@ public class gdslParser extends Parser {
 	public static class DeclarationContext extends ParserRuleContext {
 		public Token id;
 		public Token type;
-		public List<TerminalNode> IDENTIFIER() { return getTokens(gdslParser.IDENTIFIER); }
+		public List<TerminalNode> IDENTIFIER() { return getTokens(GdslParser.IDENTIFIER); }
 		public TerminalNode IDENTIFIER(int i) {
-			return getToken(gdslParser.IDENTIFIER, i);
+			return getToken(GdslParser.IDENTIFIER, i);
 		}
 		public DeclarationContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -401,11 +401,11 @@ public class gdslParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_declaration; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterDeclaration(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterDeclaration(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitDeclaration(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitDeclaration(this);
 		}
 	}
 
@@ -447,11 +447,11 @@ public class gdslParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_scope; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterScope(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterScope(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitScope(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitScope(this);
 		}
 	}
 
@@ -530,11 +530,11 @@ public class gdslParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_statement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterStatement(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitStatement(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitStatement(this);
 		}
 	}
 
@@ -592,7 +592,7 @@ public class gdslParser extends Parser {
 		public DeclarationContext declaration() {
 			return getRuleContext(DeclarationContext.class,0);
 		}
-		public TerminalNode ASSIGNMENT() { return getToken(gdslParser.ASSIGNMENT, 0); }
+		public TerminalNode ASSIGNMENT() { return getToken(GdslParser.ASSIGNMENT, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
@@ -602,11 +602,11 @@ public class gdslParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_variableDefinition; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterVariableDefinition(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterVariableDefinition(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitVariableDefinition(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitVariableDefinition(this);
 		}
 	}
 
@@ -645,11 +645,11 @@ public class gdslParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_returnStatement; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterReturnStatement(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterReturnStatement(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitReturnStatement(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitReturnStatement(this);
 		}
 	}
 
@@ -701,11 +701,11 @@ public class gdslParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_switchCase; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterSwitchCase(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterSwitchCase(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitSwitchCase(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitSwitchCase(this);
 		}
 	}
 
@@ -775,7 +775,7 @@ public class gdslParser extends Parser {
 	}
 
 	public static class IifContext extends ParserRuleContext {
-		public TerminalNode IFT() { return getToken(gdslParser.IFT, 0); }
+		public TerminalNode IFT() { return getToken(GdslParser.IFT, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
@@ -797,11 +797,11 @@ public class gdslParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_iif; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterIif(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterIif(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitIif(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitIif(this);
 		}
 	}
 
@@ -862,7 +862,7 @@ public class gdslParser extends Parser {
 	}
 
 	public static class IifElsetContext extends ParserRuleContext {
-		public TerminalNode IFELSET() { return getToken(gdslParser.IFELSET, 0); }
+		public TerminalNode IFELSET() { return getToken(GdslParser.IFELSET, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
@@ -875,11 +875,11 @@ public class gdslParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_iifElset; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterIifElset(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterIifElset(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitIifElset(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitIifElset(this);
 		}
 	}
 
@@ -915,7 +915,7 @@ public class gdslParser extends Parser {
 	}
 
 	public static class ElsetContext extends ParserRuleContext {
-		public TerminalNode ELSET() { return getToken(gdslParser.ELSET, 0); }
+		public TerminalNode ELSET() { return getToken(GdslParser.ELSET, 0); }
 		public ScopeContext scope() {
 			return getRuleContext(ScopeContext.class,0);
 		}
@@ -925,11 +925,11 @@ public class gdslParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_elset; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterElset(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterElset(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitElset(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitElset(this);
 		}
 	}
 
@@ -959,8 +959,8 @@ public class gdslParser extends Parser {
 	public static class SetElementDefinitionContext extends ParserRuleContext {
 		public Token localName;
 		public ExpressionContext globalName;
-		public TerminalNode IN() { return getToken(gdslParser.IN, 0); }
-		public TerminalNode IDENTIFIER() { return getToken(gdslParser.IDENTIFIER, 0); }
+		public TerminalNode IN() { return getToken(GdslParser.IN, 0); }
+		public TerminalNode IDENTIFIER() { return getToken(GdslParser.IDENTIFIER, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
@@ -970,11 +970,11 @@ public class gdslParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_setElementDefinition; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterSetElementDefinition(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterSetElementDefinition(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitSetElementDefinition(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitSetElementDefinition(this);
 		}
 	}
 
@@ -1018,18 +1018,18 @@ public class gdslParser extends Parser {
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public List<TerminalNode> IDENTIFIER() { return getTokens(gdslParser.IDENTIFIER); }
+		public List<TerminalNode> IDENTIFIER() { return getTokens(GdslParser.IDENTIFIER); }
 		public TerminalNode IDENTIFIER(int i) {
-			return getToken(gdslParser.IDENTIFIER, i);
+			return getToken(GdslParser.IDENTIFIER, i);
 		}
 		public DotExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterDotExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterDotExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitDotExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitDotExp(this);
 		}
 	}
 	public static class SetComprehensionExpContext extends ExpressionContext {
@@ -1042,23 +1042,23 @@ public class gdslParser extends Parser {
 		public SetComprehensionExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterSetComprehensionExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterSetComprehensionExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitSetComprehensionExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitSetComprehensionExp(this);
 		}
 	}
 	public static class NumberExpContext extends ExpressionContext {
-		public TerminalNode NUMBER() { return getToken(gdslParser.NUMBER, 0); }
+		public TerminalNode NUMBER() { return getToken(GdslParser.NUMBER, 0); }
 		public NumberExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterNumberExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterNumberExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitNumberExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitNumberExp(this);
 		}
 	}
 	public static class AndExpContext extends ExpressionContext {
@@ -1068,19 +1068,19 @@ public class gdslParser extends Parser {
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public TerminalNode AND() { return getToken(gdslParser.AND, 0); }
+		public TerminalNode AND() { return getToken(GdslParser.AND, 0); }
 		public AndExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterAndExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterAndExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitAndExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitAndExp(this);
 		}
 	}
 	public static class FunctionCallExpContext extends ExpressionContext {
-		public TerminalNode IDENTIFIER() { return getToken(gdslParser.IDENTIFIER, 0); }
+		public TerminalNode IDENTIFIER() { return getToken(GdslParser.IDENTIFIER, 0); }
 		public List<ExpressionContext> expression() {
 			return getRuleContexts(ExpressionContext.class);
 		}
@@ -1090,35 +1090,35 @@ public class gdslParser extends Parser {
 		public FunctionCallExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterFunctionCallExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterFunctionCallExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitFunctionCallExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitFunctionCallExp(this);
 		}
 	}
 	public static class BoolExpContext extends ExpressionContext {
-		public TerminalNode BOOL() { return getToken(gdslParser.BOOL, 0); }
+		public TerminalNode BOOL() { return getToken(GdslParser.BOOL, 0); }
 		public BoolExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterBoolExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterBoolExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitBoolExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitBoolExp(this);
 		}
 	}
 	public static class VariableExpContext extends ExpressionContext {
-		public TerminalNode IDENTIFIER() { return getToken(gdslParser.IDENTIFIER, 0); }
+		public TerminalNode IDENTIFIER() { return getToken(GdslParser.IDENTIFIER, 0); }
 		public VariableExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterVariableExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterVariableExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitVariableExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitVariableExp(this);
 		}
 	}
 	public static class OrExpContext extends ExpressionContext {
@@ -1128,15 +1128,15 @@ public class gdslParser extends Parser {
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public TerminalNode OR() { return getToken(gdslParser.OR, 0); }
+		public TerminalNode OR() { return getToken(GdslParser.OR, 0); }
 		public OrExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterOrExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterOrExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitOrExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitOrExp(this);
 		}
 	}
 	public static class AddSubExpContext extends ExpressionContext {
@@ -1147,16 +1147,16 @@ public class gdslParser extends Parser {
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public TerminalNode ADD() { return getToken(gdslParser.ADD, 0); }
-		public TerminalNode SUB() { return getToken(gdslParser.SUB, 0); }
+		public TerminalNode ADD() { return getToken(GdslParser.ADD, 0); }
+		public TerminalNode SUB() { return getToken(GdslParser.SUB, 0); }
 		public AddSubExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterAddSubExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterAddSubExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitAddSubExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitAddSubExp(this);
 		}
 	}
 	public static class SetLiteralExpContext extends ExpressionContext {
@@ -1169,11 +1169,11 @@ public class gdslParser extends Parser {
 		public SetLiteralExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterSetLiteralExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterSetLiteralExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitSetLiteralExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitSetLiteralExp(this);
 		}
 	}
 	public static class PowerExpContext extends ExpressionContext {
@@ -1183,15 +1183,15 @@ public class gdslParser extends Parser {
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public TerminalNode POWER() { return getToken(gdslParser.POWER, 0); }
+		public TerminalNode POWER() { return getToken(GdslParser.POWER, 0); }
 		public PowerExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterPowerExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterPowerExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitPowerExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitPowerExp(this);
 		}
 	}
 	public static class DivMulExpContext extends ExpressionContext {
@@ -1202,16 +1202,16 @@ public class gdslParser extends Parser {
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public TerminalNode DIVISION() { return getToken(gdslParser.DIVISION, 0); }
-		public TerminalNode MULTIPLICATION() { return getToken(gdslParser.MULTIPLICATION, 0); }
+		public TerminalNode DIVISION() { return getToken(GdslParser.DIVISION, 0); }
+		public TerminalNode MULTIPLICATION() { return getToken(GdslParser.MULTIPLICATION, 0); }
 		public DivMulExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterDivMulExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterDivMulExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitDivMulExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitDivMulExp(this);
 		}
 	}
 	public static class ComparisonExpContext extends ExpressionContext {
@@ -1222,30 +1222,30 @@ public class gdslParser extends Parser {
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public TerminalNode COMPARISON() { return getToken(gdslParser.COMPARISON, 0); }
+		public TerminalNode COMPARISON() { return getToken(GdslParser.COMPARISON, 0); }
 		public ComparisonExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterComparisonExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterComparisonExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitComparisonExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitComparisonExp(this);
 		}
 	}
 	public static class SetChooseExpContext extends ExpressionContext {
-		public TerminalNode CHOOSE() { return getToken(gdslParser.CHOOSE, 0); }
+		public TerminalNode CHOOSE() { return getToken(GdslParser.CHOOSE, 0); }
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
 		public SetChooseExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterSetChooseExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterSetChooseExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitSetChooseExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitSetChooseExp(this);
 		}
 	}
 	public static class AbsoluteExpContext extends ExpressionContext {
@@ -1255,11 +1255,11 @@ public class gdslParser extends Parser {
 		public AbsoluteExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterAbsoluteExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterAbsoluteExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitAbsoluteExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitAbsoluteExp(this);
 		}
 	}
 	public static class ParenthesisExpContext extends ExpressionContext {
@@ -1269,11 +1269,11 @@ public class gdslParser extends Parser {
 		public ParenthesisExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterParenthesisExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterParenthesisExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitParenthesisExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitParenthesisExp(this);
 		}
 	}
 	public static class SetOperatorExpContext extends ExpressionContext {
@@ -1286,17 +1286,17 @@ public class gdslParser extends Parser {
 		public ExpressionContext expression(int i) {
 			return getRuleContext(ExpressionContext.class,i);
 		}
-		public TerminalNode UNION() { return getToken(gdslParser.UNION, 0); }
-		public TerminalNode DIFFERENCE() { return getToken(gdslParser.DIFFERENCE, 0); }
-		public TerminalNode INTERSECTION() { return getToken(gdslParser.INTERSECTION, 0); }
+		public TerminalNode UNION() { return getToken(GdslParser.UNION, 0); }
+		public TerminalNode DIFFERENCE() { return getToken(GdslParser.DIFFERENCE, 0); }
+		public TerminalNode INTERSECTION() { return getToken(GdslParser.INTERSECTION, 0); }
 		public SetOperatorExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterSetOperatorExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterSetOperatorExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitSetOperatorExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitSetOperatorExp(this);
 		}
 	}
 	public static class SetQuantificationCallExpContext extends ExpressionContext {
@@ -1307,15 +1307,15 @@ public class gdslParser extends Parser {
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public TerminalNode QUANTIFIER() { return getToken(gdslParser.QUANTIFIER, 0); }
+		public TerminalNode QUANTIFIER() { return getToken(GdslParser.QUANTIFIER, 0); }
 		public SetQuantificationCallExpContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterSetQuantificationCallExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterSetQuantificationCallExp(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitSetQuantificationCallExp(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitSetQuantificationCallExp(this);
 		}
 	}
 
@@ -1693,9 +1693,9 @@ public class gdslParser extends Parser {
 	}
 
 	public static class VariablesContext extends ParserRuleContext {
-		public List<TerminalNode> IDENTIFIER() { return getTokens(gdslParser.IDENTIFIER); }
+		public List<TerminalNode> IDENTIFIER() { return getTokens(GdslParser.IDENTIFIER); }
 		public TerminalNode IDENTIFIER(int i) {
-			return getToken(gdslParser.IDENTIFIER, i);
+			return getToken(GdslParser.IDENTIFIER, i);
 		}
 		public VariablesContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1703,11 +1703,11 @@ public class gdslParser extends Parser {
 		@Override public int getRuleIndex() { return RULE_variables; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).enterVariables(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).enterVariables(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof gdslListener ) ((gdslListener)listener).exitVariables(this);
+			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitVariables(this);
 		}
 	}
 

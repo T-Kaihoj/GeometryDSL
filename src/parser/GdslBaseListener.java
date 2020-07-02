@@ -1,412 +1,412 @@
-// Generated from gdsl.g4 by ANTLR 4.8
-package Parser;
+// Generated from Gdsl.g4 by ANTLR 4.8
+package parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 /**
- * This class provides an empty implementation of {@link gdslListener},
+ * This class provides an empty implementation of {@link GdslListener},
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
-public class gdslBaseListener implements gdslListener {
+public class GdslBaseListener implements GdslListener {
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterGdsl(gdslParser.GdslContext ctx) { }
+	@Override public void enterGdsl(GdslParser.GdslContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitGdsl(gdslParser.GdslContext ctx) { }
+	@Override public void exitGdsl(GdslParser.GdslContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeDefinition(gdslParser.TypeDefinitionContext ctx) { }
+	@Override public void enterTypeDefinition(GdslParser.TypeDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTypeDefinition(gdslParser.TypeDefinitionContext ctx) { }
+	@Override public void exitTypeDefinition(GdslParser.TypeDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFunctionDefinition(gdslParser.FunctionDefinitionContext ctx) { }
+	@Override public void enterFunctionDefinition(GdslParser.FunctionDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFunctionDefinition(gdslParser.FunctionDefinitionContext ctx) { }
+	@Override public void exitFunctionDefinition(GdslParser.FunctionDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFunctionDeclaration(gdslParser.FunctionDeclarationContext ctx) { }
+	@Override public void enterFunctionDeclaration(GdslParser.FunctionDeclarationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFunctionDeclaration(gdslParser.FunctionDeclarationContext ctx) { }
+	@Override public void exitFunctionDeclaration(GdslParser.FunctionDeclarationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDeclaration(gdslParser.DeclarationContext ctx) { }
+	@Override public void enterDeclaration(GdslParser.DeclarationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDeclaration(gdslParser.DeclarationContext ctx) { }
+	@Override public void exitDeclaration(GdslParser.DeclarationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterScope(gdslParser.ScopeContext ctx) { }
+	@Override public void enterScope(GdslParser.ScopeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitScope(gdslParser.ScopeContext ctx) { }
+	@Override public void exitScope(GdslParser.ScopeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStatement(gdslParser.StatementContext ctx) { }
+	@Override public void enterStatement(GdslParser.StatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitStatement(gdslParser.StatementContext ctx) { }
+	@Override public void exitStatement(GdslParser.StatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterVariableDefinition(gdslParser.VariableDefinitionContext ctx) { }
+	@Override public void enterVariableDefinition(GdslParser.VariableDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitVariableDefinition(gdslParser.VariableDefinitionContext ctx) { }
+	@Override public void exitVariableDefinition(GdslParser.VariableDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterReturnStatement(gdslParser.ReturnStatementContext ctx) { }
+	@Override public void enterReturnStatement(GdslParser.ReturnStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitReturnStatement(gdslParser.ReturnStatementContext ctx) { }
+	@Override public void exitReturnStatement(GdslParser.ReturnStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSwitchCase(gdslParser.SwitchCaseContext ctx) { }
+	@Override public void enterSwitchCase(GdslParser.SwitchCaseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSwitchCase(gdslParser.SwitchCaseContext ctx) { }
+	@Override public void exitSwitchCase(GdslParser.SwitchCaseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIif(gdslParser.IifContext ctx) { }
+	@Override public void enterIif(GdslParser.IifContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIif(gdslParser.IifContext ctx) { }
+	@Override public void exitIif(GdslParser.IifContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIifElset(gdslParser.IifElsetContext ctx) { }
+	@Override public void enterIifElset(GdslParser.IifElsetContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIifElset(gdslParser.IifElsetContext ctx) { }
+	@Override public void exitIifElset(GdslParser.IifElsetContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterElset(gdslParser.ElsetContext ctx) { }
+	@Override public void enterElset(GdslParser.ElsetContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitElset(gdslParser.ElsetContext ctx) { }
+	@Override public void exitElset(GdslParser.ElsetContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSetElementDefinition(gdslParser.SetElementDefinitionContext ctx) { }
+	@Override public void enterSetElementDefinition(GdslParser.SetElementDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSetElementDefinition(gdslParser.SetElementDefinitionContext ctx) { }
+	@Override public void exitSetElementDefinition(GdslParser.SetElementDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDotExp(gdslParser.DotExpContext ctx) { }
+	@Override public void enterDotExp(GdslParser.DotExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDotExp(gdslParser.DotExpContext ctx) { }
+	@Override public void exitDotExp(GdslParser.DotExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSetComprehensionExp(gdslParser.SetComprehensionExpContext ctx) { }
+	@Override public void enterSetComprehensionExp(GdslParser.SetComprehensionExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSetComprehensionExp(gdslParser.SetComprehensionExpContext ctx) { }
+	@Override public void exitSetComprehensionExp(GdslParser.SetComprehensionExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNumberExp(gdslParser.NumberExpContext ctx) { }
+	@Override public void enterNumberExp(GdslParser.NumberExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNumberExp(gdslParser.NumberExpContext ctx) { }
+	@Override public void exitNumberExp(GdslParser.NumberExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAndExp(gdslParser.AndExpContext ctx) { }
+	@Override public void enterAndExp(GdslParser.AndExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAndExp(gdslParser.AndExpContext ctx) { }
+	@Override public void exitAndExp(GdslParser.AndExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFunctionCallExp(gdslParser.FunctionCallExpContext ctx) { }
+	@Override public void enterFunctionCallExp(GdslParser.FunctionCallExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFunctionCallExp(gdslParser.FunctionCallExpContext ctx) { }
+	@Override public void exitFunctionCallExp(GdslParser.FunctionCallExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBoolExp(gdslParser.BoolExpContext ctx) { }
+	@Override public void enterBoolExp(GdslParser.BoolExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitBoolExp(gdslParser.BoolExpContext ctx) { }
+	@Override public void exitBoolExp(GdslParser.BoolExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterVariableExp(gdslParser.VariableExpContext ctx) { }
+	@Override public void enterVariableExp(GdslParser.VariableExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitVariableExp(gdslParser.VariableExpContext ctx) { }
+	@Override public void exitVariableExp(GdslParser.VariableExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterOrExp(gdslParser.OrExpContext ctx) { }
+	@Override public void enterOrExp(GdslParser.OrExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitOrExp(gdslParser.OrExpContext ctx) { }
+	@Override public void exitOrExp(GdslParser.OrExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAddSubExp(gdslParser.AddSubExpContext ctx) { }
+	@Override public void enterAddSubExp(GdslParser.AddSubExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAddSubExp(gdslParser.AddSubExpContext ctx) { }
+	@Override public void exitAddSubExp(GdslParser.AddSubExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSetLiteralExp(gdslParser.SetLiteralExpContext ctx) { }
+	@Override public void enterSetLiteralExp(GdslParser.SetLiteralExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSetLiteralExp(gdslParser.SetLiteralExpContext ctx) { }
+	@Override public void exitSetLiteralExp(GdslParser.SetLiteralExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterPowerExp(gdslParser.PowerExpContext ctx) { }
+	@Override public void enterPowerExp(GdslParser.PowerExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitPowerExp(gdslParser.PowerExpContext ctx) { }
+	@Override public void exitPowerExp(GdslParser.PowerExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDivMulExp(gdslParser.DivMulExpContext ctx) { }
+	@Override public void enterDivMulExp(GdslParser.DivMulExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitDivMulExp(gdslParser.DivMulExpContext ctx) { }
+	@Override public void exitDivMulExp(GdslParser.DivMulExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterComparisonExp(gdslParser.ComparisonExpContext ctx) { }
+	@Override public void enterComparisonExp(GdslParser.ComparisonExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitComparisonExp(gdslParser.ComparisonExpContext ctx) { }
+	@Override public void exitComparisonExp(GdslParser.ComparisonExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSetChooseExp(gdslParser.SetChooseExpContext ctx) { }
+	@Override public void enterSetChooseExp(GdslParser.SetChooseExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSetChooseExp(gdslParser.SetChooseExpContext ctx) { }
+	@Override public void exitSetChooseExp(GdslParser.SetChooseExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAbsoluteExp(gdslParser.AbsoluteExpContext ctx) { }
+	@Override public void enterAbsoluteExp(GdslParser.AbsoluteExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitAbsoluteExp(gdslParser.AbsoluteExpContext ctx) { }
+	@Override public void exitAbsoluteExp(GdslParser.AbsoluteExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterParenthesisExp(gdslParser.ParenthesisExpContext ctx) { }
+	@Override public void enterParenthesisExp(GdslParser.ParenthesisExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitParenthesisExp(gdslParser.ParenthesisExpContext ctx) { }
+	@Override public void exitParenthesisExp(GdslParser.ParenthesisExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSetOperatorExp(gdslParser.SetOperatorExpContext ctx) { }
+	@Override public void enterSetOperatorExp(GdslParser.SetOperatorExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSetOperatorExp(gdslParser.SetOperatorExpContext ctx) { }
+	@Override public void exitSetOperatorExp(GdslParser.SetOperatorExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSetQuantificationCallExp(gdslParser.SetQuantificationCallExpContext ctx) { }
+	@Override public void enterSetQuantificationCallExp(GdslParser.SetQuantificationCallExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSetQuantificationCallExp(gdslParser.SetQuantificationCallExpContext ctx) { }
+	@Override public void exitSetQuantificationCallExp(GdslParser.SetQuantificationCallExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterVariables(gdslParser.VariablesContext ctx) { }
+	@Override public void enterVariables(GdslParser.VariablesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitVariables(gdslParser.VariablesContext ctx) { }
+	@Override public void exitVariables(GdslParser.VariablesContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

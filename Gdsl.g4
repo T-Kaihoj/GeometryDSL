@@ -1,7 +1,7 @@
 /*
  * Parser Rules
  */
-grammar gdsl;
+grammar Gdsl;
 //Types must be to find before first use variables must be defined before first use
 gdsl: (typeDefinition | functionDefinition | variableDefinition)* ;
 
