@@ -32,7 +32,7 @@ package ast {
     case class Identifier(name: String) extends Expression
     case class MemberAccess(exp: Expression, field: String) extends Expression
     case class SetComprehension(element: ElementDefinition, check: Expression, application: Expression) extends Expression
-    case class Operation(operator: Operator, operands: List[Expression]) extends Expression
+    case class Operation(operator: String, LeftOperands:Expression, rightOperands:Expression) extends Expression
 
     sealed class Operator(arity: Int)
     case object Negation extends Operator(1)

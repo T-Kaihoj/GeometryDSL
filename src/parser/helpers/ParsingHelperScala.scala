@@ -12,4 +12,8 @@ object ParsingHelperScala
         case "set" => SetType
         case x => ObjectType(x)
     }
+
+    def Print(entity:ProgramEntity): Unit ={
+        println(entity);
+    }
 }
