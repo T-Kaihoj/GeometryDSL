@@ -82,7 +82,7 @@ public class ExpressionVisitor  extends GdslBaseVisitor<Expression> {
     // expression operator=(ADD | SUB) expression #addSubExp
     @Override
     public Expression visitAddSubExp(GdslParser.AddSubExpContext ctx) {
-        return new Operation(ParsingHelper.operatorObject(ctx.operator.getText(),2), this.visit(ctx.expression(0)),this.visit(ctx.expression(1)));
+        return new Operation(ParsingHelper.operatorObject(ctx.operator.getText(),2), ParsingHelper.scalaList(this.visit(ctx.expression(0)), this.visit(ctx.expression(1))));
     }
 
     // expression operator=COMPARISON expression #comparisonExp
