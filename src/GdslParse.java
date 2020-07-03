@@ -22,7 +22,7 @@ import org.antlr.v4.runtime.misc.NotNull;
 
 public class GdslParse {
 
-public Object parse(String someLangSourceCode) {
+public ProgramEntity parse(String someLangSourceCode) {
         CharStream charStream = new ANTLRInputStream(someLangSourceCode);
         GdslLexer lexer = new GdslLexer(charStream);
         TokenStream tokens = new CommonTokenStream(lexer);

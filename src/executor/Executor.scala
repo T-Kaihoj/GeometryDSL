@@ -53,7 +53,7 @@ object Executor
         case Identifier(name) => throw new NotImplementedError("Identifier execution not implemented")
         case MemberAccess(exp, field) => throw new NotImplementedError("MemberAccess execution not implemented")
         case SetComprehension(elem, check, app) => throw new NotImplementedError("SetComprehension execution not implemented")
-        case Operation(operator, oprands) => throw new NotImplementedError("Operation execution not implemented")
+        case Operation(operator, l, r) => executeOperation(operator, List(l, r))
     }
 
     def executeOperation(operator: Operator, operands: List[Expression]): Value = operator match
