@@ -20,4 +20,6 @@ public class ParsingHelper
     {
         return ParsingHelperScala.typeObjectScala(t);
     }
+
+    public static ast.Operator operatorObject(String op, int arity) { return ParsingHelperScala.operatorObjectScala(op, arity); }
 }
