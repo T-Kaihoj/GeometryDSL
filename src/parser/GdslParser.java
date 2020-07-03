@@ -139,6 +139,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitGdsl(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitGdsl(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final GdslContext gdsl() throws RecognitionException {
@@ -215,6 +220,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitTypeDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitTypeDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TypeDefinitionContext typeDefinition() throws RecognitionException {
@@ -282,6 +292,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitFunctionDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitFunctionDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final FunctionDefinitionContext functionDefinition() throws RecognitionException {
@@ -331,6 +346,11 @@ public class GdslParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitFunctionDeclaration(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitFunctionDeclaration(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -407,6 +427,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitDeclaration(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitDeclaration(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DeclarationContext declaration() throws RecognitionException {
@@ -452,6 +477,11 @@ public class GdslParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitScope(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitScope(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -536,6 +566,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final StatementContext statement() throws RecognitionException {
@@ -608,6 +643,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitVariableDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitVariableDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final VariableDefinitionContext variableDefinition() throws RecognitionException {
@@ -650,6 +690,11 @@ public class GdslParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitReturnStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitReturnStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -706,6 +751,11 @@ public class GdslParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitSwitchCase(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitSwitchCase(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -803,6 +853,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitIif(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitIif(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final IifContext iif() throws RecognitionException {
@@ -881,6 +936,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitIifElset(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitIifElset(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final IifElsetContext iifElset() throws RecognitionException {
@@ -931,6 +991,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitElset(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitElset(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ElsetContext elset() throws RecognitionException {
@@ -975,6 +1040,11 @@ public class GdslParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitSetElementDefinition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitSetElementDefinition(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1031,6 +1101,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitDotExp(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitDotExp(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SetComprehensionExpContext extends ExpressionContext {
 		public SetElementDefinitionContext setElementDefinition() {
@@ -1048,6 +1123,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitSetComprehensionExp(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitSetComprehensionExp(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class NumberExpContext extends ExpressionContext {
 		public TerminalNode NUMBER() { return getToken(GdslParser.NUMBER, 0); }
@@ -1059,6 +1139,11 @@ public class GdslParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitNumberExp(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitNumberExp(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AndExpContext extends ExpressionContext {
@@ -1078,6 +1163,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitAndExp(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitAndExp(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class FunctionCallExpContext extends ExpressionContext {
 		public TerminalNode IDENTIFIER() { return getToken(GdslParser.IDENTIFIER, 0); }
@@ -1096,6 +1186,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitFunctionCallExp(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitFunctionCallExp(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class BoolExpContext extends ExpressionContext {
 		public TerminalNode BOOL() { return getToken(GdslParser.BOOL, 0); }
@@ -1108,6 +1203,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitBoolExp(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitBoolExp(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class VariableExpContext extends ExpressionContext {
 		public TerminalNode IDENTIFIER() { return getToken(GdslParser.IDENTIFIER, 0); }
@@ -1119,6 +1219,11 @@ public class GdslParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitVariableExp(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitVariableExp(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class OrExpContext extends ExpressionContext {
@@ -1137,6 +1242,11 @@ public class GdslParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitOrExp(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitOrExp(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AddSubExpContext extends ExpressionContext {
@@ -1158,6 +1268,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitAddSubExp(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitAddSubExp(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SetLiteralExpContext extends ExpressionContext {
 		public List<ExpressionContext> expression() {
@@ -1174,6 +1289,11 @@ public class GdslParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitSetLiteralExp(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitSetLiteralExp(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class PowerExpContext extends ExpressionContext {
@@ -1192,6 +1312,11 @@ public class GdslParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitPowerExp(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitPowerExp(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class DivMulExpContext extends ExpressionContext {
@@ -1213,6 +1338,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitDivMulExp(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitDivMulExp(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ComparisonExpContext extends ExpressionContext {
 		public Token operator;
@@ -1232,6 +1362,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitComparisonExp(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitComparisonExp(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SetChooseExpContext extends ExpressionContext {
 		public TerminalNode CHOOSE() { return getToken(GdslParser.CHOOSE, 0); }
@@ -1247,6 +1382,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitSetChooseExp(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitSetChooseExp(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AbsoluteExpContext extends ExpressionContext {
 		public ExpressionContext expression() {
@@ -1261,6 +1401,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitAbsoluteExp(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitAbsoluteExp(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ParenthesisExpContext extends ExpressionContext {
 		public ExpressionContext expression() {
@@ -1274,6 +1419,11 @@ public class GdslParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitParenthesisExp(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitParenthesisExp(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class SetOperatorExpContext extends ExpressionContext {
@@ -1298,6 +1448,11 @@ public class GdslParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitSetOperatorExp(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitSetOperatorExp(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SetQuantificationCallExpContext extends ExpressionContext {
 		public Token quantifier;
@@ -1316,6 +1471,11 @@ public class GdslParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitSetQuantificationCallExp(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitSetQuantificationCallExp(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1708,6 +1868,11 @@ public class GdslParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof GdslListener ) ((GdslListener)listener).exitVariables(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof GdslVisitor ) return ((GdslVisitor<? extends T>)visitor).visitVariables(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
