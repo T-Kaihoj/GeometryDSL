@@ -15,8 +15,8 @@ object ParsingHelperScala
 
     def operatorObjectScala(op: String, arity: Int): ast.Operator = op match
     {
-        case "Add" => Add
-        case "Sub" => Sub
+        case "+" => Add
+        case "-" => Sub
         case "Mul" => Mul
         case "Div" => Div
         case "Pow" => Pow
@@ -36,5 +36,9 @@ object ParsingHelperScala
         case "PropSubset" => PropSubset
         case "InSet" => InSet
         case x => MethodCall(x, arity)
+    }
+
+    def Print(entity:ProgramEntity): Unit ={
+        println(entity);
     }
 }

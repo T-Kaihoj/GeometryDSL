@@ -24,9 +24,9 @@ object AST
         else exp match
         {
             case SetLiteral(l) => l.exists(x => containsExpression(x, targetExp))
-            case Operation(Forall(ElementDefinition(_, elem)), ops) => containsExpression(elem, targetExp) || ops.exists(x => containsExpression(x, targetExp))
-            case Operation(Exists(ElementDefinition(_, elem)), ops) => containsExpression(elem, targetExp) || ops.exists(x => containsExpression(x, targetExp))
-            case Operation(_, ops) => ops.exists(x => containsExpression(x, targetExp))
+    //        case Operation(Forall(ElementDefinition(_, elem)), ops) => containsExpression(elem, targetExp) || ops.exists(x => containsExpression(x, targetExp))
+    //        case Operation(Exists(ElementDefinition(_, elem)), ops) => containsExpression(elem, targetExp) || ops.exists(x => containsExpression(x, targetExp))
+    //        case Operation(_, ops) => ops.exists(x => containsExpression(x, targetExp))
             case MemberAccess(exp, _) => containsExpression(exp, targetExp)
             case SetComprehension(ElementDefinition(_, element), check, app) =>
                 containsExpression(element, targetExp) ||
@@ -55,7 +55,7 @@ object AST
         else exp match
         {
             case SetLiteral(l) => SetLiteral(l.map(s => replaceExpression(s, oldExp, newExp)))
-            case Operation(op, operands) => Operation(op, operands.map(x => replaceExpression(x, oldExp, newExp)))
+            //case Operation(op, operands) => Operation(op, operands.map(x => replaceExpression(x, oldExp, newExp)))
             case MemberAccess(exp, field) => MemberAccess(replaceExpression(exp, oldExp, newExp), field)
             case SetComprehension(ElementDefinition(name, exp), check, app) => SetComprehension(
                 ElementDefinition(name, replaceExpression(exp, oldExp, newExp)),
