@@ -3,6 +3,7 @@ import parser.GdslBaseVisitor;
 import parser.GdslLexer;
 import parser.GdslParser;
 import ast.*;
+import parser.helpers.ParsingHelper;
 import parser.helpers.ParsingHelperScala;
 import scala.collection.convert.*;
 import scala.reflect.internal.Trees;
@@ -81,9 +82,7 @@ public class ExpressionVisitor  extends GdslBaseVisitor<Expression> {
     // expression operator=(ADD | SUB) expression #addSubExp
     @Override
     public Expression visitAddSubExp(GdslParser.AddSubExpContext ctx) {
-        ExpressionVisitor visitor = new ExpressionVisitor();
-        //System.out.println(ctx.expression().size());
-        return new Operation( , visitor.visit(ctx.expression(0)),visitor.visit(ctx.expression(1)));
+        return new Operation(ParsingHelper.operatorObject(ctx.operator.getText(),2), this.visit(ctx.expression(0)),this.visit(ctx.expression(1)));
     }
 
     // expression operator=COMPARISON expression #comparisonExp
