@@ -47,18 +47,18 @@ expression:
         | expression operator=COMPARISON expression #comparisonExp
         | expression AND expression #andExp
         | expression OR expression #orExp
-        | '{' setElementDefinition ('|' )? '|' expression '}'#setComprehensionExp
+        | '{' setElementDefinition ('|' expression )? '|' expression '}'#setComprehensionExp
         | '{' expression  (',' expression )* '}'#setLiteralExp
         | IDENTIFIER '(' (expression (',' expression)*)? ')' #functionCallExp
-        | expression ('.' IDENTIFIER)+ #dotExp
+        | expression '.' IDENTIFIER #dotExp
         | IDENTIFIER  #variableExp
-        | BOOL #boolExp
+        | bool=BOOL #boolExp
         | NUMBER #numberExp ;
 
 variables: IDENTIFIER ('.' IDENTIFIER)*;
 
 
-/*
+/*QUANTIFIER
  * Lexer Rules
  */
 fragment A: ('A'|'a') ;

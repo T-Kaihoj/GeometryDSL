@@ -15,6 +15,15 @@ public class ParsingHelper
         }
         return result;
     }
+    public static <T> List<T> scalaList(java.util.List<T> l)
+    {
+        List<T> result = List$.MODULE$.empty();
+        for(int i = l.size(); i > 0; i--)
+        {
+            result = new $colon$colon(l.get(i - 1), result);
+        }
+        return result;
+    }
 
     public static ast.Type typeObject(String t)
     {

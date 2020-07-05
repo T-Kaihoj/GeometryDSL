@@ -1,4 +1,5 @@
 
+import org.antlr.v4.runtime.tree.TerminalNode;
 import parser.GdslBaseVisitor;
 import parser.GdslLexer;
 import parser.GdslParser;
@@ -22,149 +23,197 @@ import org.antlr.v4.runtime.misc.NotNull;
 
 public class GdslParse {
 
-public ProgramEntity parse(String someLangSourceCode) {
+    public ProgramEntity parse(String someLangSourceCode) {
         CharStream charStream = new ANTLRInputStream(someLangSourceCode);
         GdslLexer lexer = new GdslLexer(charStream);
         TokenStream tokens = new CommonTokenStream(lexer);
         GdslParser parser = new GdslParser(tokens);
 
-    ProgramEntityVisitor programEntityVisitor = new ProgramEntityVisitor();
-         var traverseResult = programEntityVisitor.visit(parser.gdsl());
-    ParsingHelperScala.Print(traverseResult);
-         return traverseResult;
+        ProgramEntityVisitor programEntityVisitor = new ProgramEntityVisitor();
+        var traverseResult = programEntityVisitor.visit(parser.gdsl());
+        ParsingHelperScala.Print(traverseResult);
+        return traverseResult;
+
     }
 
-public class ExpressionVisitor  extends GdslBaseVisitor<Expression> {
+    private class ExpressionVisitor  extends GdslBaseVisitor<Expression> {
 
-    //'(' expression ')' #parenthesisExp
-    @Override
-    public Expression visitParenthesisExp(GdslParser.ParenthesisExpContext ctx) {
-        return  this.visit(ctx.expression());
+        //'(' expression ')' #parenthesisExp
+        @Override
+        public Expression visitParenthesisExp(GdslParser.ParenthesisExpContext ctx) {
+            return  this.visit(ctx.expression());
+        }
+
+        // '|' expression '|' #absoluteExp
+        @Override
+        public Expression visitAbsoluteExp(GdslParser.AbsoluteExpContext ctx) {
+            return  this.visit(ctx.expression());
+        }
+
+        //   | setL=expression operator=(UNION | DIFFERENCE| INTERSECTION) setR=expression #setOperatorExp
+        @Override
+        public Expression visitSetOperatorExp(GdslParser.SetOperatorExpContext ctx) {
+            return new Operation(ParsingHelper.operatorObject(ctx.operator.getText(),2), ParsingHelper.scalaList(this.visit(ctx.expression(0)), this.visit(ctx.expression(1))));
+        }
+
+        // quantifier=QUANTIFIER '(' setElementDefinition ','  expression ')' #setQuantificationCallExp
+        @Override
+        public Expression visitSetQuantificationCallExp(GdslParser.SetQuantificationCallExpContext ctx) {
+            SetElementDefinitionVisitor setElementDefinitionVisitor = new SetElementDefinitionVisitor();
+            if(ctx.quantifier.getText().equals("exist"))
+                return new Operation(new Exists(setElementDefinitionVisitor.visit(ctx.setElementDefinition())), ParsingHelper.scalaList(this.visit(ctx.expression())));
+            else if(ctx.quantifier.getText().equals("all"))
+                return new Operation(new Forall(setElementDefinitionVisitor.visit(ctx.setElementDefinition())), ParsingHelper.scalaList(this.visit(ctx.expression())));
+            else if(ctx.quantifier.getText().equals( "select")) {
+                ElementDefinition elementDefinition = setElementDefinitionVisitor.visit(ctx.setElementDefinition());
+                return new SetComprehension(elementDefinition, this.visit(ctx.expression()), new Identifier (elementDefinition.name()));
+            }
+            else
+                return super.visitSetQuantificationCallExp(ctx);
+
+        }
+
+            //Selects an element from a set
+            //| CHOOSE expression  #setChooseExp
+        //TODO: fix
+        @Override
+        public Expression visitSetChooseExp(GdslParser.SetChooseExpContext ctx) {
+            return super.visitSetChooseExp(ctx);
+        }
+
+        //| expression POWER expression #powerExp
+        @Override
+        public Expression visitPowerExp(GdslParser.PowerExpContext ctx) {
+            return new Operation(ParsingHelper.operatorObject("Pow",2), ParsingHelper.scalaList(this.visit(ctx.expression(0)), this.visit(ctx.expression(1))));
+        }
+
+        // expression operator=(DIVISION | MULTIPLICATION) expression #divMulExp
+        @Override
+        public Expression visitDivMulExp(GdslParser.DivMulExpContext ctx) {
+            return new Operation(ParsingHelper.operatorObject(ctx.operator.getText(),2), ParsingHelper.scalaList(this.visit(ctx.expression(0)), this.visit(ctx.expression(1))));
+        }
+
+        // expression operator=(ADD | SUB) expression #addSubExp
+        @Override
+        public Expression visitAddSubExp(GdslParser.AddSubExpContext ctx) {
+            return new Operation(ParsingHelper.operatorObject(ctx.operator.getText(),2), ParsingHelper.scalaList(this.visit(ctx.expression(0)), this.visit(ctx.expression(1))));
+        }
+
+        // expression operator=COMPARISON expression #comparisonExp
+        @Override
+        public Expression visitComparisonExp(GdslParser.ComparisonExpContext ctx) {
+            return new Operation(ParsingHelper.operatorObject(ctx.operator.getText(),2), ParsingHelper.scalaList(this.visit(ctx.expression(0)), this.visit(ctx.expression(1))));
+        }
+
+        // expression AND expression #andExp
+        @Override
+        public Expression visitAndExp(GdslParser.AndExpContext ctx) {
+            return new Operation(ParsingHelper.operatorObject("And",2), ParsingHelper.scalaList(this.visit(ctx.expression(0)), this.visit(ctx.expression(1))));
+        }
+
+        // expression OR expression #orExp
+        @Override
+        public Expression visitOrExp(GdslParser.OrExpContext ctx) {
+            return new Operation(ParsingHelper.operatorObject("Or",2), ParsingHelper.scalaList(this.visit(ctx.expression(0)), this.visit(ctx.expression(1))));
+        }
+
+        // '{' setElementDefinition ('|'expression )? '|' expression '}'#setComprehensionExp
+        @Override
+        public Expression visitSetComprehensionExp(GdslParser.SetComprehensionExpContext ctx) {
+            SetElementDefinitionVisitor setElementDefinitionVisitor = new SetElementDefinitionVisitor();
+            ElementDefinition elementDefinition = setElementDefinitionVisitor.visit(ctx.setElementDefinition());
+            if (ctx.expression().size()==1)
+                return new SetComprehension(elementDefinition, new BoolLiteral(true),this.visit(ctx.expression(1)));
+            return new SetComprehension(elementDefinition, this.visit(ctx.expression(0)),this.visit(ctx.expression(1)));
+        }
+
+        // '{' expression  (',' expression )* '}'#setLiteralExp
+        @Override
+        public Expression visitSetLiteralExp(GdslParser.SetLiteralExpContext ctx) {
+            List<Expression> expressions =new ArrayList<>();
+            ctx.expression().forEach(expressionContext -> expressions.add( this.visit(expressionContext)));
+            return new SetLiteral(ParsingHelper.scalaList(expressions));
+        }
+
+        // IDENTIFIER '(' (expression (',' expression)*)? ')' #functionCallExp
+        @Override
+        public Expression visitFunctionCallExp(GdslParser.FunctionCallExpContext ctx) {
+            System.out.println(ctx.IDENTIFIER().getText());
+            List<Expression> expressions =new ArrayList<>();
+            ctx.expression().forEach(expressionContext -> expressions.add( this.visit(expressionContext)));
+            return new Operation(new MethodCall(ctx.IDENTIFIER().getText(), ctx.expression().size()), ParsingHelper.scalaList(expressions));
+        }
+
+        // expression ('.' IDENTIFIER)+ #dotExp
+        @Override
+        public Expression visitDotExp(GdslParser.DotExpContext ctx) {
+
+            return new MemberAccess(this.visit(ctx.expression()),ctx.IDENTIFIER().getText());
+        }
+
+        // IDENTIFIER  #variableExp
+        @Override
+        public Expression visitVariableExp(GdslParser.VariableExpContext ctx) {
+            return new Identifier(ctx.IDENTIFIER().getText());
+        }
+
+        @Override
+        public Expression visitBoolExp(GdslParser.BoolExpContext ctx) {
+            if("true".equals(ctx.bool.getText()))
+                return new BoolLiteral(true);
+            if("false".equals(ctx.bool.getText()))
+                return new BoolLiteral(false);
+            return super.visitBoolExp(ctx);
+        }
+
+        @Override
+        public Expression visitNumberExp(GdslParser.NumberExpContext ctx) {
+            return new IntLiteral(Integer.parseInt(ctx.children.get(0).getText()));
+        }
+
     }
 
-    // '|' expression '|' #absoluteExp
-    @Override
-    public Expression visitAbsoluteExp(GdslParser.AbsoluteExpContext ctx) {
-        return  this.visit(ctx.expression());
+    //(typeDefinition | functionDefinition | variableDefinition)*
+    private class ProgramEntityVisitor extends GdslBaseVisitor<ProgramEntity>{
+        @Override
+        public ProgramEntity visitVariableDefinition(GdslParser.VariableDefinitionContext ctx) {
+            //System.out.println(ctx.expression().getText());
+            ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+            DeclarationVisitor declarationVisitor = new DeclarationVisitor();
+            return new ValueDefinition(declarationVisitor.visit(ctx.declaration()),expressionVisitor.visit(ctx.expression()));
+        }
+
+        @Override
+        public ProgramEntity visitFunctionDefinition(GdslParser.FunctionDefinitionContext ctx) {
+            ctx.children.forEach(parseTree -> System.out.println(parseTree));
+            return null; //new MethodDefinition(ctx.)
+        }
+
+        @Override
+        public ProgramEntity visitTypeDefinition(GdslParser.TypeDefinitionContext ctx) {
+            DeclarationVisitor declarationVisitor = new DeclarationVisitor();
+            List<ValueDeclaration> valueDeclarations =new ArrayList<>();
+            ctx.declaration().forEach(declarationContext -> valueDeclarations.add( declarationVisitor.visit(declarationContext)));
+            return new TypeDefinition(ctx.id.getText(),ParsingHelper.scalaList(valueDeclarations));
+        }
+
+
     }
 
-    //   | setL=expression operator=(UNION | DIFFERENCE| INTERSECTION) setR=expression #setOperatorExp
-    @Override
-    public Expression visitSetOperatorExp(GdslParser.SetOperatorExpContext ctx) {
-        return super.visitSetOperatorExp(ctx);
+    private class DeclarationVisitor extends GdslBaseVisitor<ValueDeclaration>{
+
+        @Override
+        public ValueDeclaration visitDeclaration(GdslParser.DeclarationContext ctx) {
+            return new ValueDeclaration(ctx.id.getText(),ParsingHelperScala.typeObjectScala(ctx.type.getText()));
+        }
     }
 
-    // quantifier=QUANTIFIER '(' setElementDefinition ','  expression ')' #setQuantificationCallExp
-    @Override
-    public Expression visitSetQuantificationCallExp(GdslParser.SetQuantificationCallExpContext ctx) {
-        return super.visitSetQuantificationCallExp(ctx);
+    private class SetElementDefinitionVisitor extends GdslBaseVisitor<ElementDefinition>{
+
+        @Override
+        public ElementDefinition visitSetElementDefinition(GdslParser.SetElementDefinitionContext ctx) {
+            ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+            return new ElementDefinition(ctx.localName.getText(),expressionVisitor.visit(ctx.globalName));
+        }
     }
-
-        //Selects an element from a set
-        //| CHOOSE expression  #setChooseExp
-    @Override
-    public Expression visitSetChooseExp(GdslParser.SetChooseExpContext ctx) {
-        return super.visitSetChooseExp(ctx);
-    }
-
-    //| expression POWER expression #powerExp
-    @Override
-    public Expression visitPowerExp(GdslParser.PowerExpContext ctx) {
-        return super.visitPowerExp(ctx);
-    }
-
-    // expression operator=(DIVISION | MULTIPLICATION) expression #divMulExp
-    @Override
-    public Expression visitDivMulExp(GdslParser.DivMulExpContext ctx) {
-        return super.visitDivMulExp(ctx);
-    }
-
-    // expression operator=(ADD | SUB) expression #addSubExp
-    @Override
-    public Expression visitAddSubExp(GdslParser.AddSubExpContext ctx) {
-        return new Operation(ParsingHelper.operatorObject(ctx.operator.getText(),2), ParsingHelper.scalaList(this.visit(ctx.expression(0)), this.visit(ctx.expression(1))));
-    }
-
-    // expression operator=COMPARISON expression #comparisonExp
-    @Override
-    public Expression visitComparisonExp(GdslParser.ComparisonExpContext ctx) {
-        return super.visitComparisonExp(ctx);
-    }
-
-    // expression AND expression #andExp
-    @Override
-    public Expression visitAndExp(GdslParser.AndExpContext ctx) {
-        return super.visitAndExp(ctx);
-    }
-
-    // expression OR expression #orExp
-    @Override
-    public Expression visitOrExp(GdslParser.OrExpContext ctx) {
-        return super.visitOrExp(ctx);
-    }
-
-    // '{' setElementDefinition ('|' )? '|' expression '}'#setComprehensionExp
-    @Override
-    public Expression visitSetComprehensionExp(GdslParser.SetComprehensionExpContext ctx) {
-        return super.visitSetComprehensionExp(ctx);
-    }
-
-    // '{' expression  (',' expression )* '}'#setLiteralExp
-    @Override
-    public Expression visitSetLiteralExp(GdslParser.SetLiteralExpContext ctx) {
-        return super.visitSetLiteralExp(ctx);
-    }
-
-    // IDENTIFIER '(' (expression (',' expression)*)? ')' #functionCallExp
-    @Override
-    public Expression visitFunctionCallExp(GdslParser.FunctionCallExpContext ctx) {
-        return super.visitFunctionCallExp(ctx);
-    }
-
-    // expression ('.' IDENTIFIER)+ #dotExp
-    @Override
-    public Expression visitDotExp(GdslParser.DotExpContext ctx) {
-        return super.visitDotExp(ctx);
-    }
-
-    // IDENTIFIER  #variableExp
-    @Override
-    public Expression visitVariableExp(GdslParser.VariableExpContext ctx) {
-        return super.visitVariableExp(ctx);
-    }
-
-    @Override
-    public Expression visitBoolExp(GdslParser.BoolExpContext ctx) {
-        return super.visitBoolExp(ctx);
-    }
-
-    @Override
-    public Expression visitNumberExp(GdslParser.NumberExpContext ctx) {
-        //System.out.println(ctx.children.get(0).getText());
-        return new IntLiteral(Integer.parseInt(ctx.children.get(0).getText()));
-    }
-}
-
-private class ProgramEntityVisitor extends GdslBaseVisitor<ProgramEntity>{
-    @Override
-    public ProgramEntity visitVariableDefinition(GdslParser.VariableDefinitionContext ctx) {
-        //System.out.println(ctx.expression().getText());
-        ExpressionVisitor expressionVisitor = new ExpressionVisitor();
-        DeclarationVisitor declarationVisitor = new DeclarationVisitor();
-        return new ValueDefinition(declarationVisitor.visit(ctx.declaration()),expressionVisitor.visit(ctx.expression()));
-    }
-}
-
-private class DeclarationVisitor extends GdslBaseVisitor<ValueDeclaration>{
-
-    @Override
-    public ValueDeclaration visitDeclaration(GdslParser.DeclarationContext ctx) {
-        return new ValueDeclaration(ctx.id.getText(),ParsingHelperScala.typeObjectScala(ctx.type.getText()));
-    }
-
-
-}
-
-
-
 }

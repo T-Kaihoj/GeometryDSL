@@ -17,15 +17,15 @@ object ParsingHelperScala
     {
         case "+" => Add
         case "-" => Sub
-        case "Mul" => Mul
-        case "Div" => Div
+        case "*" => Mul
+        case "/" => Div
         case "Pow" => Pow
-        case "Equal" => Equal
-        case "NotEqual" => NotEqual
-        case "LessThan" => LessThan
-        case "LessThanEqual" => LessThanEqual
-        case "GreaterThan" => GreaterThan
-        case "GreaterThanEqual" => GreaterThanEqual
+        case "==" => Equal
+        case "!=" => NotEqual
+        case "<" => LessThan
+        case "<=" => LessThanEqual
+        case ">" => GreaterThan
+        case ">=" => GreaterThanEqual
         case "And" => And
         case "Or" => Or
         case "Implies" => Implies
