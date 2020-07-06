@@ -38,16 +38,6 @@ public interface GdslListener extends ParseTreeListener {
 	 */
 	void exitFunctionDefinition(GdslParser.FunctionDefinitionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link GdslParser#functionDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void enterFunctionDeclaration(GdslParser.FunctionDeclarationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link GdslParser#functionDeclaration}.
-	 * @param ctx the parse tree
-	 */
-	void exitFunctionDeclaration(GdslParser.FunctionDeclarationContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link GdslParser#declaration}.
 	 * @param ctx the parse tree
 	 */

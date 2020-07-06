@@ -7,6 +7,7 @@ import ast.*;
 import parser.helpers.ParsingHelper;
 import parser.helpers.ParsingHelperScala;
 import scala.collection.convert.*;
+import scala.reflect.internal.Scopes;
 import scala.reflect.internal.Trees;
 
 import java.util.ArrayList;
@@ -185,8 +186,14 @@ public class GdslParse {
 
         @Override
         public ProgramEntity visitFunctionDefinition(GdslParser.FunctionDefinitionContext ctx) {
-            ctx.children.forEach(parseTree -> System.out.println(parseTree));
-            return null; //new MethodDefinition(ctx.)
+            DeclarationVisitor declarationVisitor = new DeclarationVisitor();
+            List<ValueDeclaration> valueDeclarations =new ArrayList<>();
+            ctx.declaration().forEach(declarationContext -> valueDeclarations.add( declarationVisitor.visit(declarationContext)));
+
+            ScopeVisitor scopeVisitor = new ScopeVisitor();
+            List<Statement> statements =new ArrayList<>();
+
+            return new MethodDefinition(ctx.functionId.getText(), ParsingHelper.typeObject( ctx.retType.getText()),ParsingHelper.scalaList(valueDeclarations),ParsingHelper.scalaList( scopeVisitor.visit( ctx.scope())));
         }
 
         @Override
@@ -196,15 +203,73 @@ public class GdslParse {
             ctx.declaration().forEach(declarationContext -> valueDeclarations.add( declarationVisitor.visit(declarationContext)));
             return new TypeDefinition(ctx.id.getText(),ParsingHelper.scalaList(valueDeclarations));
         }
-
-
     }
+
 
     private class DeclarationVisitor extends GdslBaseVisitor<ValueDeclaration>{
 
         @Override
         public ValueDeclaration visitDeclaration(GdslParser.DeclarationContext ctx) {
             return new ValueDeclaration(ctx.id.getText(),ParsingHelperScala.typeObjectScala(ctx.type.getText()));
+        }
+    }
+
+    private class ScopeVisitor extends GdslBaseVisitor<List<Statement>>{
+        @Override
+        public List<Statement> visitScope(GdslParser.ScopeContext ctx) {
+            StatementVisitor statementVisitor = new StatementVisitor();
+            List<Statement> statements =new ArrayList<>();
+            ctx.statement().forEach(declarationContext -> statements.add( statementVisitor.visit(declarationContext)));
+            return statements;
+        }
+    }
+
+    private class StatementVisitor extends GdslBaseVisitor<Statement>{
+        Statement ret ;
+        @Override
+        public Statement visitIif(GdslParser.IifContext ctx) {
+            ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+            ScopeVisitor scopeVisitor = new ScopeVisitor();
+
+            ret = this.visit( ctx.elset());
+
+            for (int i = ctx.iifElset().size() - 1; i >= 0; i--) {
+                ret = this.visit( ctx.iifElset(i));
+            }
+
+            return new Conditional(expressionVisitor.visit( ctx.expression()), ParsingHelper.scalaList( scopeVisitor.visit(ctx.scope())),ret);
+        }
+
+        @Override
+        public Statement visitIifElset(GdslParser.IifElsetContext ctx) {
+            ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+            ScopeVisitor scopeVisitor = new ScopeVisitor();
+            return new Conditional(expressionVisitor.visit(ctx.expression()),ParsingHelper.scalaList( scopeVisitor.visit(ctx.scope())),ret);
+        }
+
+        @Override
+        public Statement visitElset(GdslParser.ElsetContext ctx) {
+            ScopeVisitor scopeVisitor = new ScopeVisitor();
+            return new Conditional(new BoolLiteral(true),ParsingHelper.scalaList( scopeVisitor.visit( ctx.scope())),null);
+        }
+
+        //TODO Fix
+        @Override
+        public Statement visitSwitchCase(GdslParser.SwitchCaseContext ctx) {
+            return super.visitSwitchCase(ctx);
+        }
+
+        @Override
+        public Statement visitVariableDefinition(GdslParser.VariableDefinitionContext ctx) {
+            ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+            DeclarationVisitor declarationVisitor = new DeclarationVisitor();
+            return new ValueDefinition(declarationVisitor.visit(ctx.declaration()),expressionVisitor.visit(ctx.expression()));
+        }
+
+        @Override
+        public Statement visitReturnStatement(GdslParser.ReturnStatementContext ctx) {
+            ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+            return new Return(expressionVisitor.visit(ctx.expression()));
         }
     }
 
@@ -216,4 +281,6 @@ public class GdslParse {
             return new ElementDefinition(ctx.localName.getText(),expressionVisitor.visit(ctx.globalName));
         }
     }
+
+
 }

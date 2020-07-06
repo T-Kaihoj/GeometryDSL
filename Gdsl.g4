@@ -7,9 +7,8 @@ gdsl: (typeDefinition | functionDefinition | variableDefinition)* ;
 
 typeDefinition: TYPE id=IDENTIFIER '(' declaration (',' declaration)* ')' ;
 
-functionDefinition: functionDeclaration scope ;
+functionDefinition: retType=IDENTIFIER functionId=IDENTIFIER '(' (declaration (',' declaration)* )? ')'  scope ;
 
-functionDeclaration: retType=IDENTIFIER functionId=IDENTIFIER '(' (declaration (',' declaration)* )? ')' ;
 
 declaration: id=IDENTIFIER ':' type=IDENTIFIER ;
 
