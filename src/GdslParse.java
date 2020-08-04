@@ -24,20 +24,32 @@ import org.antlr.v4.runtime.misc.NotNull;
 
 public class GdslParse {
 
-    public ProgramEntity parse(String someLangSourceCode) {
+    public Program parse(String someLangSourceCode) {
         CharStream charStream = new ANTLRInputStream(someLangSourceCode);
         GdslLexer lexer = new GdslLexer(charStream);
         TokenStream tokens = new CommonTokenStream(lexer);
         GdslParser parser = new GdslParser(tokens);
 
-        ProgramEntityVisitor programEntityVisitor = new ProgramEntityVisitor();
-        var traverseResult = programEntityVisitor.visit(parser.gdsl());
-        ParsingHelperScala.Print(traverseResult);
+        ProgramVisitor programVisitor = new ProgramVisitor();
+        var traverseResult = programVisitor.visit(parser.gdsl());
+        //ParsingHelperScala.Print(traverseResult);
         return traverseResult;
 
     }
 
-    private class ExpressionVisitor  extends GdslBaseVisitor<Expression> {
+
+        private class ProgramVisitor  extends GdslBaseVisitor<Program> {
+            @Override
+            public Program visitGdsl(GdslParser.GdslContext ctx) {
+                ProgramEntityVisitor programEntityVisitor = new ProgramEntityVisitor();
+                List<ProgramEntity> programEntities =new ArrayList<>();
+                ctx.children.forEach(declarationContext -> programEntities.add( programEntityVisitor.visit(declarationContext)));
+                return new Program(ParsingHelper.scalaList( programEntities));
+            }
+        }
+
+
+        private class ExpressionVisitor  extends GdslBaseVisitor<Expression> {
 
         //'(' expression ')' #parenthesisExp
         @Override
