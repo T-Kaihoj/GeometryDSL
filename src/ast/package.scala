@@ -34,7 +34,7 @@ package ast {
     case class SetComprehension(element: ElementDefinition, check: Expression, application: Expression) extends Expression
     case class Operation(operator: Operator, operands: List[Expression]) extends Expression
 
-    sealed class Operator(val arity: Int)
+    abstract sealed class Operator(val arity: Int)
     case object Negation extends Operator(1)
     case object Not extends Operator(1)
     case object Cardinality extends Operator(1)
