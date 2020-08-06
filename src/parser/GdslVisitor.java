@@ -65,23 +65,19 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSwitchCase(GdslParser.SwitchCaseContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link GdslParser#iif}.
+	 * Visit a parse tree produced by the {@code ifStatement}
+	 * labeled alternative in {@link GdslParser#conditionalIf}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitIif(GdslParser.IifContext ctx);
+	T visitIfStatement(GdslParser.IfStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link GdslParser#iifElset}.
+	 * Visit a parse tree produced by the {@code ifElseStatement}
+	 * labeled alternative in {@link GdslParser#conditionalIf}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitIifElset(GdslParser.IifElsetContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link GdslParser#elset}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitElset(GdslParser.ElsetContext ctx);
+	T visitIfElseStatement(GdslParser.IfElseStatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link GdslParser#setElementDefinition}.
 	 * @param ctx the parse tree

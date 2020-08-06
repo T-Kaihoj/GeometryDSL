@@ -98,35 +98,29 @@ public interface GdslListener extends ParseTreeListener {
 	 */
 	void exitSwitchCase(GdslParser.SwitchCaseContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link GdslParser#iif}.
+	 * Enter a parse tree produced by the {@code ifStatement}
+	 * labeled alternative in {@link GdslParser#conditionalIf}.
 	 * @param ctx the parse tree
 	 */
-	void enterIif(GdslParser.IifContext ctx);
+	void enterIfStatement(GdslParser.IfStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link GdslParser#iif}.
+	 * Exit a parse tree produced by the {@code ifStatement}
+	 * labeled alternative in {@link GdslParser#conditionalIf}.
 	 * @param ctx the parse tree
 	 */
-	void exitIif(GdslParser.IifContext ctx);
+	void exitIfStatement(GdslParser.IfStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link GdslParser#iifElset}.
+	 * Enter a parse tree produced by the {@code ifElseStatement}
+	 * labeled alternative in {@link GdslParser#conditionalIf}.
 	 * @param ctx the parse tree
 	 */
-	void enterIifElset(GdslParser.IifElsetContext ctx);
+	void enterIfElseStatement(GdslParser.IfElseStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link GdslParser#iifElset}.
+	 * Exit a parse tree produced by the {@code ifElseStatement}
+	 * labeled alternative in {@link GdslParser#conditionalIf}.
 	 * @param ctx the parse tree
 	 */
-	void exitIifElset(GdslParser.IifElsetContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link GdslParser#elset}.
-	 * @param ctx the parse tree
-	 */
-	void enterElset(GdslParser.ElsetContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link GdslParser#elset}.
-	 * @param ctx the parse tree
-	 */
-	void exitElset(GdslParser.ElsetContext ctx);
+	void exitIfElseStatement(GdslParser.IfElseStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link GdslParser#setElementDefinition}.
 	 * @param ctx the parse tree

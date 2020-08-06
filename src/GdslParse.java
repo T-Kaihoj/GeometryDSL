@@ -1,26 +1,17 @@
-
-import org.antlr.v4.runtime.tree.TerminalNode;
 import parser.GdslBaseVisitor;
 import parser.GdslLexer;
 import parser.GdslParser;
 import ast.*;
 import parser.helpers.ParsingHelper;
 import parser.helpers.ParsingHelperScala;
-import scala.collection.convert.*;
-import scala.reflect.internal.Scopes;
-import scala.reflect.internal.Trees;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.TokenStream;
-import org.antlr.v4.runtime.misc.NotNull;
-
 
 public class GdslParse {
 
@@ -34,9 +25,7 @@ public class GdslParse {
         var traverseResult = programVisitor.visit(parser.gdsl());
         //ParsingHelperScala.Print(traverseResult);
         return traverseResult;
-
     }
-
 
         private class ProgramVisitor  extends GdslBaseVisitor<Program> {
             @Override
@@ -47,7 +36,6 @@ public class GdslParse {
                 return new Program(ParsingHelper.scalaList( programEntities));
             }
         }
-
 
         private class ExpressionVisitor  extends GdslBaseVisitor<Expression> {
 
@@ -136,7 +124,7 @@ public class GdslParse {
             SetElementDefinitionVisitor setElementDefinitionVisitor = new SetElementDefinitionVisitor();
             ElementDefinition elementDefinition = setElementDefinitionVisitor.visit(ctx.setElementDefinition());
             if (ctx.expression().size()==1)
-                return new SetComprehension(elementDefinition, new BoolLiteral(true),this.visit(ctx.expression(1)));
+                return new SetComprehension(elementDefinition, new BoolLiteral(true),this.visit(ctx.expression(0)));
             return new SetComprehension(elementDefinition, this.visit(ctx.expression(0)),this.visit(ctx.expression(1)));
         }
 
@@ -203,7 +191,7 @@ public class GdslParse {
             ctx.declaration().forEach(declarationContext -> valueDeclarations.add( declarationVisitor.visit(declarationContext)));
 
             ScopeVisitor scopeVisitor = new ScopeVisitor();
-            List<Statement> statements =new ArrayList<>();
+            List<Statement> statements = new ArrayList<>();
 
             return new MethodDefinition(ctx.functionId.getText(), ParsingHelper.typeObject( ctx.retType.getText()),ParsingHelper.scalaList(valueDeclarations),ParsingHelper.scalaList( scopeVisitor.visit( ctx.scope())));
         }
@@ -219,7 +207,6 @@ public class GdslParse {
 
 
     private class DeclarationVisitor extends GdslBaseVisitor<ValueDeclaration>{
-
         @Override
         public ValueDeclaration visitDeclaration(GdslParser.DeclarationContext ctx) {
             return new ValueDeclaration(ctx.id.getText(),ParsingHelperScala.typeObjectScala(ctx.type.getText()));
@@ -237,32 +224,30 @@ public class GdslParse {
     }
 
     private class StatementVisitor extends GdslBaseVisitor<Statement>{
-        Statement ret ;
         @Override
-        public Statement visitIif(GdslParser.IifContext ctx) {
+        public Statement visitIfStatement(GdslParser.IfStatementContext ctx){
             ExpressionVisitor expressionVisitor = new ExpressionVisitor();
             ScopeVisitor scopeVisitor = new ScopeVisitor();
+            return new Conditional(expressionVisitor.visit(ctx.condition),
+                    ParsingHelper.scalaList(scopeVisitor.visitScope(ctx.trueBranch)),
+                    ParsingHelper.scalaList());
+        }
 
-            ret = this.visit( ctx.elset());
-
-            for (int i = ctx.iifElset().size() - 1; i >= 0; i--) {
-                ret = this.visit( ctx.iifElset(i));
+        @Override
+        public Statement visitIfElseStatement(GdslParser.IfElseStatementContext ctx){
+            ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+            StatementVisitor statementVisitor = new StatementVisitor();
+            ScopeVisitor scopeVisitor = new ScopeVisitor();
+            if(ctx.elseIfStatement != null){
+                return new Conditional(expressionVisitor.visit(ctx.condition),
+                        ParsingHelper.scalaList(scopeVisitor.visitScope(ctx.trueBranch)),
+                        ParsingHelper.scalaList(statementVisitor.visit(ctx.elseIfStatement)));
             }
-
-            return new Conditional(expressionVisitor.visit( ctx.expression()), ParsingHelper.scalaList( scopeVisitor.visit(ctx.scope())),ret);
-        }
-
-        @Override
-        public Statement visitIifElset(GdslParser.IifElsetContext ctx) {
-            ExpressionVisitor expressionVisitor = new ExpressionVisitor();
-            ScopeVisitor scopeVisitor = new ScopeVisitor();
-            return new Conditional(expressionVisitor.visit(ctx.expression()),ParsingHelper.scalaList( scopeVisitor.visit(ctx.scope())),ret);
-        }
-
-        @Override
-        public Statement visitElset(GdslParser.ElsetContext ctx) {
-            ScopeVisitor scopeVisitor = new ScopeVisitor();
-            return new Conditional(new BoolLiteral(true),ParsingHelper.scalaList( scopeVisitor.visit( ctx.scope())),null);
+            else{
+                return new Conditional(expressionVisitor.visit(ctx.condition),
+                        ParsingHelper.scalaList(scopeVisitor.visitScope(ctx.trueBranch)),
+                        ParsingHelper.scalaList(scopeVisitor.visitScope(ctx.falseBranch)));
+            }
         }
 
         //TODO Fix

@@ -40,7 +40,13 @@ object Executor
     def executeStatement(stm: Statement, stack: VarStack = Nil): VarStack = stm match
     {
         case valDef: ValueDefinition => defToVar(valDef) :: stack
-        case Conditional(cond, tb, fb) => throw new NotImplementedError("Conditional execution not implemented")
+        case Conditional(cond, tb, fb) => executeExpression(cond, stack) match
+        {
+            // TODO: Kommet her til
+            case BoolValue(true) => executeBlock(tb, stack); stack
+            case BoolValue(false) => executeBlock(fb, stack); stack
+            case _ => throw new Exception("")
+        }
         case Return(exp) => throw new NotImplementedError("Return execution not implemented") //executeExpression(exp, stack) :: stack
     }
 

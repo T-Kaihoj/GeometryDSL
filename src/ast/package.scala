@@ -21,7 +21,7 @@ package ast {
 
     sealed trait Statement
     case class ValueDefinition(decl: ValueDeclaration, exp: Expression) extends Statement with ProgramEntity
-    case class Conditional(condition: Expression, trueBlock: List[Statement], falseBlock: Statement) extends Statement
+    case class Conditional(condition: Expression, trueBlock: Block, falseBlock: Block) extends Statement
     case class Return(exp: Expression) extends Statement
 
     sealed trait Expression

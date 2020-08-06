@@ -80,21 +80,14 @@ public class GdslBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements G
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitIif(GdslParser.IifContext ctx) { return visitChildren(ctx); }
+	@Override public T visitIfStatement(GdslParser.IfStatementContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitIifElset(GdslParser.IifElsetContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitElset(GdslParser.ElsetContext ctx) { return visitChildren(ctx); }
+	@Override public T visitIfElseStatement(GdslParser.IfElseStatementContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

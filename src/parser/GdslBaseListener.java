@@ -124,37 +124,25 @@ public class GdslBaseListener implements GdslListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIif(GdslParser.IifContext ctx) { }
+	@Override public void enterIfStatement(GdslParser.IfStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIif(GdslParser.IifContext ctx) { }
+	@Override public void exitIfStatement(GdslParser.IfStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIifElset(GdslParser.IifElsetContext ctx) { }
+	@Override public void enterIfElseStatement(GdslParser.IfElseStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIifElset(GdslParser.IifElsetContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterElset(GdslParser.ElsetContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitElset(GdslParser.ElsetContext ctx) { }
+	@Override public void exitIfElseStatement(GdslParser.IfElseStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
