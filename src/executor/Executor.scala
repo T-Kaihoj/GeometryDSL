@@ -40,14 +40,16 @@ object Executor
     def executeStatement(stm: Statement, stack: VarStack = Nil): VarStack = stm match
     {
         case valDef: ValueDefinition => defToVar(valDef) :: stack
-        case Conditional(cond, tb, fb) => executeExpression(cond, stack) match
+        case Conditional(cond, trueBlock, falseBlock) => executeExpression(cond, stack) match
         {
-            // TODO: Kommet her til
-            case BoolValue(true) => executeBlock(tb, stack); stack
-            case BoolValue(false) => executeBlock(fb, stack); stack
-            case _ => throw new Exception("")
+            case BoolValue(true) => executeBlock(trueBlock, stack); stack
+            case BoolValue(false) => executeBlock(falseBlock, stack); stack
+            case IntValue(0) => executeBlock(falseBlock, stack); stack
+            case IntValue(_) => executeBlock(trueBlock, stack); stack
+            case RealValue(0.0) => executeBlock(falseBlock, stack); stack
+            case x => throw new Exception(s"Conditionals on ${x.getClass} is not supported")
         }
-        case Return(exp) => throw new NotImplementedError("Return execution not implemented") //executeExpression(exp, stack) :: stack
+        case Return(_) => throw new Exception("Should not happen")
     }
 
     def executeExpression(exp: Expression, stack: VarStack = Nil): Value = exp match
