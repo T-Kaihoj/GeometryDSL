@@ -1,3 +1,4 @@
+import org.antlr.v4.runtime.*;
 import parser.GdslBaseVisitor;
 import parser.GdslLexer;
 import parser.GdslParser;
@@ -5,18 +6,27 @@ import ast.*;
 import parser.helpers.ParsingHelper;
 import parser.helpers.ParsingHelperScala;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.TokenStream;
 
 public class GdslParse {
 
     public Program parse(String someLangSourceCode) {
         CharStream charStream = new ANTLRInputStream(someLangSourceCode);
+        GdslLexer lexer = new GdslLexer(charStream);
+        TokenStream tokens = new CommonTokenStream(lexer);
+        GdslParser parser = new GdslParser(tokens);
+
+        ProgramVisitor programVisitor = new ProgramVisitor();
+        var traverseResult = programVisitor.visit(parser.gdsl());
+        //ParsingHelperScala.Print(traverseResult);
+        return traverseResult;
+    }
+
+    public Program parse(InputStream inputStream ) throws IOException {
+        CharStream charStream = CharStreams.fromStream(inputStream);
         GdslLexer lexer = new GdslLexer(charStream);
         TokenStream tokens = new CommonTokenStream(lexer);
         GdslParser parser = new GdslParser(tokens);

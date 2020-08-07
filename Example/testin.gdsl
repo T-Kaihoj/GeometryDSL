@@ -1,0 +1,4 @@
+a:int := Test(15+15+12, 15, 1, s.a.r,select(x in A, all(y in A, gt(x,y))) , false)
+type bbox(minX:number, minY:number, maxX:number, maxY:number)
+Set max (A:Set) (return select(x in A, all(y in A, gt(x,y))))
+b:int := 54
