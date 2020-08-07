@@ -67,7 +67,7 @@ class Executor
         case RealLiteral(r) => RealValue(r)
         case SetLiteral(s) => SetValue(s.toSet.map(exp => executeExpression(exp, stack)))
         case Identifier(name) => executeIdentifier(name, stack)
-        case MemberAccess(exp, field) => throw new NotImplementedError("MemberAccess execution not implemented")
+        case MemberAccess(exp, field) => executeMemberAccess(exp, field, stack)
         case SetComprehension(elem, check, app) => throw new NotImplementedError("SetComprehension execution not implemented")
         case Operation(operator, operands) => executeOperation(operator, operands)
     }
@@ -80,14 +80,18 @@ class Executor
         ).value
     }
 
-    def executeMemberAccess(exp: Expression, field: String, stack: VarStack): Value =
+    def executeMemberAccess(exp: Expression, fieldName: String, stack: VarStack): Value = executeExpression(exp, stack) match
     {
-        executeExpression(exp, stack) match
-        {
-            // TODO:
-            //case obj: ObjectValue => obj.fields.find(f => f.name)
-            case _ => NoValue
-        }
+        case ObjectValue(typeName, fields) =>
+            programMemory.find
+            {
+                case TypeDefinition(name, _) if typeName == name => true
+                case _ => false
+            }.getOrElse(throw new Exception(s"No type definition called '$typeName' exists'")) match
+            {
+                case TypeDefinition(_, fieldsDef) => fields.apply(fieldsDef.indexWhere(f => f.name == fieldName))
+            }
+        case value => throw new Exception(s"'$value' is not an object")
     }
 
     def executeOperation(operator: Operator, operands: List[Expression], stack: VarStack = Nil): Value = operator match
