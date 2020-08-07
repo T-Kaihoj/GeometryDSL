@@ -76,7 +76,7 @@ class Executor
     {
         stack.find(v => v.name == name).getOrElse(
             globalStack.find(v => v.name == name).getOrElse(
-                throw new Exception(s"No variable with name '${name}' exists"))
+                throw new Exception(s"No variable with name '$name' exists"))
         ).value
     }
 
@@ -142,15 +142,15 @@ class Executor
 
     def executeMethodCall(methodName: String, arity: Int, args: List[Expression], stack: VarStack): Value =
     {
-        programMemory.foreach
+        programMemory.find{
+            case MethodDefinition(name, _, params, _) if name == methodName && params.size == arity => true
+            case TypeDefinition(name, fields) if name == methodName && fields.size == arity => true
+            case _ => false
+        }.getOrElse(throw new Exception(s"No method or type called '$methodName' exists'")) match
         {
-            case MethodDefinition(name, _, params, block)
-                if (name == methodName) && (arity == args.size) =>
-                callMethod(name, params, args, block, stack)
-            case TypeDefinition(name, _) if name == methodName => true // TODO
-            case _ => throw new Exception("") // TODO
+            case MethodDefinition(name, _, params, block) => callMethod(name, params, args, block, stack)
+            case TypeDefinition(name, fields) => callConstructor(name, fields, args, stack)
         }
-        NoValue
     }
 
     def callMethod(name: String,
@@ -167,7 +167,7 @@ class Executor
             {
                 case (SetType, SetValue(_)) =>
                     callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, argValue) :: newStack)
-                case (paramType, SetValue(s)) if compareType(paramType, argValue) =>
+                case (_, SetValue(s)) =>
                     SetValue(s.foldLeft(Set(): Set[Value])((s, e) => s.union(
                         callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, e) :: newStack) match
                         {
@@ -177,10 +177,37 @@ class Executor
                     )))
                 case (paramType, argValue) if compareType(paramType, argValue) =>
                     callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, argValue) :: newStack)
-                case _ => throw new Exception(s"'${argValue}' is not of type '${paramType}'")
+                case _ => throw new Exception(s"'$argValue' is not of type '$paramType'")
             }
         case (Nil, Nil) => executeBlock(block, newStack)
-        case _ => throw new Exception(s"Wrong number of arguments for calling method '${name}")
+        case _ => throw new Exception(s"Wrong number of arguments for calling method '$name")
+    }
+
+    def callConstructor(name: String,
+                        fields: List[ValueDeclaration],
+                        args: List[Expression],
+                        stack: VarStack,
+                        objFields: List[Value] = Nil): Value = (fields, args) match
+    {
+        case (ValueDeclaration(_, fieldType) :: fieldsTail,
+              (arg: Expression) :: argsTail) =>
+            val argValue = executeExpression(arg, stack)
+            (fieldType, argValue) match
+            {
+                case (SetType, SetValue(s)) => callConstructor(name, fieldsTail, argsTail, stack, SetValue(s) :: objFields)
+                case (_, SetValue(s)) =>
+                    SetValue(s.foldLeft(Set(): Set[Value])((s, e) => s.union(
+                        callConstructor(name, fieldsTail, argsTail, stack, e :: objFields) match
+                        {
+                            case SetValue(x) => x
+                            case x => Set(x)
+                        }
+                    )))
+                case (ft, av) if compareType(ft, av) => callConstructor(name, fieldsTail, argsTail, stack, av :: objFields)
+                case _ => throw new Exception(s"'$argValue' is not of type '$fieldType'")
+            }
+        case (Nil, Nil) => ObjectValue(name, objFields.reverse)
+        case _ => throw new Exception(s"Wrong number of arguments for constructing '$name'")
     }
 
     def defToVar(valDef: ValueDefinition, stack: VarStack = Nil): Variable = valDef match
