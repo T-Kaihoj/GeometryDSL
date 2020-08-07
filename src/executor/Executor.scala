@@ -72,7 +72,7 @@ class Executor
         case Operation(operator, operands) => executeOperation(operator, operands)
     }
 
-    def executeIdentifier(name: String, stack: VarStack): Value =
+    def executeIdentifier(name: String, stack: VarStack = Nil): Value =
     {
         stack.find(v => v.name == name).getOrElse(
             globalStack.find(v => v.name == name).getOrElse(
@@ -80,7 +80,7 @@ class Executor
         ).value
     }
 
-    def executeMemberAccess(exp: Expression, fieldName: String, stack: VarStack): Value = executeExpression(exp, stack) match
+    def executeMemberAccess(exp: Expression, fieldName: String, stack: VarStack = Nil): Value = executeExpression(exp, stack) match
     {
         case ObjectValue(typeName, fields) =>
             programMemory.find
@@ -90,8 +90,25 @@ class Executor
             }.getOrElse(throw new Exception(s"No type definition called '$typeName' exists'")) match
             {
                 case TypeDefinition(_, fieldsDef) => fields.apply(fieldsDef.indexWhere(f => f.name == fieldName))
+                case _ => throw new Exception("Should not happen")
             }
         case value => throw new Exception(s"'$value' is not an object")
+    }
+
+    def executeSetComprehension(elem: ElementDefinition, cond: Expression, app: Expression, stack: VarStack = Nil): Value =
+    {
+        executeExpression(elem.exp, stack) match
+        {
+            case SetValue(set) => SetValue(set.foldLeft(Set(): Set[Value])((s, elemVal) => s.union(
+                executeExpression(cond, Variable(elem.name, elemVal) :: stack) match
+                {
+                    case BoolValue(true) => Set(executeExpression(app, Variable(elem.name, elemVal) :: stack))
+                    case BoolValue(false) => Set()
+                    case _ => throw new Exception("Condition of set comprehension does not result in a boolean value")
+                }
+            )))
+            case _ => throw new Exception("Element is not in a set")
+        }
     }
 
     def executeOperation(operator: Operator, operands: List[Expression], stack: VarStack = Nil): Value = operator match
@@ -144,7 +161,7 @@ class Executor
         case _ => throw new Exception("Execution of element definition does not result in a set")
     }
 
-    def executeMethodCall(methodName: String, arity: Int, args: List[Expression], stack: VarStack): Value =
+    def executeMethodCall(methodName: String, arity: Int, args: List[Expression], stack: VarStack = Nil): Value =
     {
         programMemory.find{
             case MethodDefinition(name, _, params, _) if name == methodName && params.size == arity => true
@@ -154,6 +171,7 @@ class Executor
         {
             case MethodDefinition(name, _, params, block) => callMethod(name, params, args, block, stack)
             case TypeDefinition(name, fields) => callConstructor(name, fields, args, stack)
+            case _ => throw new Exception("Should not happen")
         }
     }
 
@@ -190,7 +208,7 @@ class Executor
     def callConstructor(name: String,
                         fields: List[ValueDeclaration],
                         args: List[Expression],
-                        stack: VarStack,
+                        stack: VarStack = Nil,
                         objFields: List[Value] = Nil): Value = (fields, args) match
     {
         case (ValueDeclaration(_, fieldType) :: fieldsTail,
