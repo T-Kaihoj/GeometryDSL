@@ -16,7 +16,7 @@ package ast {
 
     sealed case class ValueDeclaration(name: String, typeId: Type)
     sealed case class ElementDefinition(name: String, exp: Expression)
-    sealed case class MethodDefinition(name: String, retType: Type, params: List[ValueDeclaration], scope: List[Statement]) extends ProgramEntity
+    sealed case class MethodDefinition(name: String, retType: Type, params: List[ValueDeclaration], block: Block) extends ProgramEntity
     sealed case class TypeDefinition(name: String, fields: List[ValueDeclaration]) extends ProgramEntity
 
     sealed trait Statement

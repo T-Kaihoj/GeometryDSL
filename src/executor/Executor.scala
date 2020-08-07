@@ -2,24 +2,31 @@ package executor
 
 import ast._
 
-object Executor
+class Executor
 {
-    def executeProgram(prog: Program, mainFuncName: String): Value = prog match
+    var programMemory: List[ProgramEntity] = List()
+    var globalStack: VarStack = List()
+
+    def executeProgram(program: Program, mainFuncName: String): Value = program match
     {
         case Program(entities) =>
             val globalState = prepareExecutionState(entities)
-            val progMem = globalState._1
-            val globalStack = globalState._2
-            val mainFunc = progMem.find(p => p match
+            programMemory = globalState._1
+            globalStack = globalState._2
+            val mainFunc = programMemory.find(p => p match
             {
                 case MethodDefinition(name, _, params, _) => name == mainFuncName && params.isEmpty
                 case _ => false
             })
-            throw new NotImplementedError("Program execution not implemented")
+
+            mainFunc.get match
+            {
+                case MethodDefinition(_, _, _, block) => executeBlock(block)
+            }
     }
 
     @scala.annotation.tailrec
-    def prepareExecutionState(prog: List[ProgramEntity], programMem: List[ProgramEntity] = Nil, globalStack: VarStack = Nil): (List[ProgramEntity], VarStack) = prog match
+    final def prepareExecutionState(program: List[ProgramEntity], programMem: List[ProgramEntity] = Nil, globalStack: VarStack = Nil): (List[ProgramEntity], VarStack) = program match
     {
         case (valDef: ValueDefinition) :: t =>
             prepareExecutionState(t, programMem, defToVar(valDef, globalStack) :: globalStack)
@@ -58,10 +65,27 @@ object Executor
         case IntLiteral(i) => IntValue(i)
         case RealLiteral(r) => RealValue(r)
         case SetLiteral(s) => SetValue(s.toSet.map(exp => executeExpression(exp, stack)))
-        case Identifier(name) => throw new NotImplementedError("Identifier execution not implemented")
+        case Identifier(name) => executeIdentifier(name, stack)
         case MemberAccess(exp, field) => throw new NotImplementedError("MemberAccess execution not implemented")
         case SetComprehension(elem, check, app) => throw new NotImplementedError("SetComprehension execution not implemented")
         case Operation(operator, operands) => executeOperation(operator, operands)
+    }
+
+    def executeIdentifier(name: String, stack: VarStack): Value =
+    {
+        stack.find(v => v.name == name).getOrElse(
+            globalStack.find(v => v.name == name).getOrElse(
+                throw new Exception(s"No variable with name '${name}' exists"))
+        ).value
+    }
+
+    def executeMemberAccess(exp: Expression, field: String, stack: VarStack): Value =
+    {
+        executeExpression(exp, stack) match
+        {
+            //case obj: ObjectValue => obj.fields.find(f => f.name)
+            case _ => NoValue
+        }
     }
 
     def executeOperation(operator: Operator, operands: List[Expression], stack: VarStack = Nil): Value = operator match
