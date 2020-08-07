@@ -9,6 +9,7 @@ class Executor
 
     def executeProgram(program: Program, mainFuncName: String): Value = program match
     {
+        // TODO: Execute ValueDefinitions and place result in globalStack
         case Program(entities) =>
             val globalState = prepareExecutionState(entities)
             programMemory = globalState._1
@@ -83,6 +84,7 @@ class Executor
     {
         executeExpression(exp, stack) match
         {
+            // TODO:
             //case obj: ObjectValue => obj.fields.find(f => f.name)
             case _ => NoValue
         }
@@ -115,7 +117,7 @@ class Executor
         case Subset => OperationExecutor.subset(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
         case PropSubset => OperationExecutor.propSubset(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
         case InSet => OperationExecutor.inSet(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case MethodCall(name, arity) => throw new NotImplementedError("MethodCall execution not implemented")
+        case MethodCall(name, arity) => executeMethodCall(name, arity, operands, stack)
     }
 
     def executeForall(element: ElementDefinition, check: Expression, stack: VarStack = Nil): BoolValue = executeExpression(element.exp, stack) match
@@ -136,6 +138,49 @@ class Executor
             case _ => throw new Exception("Execution of check expression does not result in a boolean")
         }))
         case _ => throw new Exception("Execution of element definition does not result in a set")
+    }
+
+    def executeMethodCall(methodName: String, arity: Int, args: List[Expression], stack: VarStack): Value =
+    {
+        programMemory.foreach
+        {
+            case MethodDefinition(name, _, params, block)
+                if (name == methodName) && (arity == args.size) =>
+                callMethod(name, params, args, block, stack)
+            case TypeDefinition(name, _) if name == methodName => true // TODO
+            case _ => throw new Exception("") // TODO
+        }
+        NoValue
+    }
+
+    def callMethod(name: String,
+                   params: List[ValueDeclaration],
+                   args: List[Expression],
+                   block: Block,
+                   oldStack: VarStack = Nil,
+                   newStack: VarStack = Nil): Value = (params, args) match
+    {
+        case (ValueDeclaration(paramName, paramType) :: paramsTail,
+              (arg: Expression) :: argsTail) =>
+            val argValue = executeExpression(arg, oldStack)
+            (paramType, argValue) match
+            {
+                case (SetType, SetValue(_)) =>
+                    callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, argValue) :: newStack)
+                case (paramType, SetValue(s)) if compareType(paramType, argValue) =>
+                    SetValue(s.foldLeft(Set(): Set[Value])((s, e) => s.union(
+                        callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, e) :: newStack) match
+                        {
+                            case SetValue(x) => x
+                            case x => Set(x)
+                        }
+                    )))
+                case (paramType, argValue) if compareType(paramType, argValue) =>
+                    callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, argValue) :: newStack)
+                case _ => throw new Exception(s"'${argValue}' is not of type '${paramType}'")
+            }
+        case (Nil, Nil) => executeBlock(block, newStack)
+        case _ => throw new Exception(s"Wrong number of arguments for calling method '${name}")
     }
 
     def defToVar(valDef: ValueDefinition, stack: VarStack = Nil): Variable = valDef match
