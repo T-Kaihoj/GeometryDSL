@@ -9,33 +9,30 @@ class Executor
 
     def executeProgram(program: Program, mainFuncName: String): Value = program match
     {
-        // TODO: Execute ValueDefinitions and place result in globalStack
         case Program(entities) =>
-            val globalState = prepareExecutionState(entities)
-            programMemory = globalState._1
-            globalStack = globalState._2
-            val mainFunc = programMemory.find(p => p match
+            prepareProgramExecution(entities)
+            programMemory.find(p => p match
             {
                 case MethodDefinition(name, _, params, _) => name == mainFuncName && params.isEmpty
                 case _ => false
-            })
-
-            mainFunc.get match
+            }).getOrElse(throw new Exception(s"No method named '$mainFuncName' exists")) match
             {
                 case MethodDefinition(_, _, _, block) => executeBlock(block)
             }
     }
 
-    @scala.annotation.tailrec
-    final def prepareExecutionState(program: List[ProgramEntity], programMem: List[ProgramEntity] = Nil, globalStack: VarStack = Nil): (List[ProgramEntity], VarStack) = program match
+    def prepareProgramExecution(program: List[ProgramEntity]): Unit = program match
     {
-        case (valDef: ValueDefinition) :: t =>
-            prepareExecutionState(t, programMem, defToVar(valDef, globalStack) :: globalStack)
-        case (methodDef: MethodDefinition) :: t =>
-            prepareExecutionState(t, methodDef :: programMem, globalStack)
-        case (typeDef: TypeDefinition) :: t =>
-            prepareExecutionState(t, typeDef :: programMem, globalStack)
-        case Nil => (programMem, globalStack)
+        case (valDef: ValueDefinition) :: tail =>
+            globalStack = defToVar(valDef, globalStack) :: globalStack
+            prepareProgramExecution(tail)
+        case (methodDef: MethodDefinition) :: tail =>
+            programMemory = methodDef :: programMemory
+            prepareProgramExecution(tail)
+        case (typeDef: TypeDefinition) :: tail =>
+            programMemory = typeDef :: programMemory
+            prepareProgramExecution(program)
+        case Nil => None
     }
 
     def executeBlock(block: Block, stack: VarStack = Nil): Value = block match
