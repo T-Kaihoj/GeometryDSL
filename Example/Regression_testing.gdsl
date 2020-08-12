@@ -1,0 +1,29 @@
+
+set all_tests()(
+
+        //1xx test
+        Basic_faults :=
+        //2xx test
+        set faults := set_tests();
+
+
+
+
+        return faults
+)
+
+
+set set_test()(
+        {union_test(), }
+
+
+
+number union_test()(
+        A := {10,55}
+        A := A union 15;
+        A := A union 10;
+
+        if (|A| == 3 && A SUBSETEQ {15})
+            return 0
+        return 101
+)
