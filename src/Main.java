@@ -25,6 +25,7 @@ public class Main {
         try {
             inputStream = new FileInputStream(file);
             x = gdslParse.parse(inputStream);
+            System.out.println(x);
 
             Executor executor = new Executor();
             executor.executeProgram(x, "main");
@@ -41,7 +42,6 @@ public class Main {
 
             data.messagesList.forEach(messages ->  System.out.println(messages));
 
-            System.out.println(x);
         } catch (IOException e) {
             System.out.println(file);
             e.printStackTrace();

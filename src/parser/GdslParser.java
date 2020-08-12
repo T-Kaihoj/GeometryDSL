@@ -39,7 +39,7 @@ public class GdslParser extends Parser {
 	private static String[] makeLiteralNames() {
 		return new String[] {
 			null, "'('", "','", "')'", "':'", "'return'", "'switch'", "'case'", "'|'", 
-			"'{'", "'}'", "'.'", "'type'", null, null, "'if'", "'else'", null, "'+'", 
+			"'.'", "'{'", "'}'", "'type'", null, null, "'if'", "'else'", null, "'+'", 
 			"'-'", "'/'", "'*'", null, null, null, "':='", "'UNION'", "'DIFF'", "'INTER'", 
 			"'FILLER'", "'CHOOSE'", "'in'"
 		};
@@ -1446,7 +1446,7 @@ public class GdslParser extends Parser {
 				setState(149);
 				match(CHOOSE);
 				setState(150);
-				expression(14);
+				expression(13);
 				}
 				break;
 			case 5:
@@ -1455,7 +1455,7 @@ public class GdslParser extends Parser {
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(151);
-				match(T__8);
+				match(T__9);
 				setState(152);
 				setElementDefinition();
 				setState(155);
@@ -1475,7 +1475,7 @@ public class GdslParser extends Parser {
 				setState(158);
 				expression(0);
 				setState(159);
-				match(T__9);
+				match(T__10);
 				}
 				break;
 			case 6:
@@ -1484,7 +1484,7 @@ public class GdslParser extends Parser {
 				_ctx = _localctx;
 				_prevctx = _localctx;
 				setState(161);
-				match(T__8);
+				match(T__9);
 				setState(162);
 				expression(0);
 				setState(167);
@@ -1504,7 +1504,7 @@ public class GdslParser extends Parser {
 					_la = _input.LA(1);
 				}
 				setState(170);
-				match(T__9);
+				match(T__10);
 				}
 				break;
 			case 7:
@@ -1519,7 +1519,7 @@ public class GdslParser extends Parser {
 				setState(182);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__7) | (1L << T__8) | (1L << BOOL) | (1L << QUANTIFIER) | (1L << CHOOSE) | (1L << NUMBER) | (1L << IDENTIFIER))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__0) | (1L << T__7) | (1L << T__9) | (1L << BOOL) | (1L << QUANTIFIER) | (1L << CHOOSE) | (1L << NUMBER) | (1L << IDENTIFIER))) != 0)) {
 					{
 					setState(174);
 					expression(0);
@@ -1592,7 +1592,7 @@ public class GdslParser extends Parser {
 						((SetOperatorExpContext)_localctx).setL = _prevctx;
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(190);
-						if (!(precpred(_ctx, 16))) throw new FailedPredicateException(this, "precpred(_ctx, 16)");
+						if (!(precpred(_ctx, 15))) throw new FailedPredicateException(this, "precpred(_ctx, 15)");
 						setState(191);
 						((SetOperatorExpContext)_localctx).operator = _input.LT(1);
 						_la = _input.LA(1);
@@ -1605,7 +1605,7 @@ public class GdslParser extends Parser {
 							consume();
 						}
 						setState(192);
-						((SetOperatorExpContext)_localctx).setR = expression(17);
+						((SetOperatorExpContext)_localctx).setR = expression(16);
 						}
 						break;
 					case 2:
@@ -1613,11 +1613,11 @@ public class GdslParser extends Parser {
 						_localctx = new PowerExpContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(193);
-						if (!(precpred(_ctx, 13))) throw new FailedPredicateException(this, "precpred(_ctx, 13)");
+						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
 						setState(194);
 						match(POWER);
 						setState(195);
-						expression(14);
+						expression(13);
 						}
 						break;
 					case 3:
@@ -1625,7 +1625,7 @@ public class GdslParser extends Parser {
 						_localctx = new DivMulExpContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(196);
-						if (!(precpred(_ctx, 12))) throw new FailedPredicateException(this, "precpred(_ctx, 12)");
+						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
 						setState(197);
 						((DivMulExpContext)_localctx).operator = _input.LT(1);
 						_la = _input.LA(1);
@@ -1638,7 +1638,7 @@ public class GdslParser extends Parser {
 							consume();
 						}
 						setState(198);
-						expression(13);
+						expression(12);
 						}
 						break;
 					case 4:
@@ -1646,7 +1646,7 @@ public class GdslParser extends Parser {
 						_localctx = new AddSubExpContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(199);
-						if (!(precpred(_ctx, 11))) throw new FailedPredicateException(this, "precpred(_ctx, 11)");
+						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
 						setState(200);
 						((AddSubExpContext)_localctx).operator = _input.LT(1);
 						_la = _input.LA(1);
@@ -1659,7 +1659,7 @@ public class GdslParser extends Parser {
 							consume();
 						}
 						setState(201);
-						expression(12);
+						expression(11);
 						}
 						break;
 					case 5:
@@ -1667,11 +1667,11 @@ public class GdslParser extends Parser {
 						_localctx = new ComparisonExpContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(202);
-						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
+						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
 						setState(203);
 						((ComparisonExpContext)_localctx).operator = match(COMPARISON);
 						setState(204);
-						expression(11);
+						expression(10);
 						}
 						break;
 					case 6:
@@ -1679,11 +1679,11 @@ public class GdslParser extends Parser {
 						_localctx = new AndExpContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(205);
-						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
+						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
 						setState(206);
 						match(AND);
 						setState(207);
-						expression(10);
+						expression(9);
 						}
 						break;
 					case 7:
@@ -1691,11 +1691,11 @@ public class GdslParser extends Parser {
 						_localctx = new OrExpContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(208);
-						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
+						if (!(precpred(_ctx, 7))) throw new FailedPredicateException(this, "precpred(_ctx, 7)");
 						setState(209);
 						match(OR);
 						setState(210);
-						expression(9);
+						expression(8);
 						}
 						break;
 					case 8:
@@ -1703,9 +1703,9 @@ public class GdslParser extends Parser {
 						_localctx = new DotExpContext(new ExpressionContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expression);
 						setState(211);
-						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
+						if (!(precpred(_ctx, 16))) throw new FailedPredicateException(this, "precpred(_ctx, 16)");
 						setState(212);
-						match(T__10);
+						match(T__8);
 						setState(213);
 						match(IDENTIFIER);
 						}
@@ -1766,11 +1766,11 @@ public class GdslParser extends Parser {
 			setState(224);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (_la==T__10) {
+			while (_la==T__8) {
 				{
 				{
 				setState(220);
-				match(T__10);
+				match(T__8);
 				setState(221);
 				match(IDENTIFIER);
 				}
@@ -1802,21 +1802,21 @@ public class GdslParser extends Parser {
 	private boolean expression_sempred(ExpressionContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 0:
-			return precpred(_ctx, 16);
+			return precpred(_ctx, 15);
 		case 1:
-			return precpred(_ctx, 13);
-		case 2:
 			return precpred(_ctx, 12);
-		case 3:
+		case 2:
 			return precpred(_ctx, 11);
-		case 4:
+		case 3:
 			return precpred(_ctx, 10);
-		case 5:
+		case 4:
 			return precpred(_ctx, 9);
-		case 6:
+		case 5:
 			return precpred(_ctx, 8);
+		case 6:
+			return precpred(_ctx, 7);
 		case 7:
-			return precpred(_ctx, 4);
+			return precpred(_ctx, 16);
 		}
 		return true;
 	}
@@ -1866,13 +1866,13 @@ public class GdslParser extends Parser {
 		"\u008d\7\n\2\2\u008d\u008e\5\30\r\2\u008e\u008f\7\n\2\2\u008f\u00bf\3"+
 		"\2\2\2\u0090\u0091\7\20\2\2\u0091\u0092\7\3\2\2\u0092\u0093\5\26\f\2\u0093"+
 		"\u0094\7\4\2\2\u0094\u0095\5\30\r\2\u0095\u0096\7\5\2\2\u0096\u00bf\3"+
-		"\2\2\2\u0097\u0098\7 \2\2\u0098\u00bf\5\30\r\20\u0099\u009a\7\13\2\2\u009a"+
+		"\2\2\2\u0097\u0098\7 \2\2\u0098\u00bf\5\30\r\17\u0099\u009a\7\f\2\2\u009a"+
 		"\u009d\5\26\f\2\u009b\u009c\7\n\2\2\u009c\u009e\5\30\r\2\u009d\u009b\3"+
 		"\2\2\2\u009d\u009e\3\2\2\2\u009e\u009f\3\2\2\2\u009f\u00a0\7\n\2\2\u00a0"+
-		"\u00a1\5\30\r\2\u00a1\u00a2\7\f\2\2\u00a2\u00bf\3\2\2\2\u00a3\u00a4\7"+
-		"\13\2\2\u00a4\u00a9\5\30\r\2\u00a5\u00a6\7\4\2\2\u00a6\u00a8\5\30\r\2"+
-		"\u00a7\u00a5\3\2\2\2\u00a8\u00ab\3\2\2\2\u00a9\u00a7\3\2\2\2\u00a9\u00aa"+
-		"\3\2\2\2\u00aa\u00ac\3\2\2\2\u00ab\u00a9\3\2\2\2\u00ac\u00ad\7\f\2\2\u00ad"+
+		"\u00a1\5\30\r\2\u00a1\u00a2\7\r\2\2\u00a2\u00bf\3\2\2\2\u00a3\u00a4\7"+
+		"\f\2\2\u00a4\u00a9\5\30\r\2\u00a5\u00a6\7\4\2\2\u00a6\u00a8\5\30\r\2\u00a7"+
+		"\u00a5\3\2\2\2\u00a8\u00ab\3\2\2\2\u00a9\u00a7\3\2\2\2\u00a9\u00aa\3\2"+
+		"\2\2\u00aa\u00ac\3\2\2\2\u00ab\u00a9\3\2\2\2\u00ac\u00ad\7\r\2\2\u00ad"+
 		"\u00bf\3\2\2\2\u00ae\u00af\7#\2\2\u00af\u00b8\7\3\2\2\u00b0\u00b5\5\30"+
 		"\r\2\u00b1\u00b2\7\4\2\2\u00b2\u00b4\5\30\r\2\u00b3\u00b1\3\2\2\2\u00b4"+
 		"\u00b7\3\2\2\2\u00b5\u00b3\3\2\2\2\u00b5\u00b6\3\2\2\2\u00b6\u00b9\3\2"+
@@ -1881,21 +1881,21 @@ public class GdslParser extends Parser {
 		"\2\2\u00bd\u00bf\7\"\2\2\u00be\u0087\3\2\2\2\u00be\u008c\3\2\2\2\u00be"+
 		"\u0090\3\2\2\2\u00be\u0097\3\2\2\2\u00be\u0099\3\2\2\2\u00be\u00a3\3\2"+
 		"\2\2\u00be\u00ae\3\2\2\2\u00be\u00bb\3\2\2\2\u00be\u00bc\3\2\2\2\u00be"+
-		"\u00bd\3\2\2\2\u00bf\u00da\3\2\2\2\u00c0\u00c1\f\22\2\2\u00c1\u00c2\t"+
-		"\2\2\2\u00c2\u00d9\5\30\r\23\u00c3\u00c4\f\17\2\2\u00c4\u00c5\7\30\2\2"+
-		"\u00c5\u00d9\5\30\r\20\u00c6\u00c7\f\16\2\2\u00c7\u00c8\t\3\2\2\u00c8"+
-		"\u00d9\5\30\r\17\u00c9\u00ca\f\r\2\2\u00ca\u00cb\t\4\2\2\u00cb\u00d9\5"+
-		"\30\r\16\u00cc\u00cd\f\f\2\2\u00cd\u00ce\7\23\2\2\u00ce\u00d9\5\30\r\r"+
-		"\u00cf\u00d0\f\13\2\2\u00d0\u00d1\7\31\2\2\u00d1\u00d9\5\30\r\f\u00d2"+
-		"\u00d3\f\n\2\2\u00d3\u00d4\7\32\2\2\u00d4\u00d9\5\30\r\13\u00d5\u00d6"+
-		"\f\6\2\2\u00d6\u00d7\7\r\2\2\u00d7\u00d9\7#\2\2\u00d8\u00c0\3\2\2\2\u00d8"+
-		"\u00c3\3\2\2\2\u00d8\u00c6\3\2\2\2\u00d8\u00c9\3\2\2\2\u00d8\u00cc\3\2"+
-		"\2\2\u00d8\u00cf\3\2\2\2\u00d8\u00d2\3\2\2\2\u00d8\u00d5\3\2\2\2\u00d9"+
-		"\u00dc\3\2\2\2\u00da\u00d8\3\2\2\2\u00da\u00db\3\2\2\2\u00db\31\3\2\2"+
-		"\2\u00dc\u00da\3\2\2\2\u00dd\u00e2\7#\2\2\u00de\u00df\7\r\2\2\u00df\u00e1"+
-		"\7#\2\2\u00e0\u00de\3\2\2\2\u00e1\u00e4\3\2\2\2\u00e2\u00e0\3\2\2\2\u00e2"+
-		"\u00e3\3\2\2\2\u00e3\33\3\2\2\2\u00e4\u00e2\3\2\2\2\26\37!,9<JNTcm}\u0081"+
-		"\u009d\u00a9\u00b5\u00b8\u00be\u00d8\u00da\u00e2";
+		"\u00bd\3\2\2\2\u00bf\u00da\3\2\2\2\u00c0\u00c1\f\21\2\2\u00c1\u00c2\t"+
+		"\2\2\2\u00c2\u00d9\5\30\r\22\u00c3\u00c4\f\16\2\2\u00c4\u00c5\7\30\2\2"+
+		"\u00c5\u00d9\5\30\r\17\u00c6\u00c7\f\r\2\2\u00c7\u00c8\t\3\2\2\u00c8\u00d9"+
+		"\5\30\r\16\u00c9\u00ca\f\f\2\2\u00ca\u00cb\t\4\2\2\u00cb\u00d9\5\30\r"+
+		"\r\u00cc\u00cd\f\13\2\2\u00cd\u00ce\7\23\2\2\u00ce\u00d9\5\30\r\f\u00cf"+
+		"\u00d0\f\n\2\2\u00d0\u00d1\7\31\2\2\u00d1\u00d9\5\30\r\13\u00d2\u00d3"+
+		"\f\t\2\2\u00d3\u00d4\7\32\2\2\u00d4\u00d9\5\30\r\n\u00d5\u00d6\f\22\2"+
+		"\2\u00d6\u00d7\7\13\2\2\u00d7\u00d9\7#\2\2\u00d8\u00c0\3\2\2\2\u00d8\u00c3"+
+		"\3\2\2\2\u00d8\u00c6\3\2\2\2\u00d8\u00c9\3\2\2\2\u00d8\u00cc\3\2\2\2\u00d8"+
+		"\u00cf\3\2\2\2\u00d8\u00d2\3\2\2\2\u00d8\u00d5\3\2\2\2\u00d9\u00dc\3\2"+
+		"\2\2\u00da\u00d8\3\2\2\2\u00da\u00db\3\2\2\2\u00db\31\3\2\2\2\u00dc\u00da"+
+		"\3\2\2\2\u00dd\u00e2\7#\2\2\u00de\u00df\7\13\2\2\u00df\u00e1\7#\2\2\u00e0"+
+		"\u00de\3\2\2\2\u00e1\u00e4\3\2\2\2\u00e2\u00e0\3\2\2\2\u00e2\u00e3\3\2"+
+		"\2\2\u00e3\33\3\2\2\2\u00e4\u00e2\3\2\2\2\26\37!,9<JNTcm}\u0081\u009d"+
+		"\u00a9\u00b5\u00b8\u00be\u00d8\u00da\u00e2";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

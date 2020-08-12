@@ -119,6 +119,7 @@ public class GdslParse {
         // expression AND expression #andExp
         @Override
         public Expression visitAndExp(GdslParser.AndExpContext ctx) {
+            System.out.println(ctx.expression().size());
             return new Operation(ParsingHelper.operatorObject("And",2), ParsingHelper.scalaList(this.visit(ctx.expression(0)), this.visit(ctx.expression(1))));
         }
 
