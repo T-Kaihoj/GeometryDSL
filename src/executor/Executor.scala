@@ -65,7 +65,7 @@ class Executor
         case SetLiteral(s) => SetValue(s.toSet.map(exp => executeExpression(exp, stack)))
         case Identifier(name) => executeIdentifier(name, stack)
         case MemberAccess(exp, field) => executeMemberAccess(exp, field, stack)
-        case SetComprehension(elem, check, app) => throw new NotImplementedError("SetComprehension execution not implemented")
+        case SetComprehension(elem, cond, app) => executeSetComprehension(elem, cond, app, stack)
         case Operation(operator, operands) => executeOperation(operator, operands, stack)
     }
 
