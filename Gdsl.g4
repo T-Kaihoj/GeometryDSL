@@ -32,6 +32,7 @@ setElementDefinition: localName=IDENTIFIER IN globalName=expression ;
 
 expression: '(' expression ')' #parenthesisExp
           | '|' expression '|' #absoluteExp
+          | expression '.' IDENTIFIER #dotExp
           | setL=expression operator=(UNION | DIFFERENCE | INTERSECTION) setR=expression #setOperatorExp
           | quantifier=QUANTIFIER '(' setElementDefinition ',' expression ')' #setQuantificationCallExp
           | CHOOSE expression #setChooseExp // Selects an element from a set
@@ -44,7 +45,6 @@ expression: '(' expression ')' #parenthesisExp
           | '{' setElementDefinition ('|' expression)? '|' expression '}'#setComprehensionExp
           | '{' expression  (',' expression)* '}'#setLiteralExp
           | IDENTIFIER '(' (expression (',' expression)*)? ')' #functionCallExp
-          | expression '.' IDENTIFIER #dotExp
           | IDENTIFIER #variableExp
           | bool=BOOL #boolExp
           | NUMBER #numberExp ;

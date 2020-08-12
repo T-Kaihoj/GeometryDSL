@@ -9,45 +9,42 @@ class Executor
 
     def executeProgram(program: Program, mainFuncName: String): Value = program match
     {
-        // TODO: Execute ValueDefinitions and place result in globalStack
         case Program(entities) =>
-            val globalState = prepareExecutionState(entities)
-            programMemory = globalState._1
-            globalStack = globalState._2
-            val mainFunc = programMemory.find(p => p match
+            prepareProgramExecution(entities)
+            programMemory.find(p => p match
             {
                 case MethodDefinition(name, _, params, _) => name == mainFuncName && params.isEmpty
                 case _ => false
-            })
-
-            mainFunc.get match
+            }).getOrElse(throw new Exception(s"No method named '$mainFuncName' exists")) match
             {
-                case MethodDefinition(_, _, _, block) => executeBlock(block)
+                case MethodDefinition(_, _, _, block) => executeBlock(block, Nil)
             }
     }
 
-    @scala.annotation.tailrec
-    final def prepareExecutionState(program: List[ProgramEntity], programMem: List[ProgramEntity] = Nil, globalStack: VarStack = Nil): (List[ProgramEntity], VarStack) = program match
+    def prepareProgramExecution(program: List[ProgramEntity]): Unit = program match
     {
-        case (valDef: ValueDefinition) :: t =>
-            prepareExecutionState(t, programMem, defToVar(valDef, globalStack) :: globalStack)
-        case (methodDef: MethodDefinition) :: t =>
-            prepareExecutionState(t, methodDef :: programMem, globalStack)
-        case (typeDef: TypeDefinition) :: t =>
-            prepareExecutionState(t, typeDef :: programMem, globalStack)
-        case Nil => (programMem, globalStack)
+        case (valDef: ValueDefinition) :: tail =>
+            globalStack = defToVar(valDef, globalStack) :: globalStack
+            prepareProgramExecution(tail)
+        case (methodDef: MethodDefinition) :: tail =>
+            programMemory = methodDef :: programMemory
+            prepareProgramExecution(tail)
+        case (typeDef: TypeDefinition) :: tail =>
+            programMemory = typeDef :: programMemory
+            prepareProgramExecution(tail)
+        case Nil => None
     }
 
-    def executeBlock(block: Block, stack: VarStack = Nil): Value = block match
+    def executeBlock(block: Block, stack: VarStack): Value = block match
     {
-        case Nil      => NoValue
+        case Nil => NoValue
         case Return(exp) :: _ => executeExpression(exp, stack)
-        case h :: t   => executeBlock(t, executeStatement(h, stack))
+        case h :: t => executeBlock(t, executeStatement(h, stack))
     }
 
-    def executeStatement(stm: Statement, stack: VarStack = Nil): VarStack = stm match
+    def executeStatement(stm: Statement, stack: VarStack): VarStack = stm match
     {
-        case valDef: ValueDefinition => defToVar(valDef) :: stack
+        case ValueDefinition(decl, exp) => Variable(decl.name, executeExpression(exp, stack)) :: stack
         case Conditional(cond, trueBlock, falseBlock) => executeExpression(cond, stack) match
         {
             case BoolValue(true) => executeBlock(trueBlock, stack); stack
@@ -60,7 +57,7 @@ class Executor
         case Return(_) => throw new Exception("Should not happen")
     }
 
-    def executeExpression(exp: Expression, stack: VarStack = Nil): Value = exp match
+    def executeExpression(exp: Expression, stack: VarStack): Value = exp match
     {
         case BoolLiteral(b) => BoolValue(b)
         case IntLiteral(i) => IntValue(i)
@@ -68,11 +65,11 @@ class Executor
         case SetLiteral(s) => SetValue(s.toSet.map(exp => executeExpression(exp, stack)))
         case Identifier(name) => executeIdentifier(name, stack)
         case MemberAccess(exp, field) => executeMemberAccess(exp, field, stack)
-        case SetComprehension(elem, check, app) => throw new NotImplementedError("SetComprehension execution not implemented")
-        case Operation(operator, operands) => executeOperation(operator, operands)
+        case SetComprehension(elem, cond, app) => executeSetComprehension(elem, cond, app, stack)
+        case Operation(operator, operands) => executeOperation(operator, operands, stack)
     }
 
-    def executeIdentifier(name: String, stack: VarStack = Nil): Value =
+    def executeIdentifier(name: String, stack: VarStack): Value =
     {
         stack.find(v => v.name == name).getOrElse(
             globalStack.find(v => v.name == name).getOrElse(
@@ -80,7 +77,7 @@ class Executor
         ).value
     }
 
-    def executeMemberAccess(exp: Expression, fieldName: String, stack: VarStack = Nil): Value = executeExpression(exp, stack) match
+    def executeMemberAccess(exp: Expression, fieldName: String, stack: VarStack): Value = executeExpression(exp, stack) match
     {
         case ObjectValue(typeName, fields) =>
             programMemory.find
@@ -95,7 +92,7 @@ class Executor
         case value => throw new Exception(s"'$value' is not an object")
     }
 
-    def executeSetComprehension(elem: ElementDefinition, cond: Expression, app: Expression, stack: VarStack = Nil): Value =
+    def executeSetComprehension(elem: ElementDefinition, cond: Expression, app: Expression, stack: VarStack): Value =
     {
         executeExpression(elem.exp, stack) match
         {
@@ -111,7 +108,7 @@ class Executor
         }
     }
 
-    def executeOperation(operator: Operator, operands: List[Expression], stack: VarStack = Nil): Value = operator match
+    def executeOperation(operator: Operator, operands: List[Expression], stack: VarStack): Value = operator match
     {
         case Negation => OperationExecutor.negation(executeExpression(operands.head, stack))
         case Not => OperationExecutor.not(executeExpression(operands.head, stack))
@@ -141,7 +138,7 @@ class Executor
         case MethodCall(name, arity) => executeMethodCall(name, arity, operands, stack)
     }
 
-    def executeForall(element: ElementDefinition, check: Expression, stack: VarStack = Nil): BoolValue = executeExpression(element.exp, stack) match
+    def executeForall(element: ElementDefinition, check: Expression, stack: VarStack): BoolValue = executeExpression(element.exp, stack) match
     {
         case SetValue(s) => BoolValue(s.forall(elem => executeExpression(check, Variable(element.name, elem) :: stack) match
         {
@@ -151,7 +148,7 @@ class Executor
         case _ => throw new Exception("Execution of element definition does not result in a set")
     }
 
-    def executeExists(element: ElementDefinition, check: Expression, stack: VarStack = Nil): BoolValue = executeExpression(element.exp, stack) match
+    def executeExists(element: ElementDefinition, check: Expression, stack: VarStack): BoolValue = executeExpression(element.exp, stack) match
     {
         case SetValue(s) => BoolValue(s.exists(elem => executeExpression(check, Variable(element.name, elem) :: stack) match
         {
@@ -161,7 +158,7 @@ class Executor
         case _ => throw new Exception("Execution of element definition does not result in a set")
     }
 
-    def executeMethodCall(methodName: String, arity: Int, args: List[Expression], stack: VarStack = Nil): Value =
+    def executeMethodCall(methodName: String, arity: Int, args: List[Expression], stack: VarStack): Value =
     {
         programMemory.find{
             case MethodDefinition(name, _, params, _) if name == methodName && params.size == arity => true
@@ -179,7 +176,7 @@ class Executor
                    params: List[ValueDeclaration],
                    args: List[Expression],
                    block: Block,
-                   oldStack: VarStack = Nil,
+                   oldStack: VarStack,
                    newStack: VarStack = Nil): Value = (params, args) match
     {
         case (ValueDeclaration(paramName, paramType) :: paramsTail,
@@ -208,7 +205,7 @@ class Executor
     def callConstructor(name: String,
                         fields: List[ValueDeclaration],
                         args: List[Expression],
-                        stack: VarStack = Nil,
+                        stack: VarStack,
                         objFields: List[Value] = Nil): Value = (fields, args) match
     {
         case (ValueDeclaration(_, fieldType) :: fieldsTail,
@@ -232,7 +229,7 @@ class Executor
         case _ => throw new Exception(s"Wrong number of arguments for constructing '$name'")
     }
 
-    def defToVar(valDef: ValueDefinition, stack: VarStack = Nil): Variable = valDef match
+    def defToVar(valDef: ValueDefinition, stack: VarStack): Variable = valDef match
     {
         case ValueDefinition(ValueDeclaration(name, BoolType), exp) => Variable(name, executeExpression(exp, stack))
         case ValueDefinition(ValueDeclaration(name, IntType), exp) => Variable(name, executeExpression(exp, stack))

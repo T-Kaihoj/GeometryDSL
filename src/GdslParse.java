@@ -149,8 +149,7 @@ public class GdslParse {
         // IDENTIFIER '(' (expression (',' expression)*)? ')' #functionCallExp
         @Override
         public Expression visitFunctionCallExp(GdslParser.FunctionCallExpContext ctx) {
-            System.out.println(ctx.IDENTIFIER().getText());
-            List<Expression> expressions =new ArrayList<>();
+            List<Expression> expressions = new ArrayList<>();
             ctx.expression().forEach(expressionContext -> expressions.add( this.visit(expressionContext)));
             return new Operation(new MethodCall(ctx.IDENTIFIER().getText(), ctx.expression().size()), ParsingHelper.scalaList(expressions));
         }
@@ -188,7 +187,6 @@ public class GdslParse {
     private class ProgramEntityVisitor extends GdslBaseVisitor<ProgramEntity>{
         @Override
         public ProgramEntity visitVariableDefinition(GdslParser.VariableDefinitionContext ctx) {
-            //System.out.println(ctx.expression().getText());
             ExpressionVisitor expressionVisitor = new ExpressionVisitor();
             DeclarationVisitor declarationVisitor = new DeclarationVisitor();
             return new ValueDefinition(declarationVisitor.visit(ctx.declaration()),expressionVisitor.visit(ctx.expression()));

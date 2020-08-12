@@ -1,0 +1,34 @@
+// Originally produced by Carl Schultz
+// Tested on the 1/06/2020
+
+type Point(x:int, y:int)
+type Rectangle(p1: Point, p2: Point)
+
+int getX(p: Point)(return p.x)
+int getY(p: Point)(return p.y)
+
+bool larger(r1: Rectangle, r2: Rectangle)
+(
+    return
+    ((r1.p1.x - r1.p2.x) * (r1.p1.x - r1.p2.x) *
+     (r1.p1.y - r1.p2.y) * (r1.p1.y - r1.p2.y)) >=
+    ((r1.p1.x - r1.p2.x) * (r1.p1.x - r1.p2.x) *
+     (r1.p1.y - r1.p2.y) * (r1.p1.y - r1.p2.y))
+)
+
+Set largest(R: Set)
+(
+    return {r in R | all(t in R, larger(r, t)) | r}
+)
+
+Set main()
+(
+    A: Set := {Point(33, 52), Point(73, 69), Point(31, 80), Point(8, 79), Point(53, 70)}
+    X: Set := getX(A)
+    Y: Set := getY(A)
+    P: Set := Point(X, Y)
+    R: Set := Rectangle(P, P)
+    R2: Set := {r in R | r.p1.x < r.p2.x && r.p1.y < r.p2.y | r}
+    LR: Set := largest(R2)
+    return LR
+)
