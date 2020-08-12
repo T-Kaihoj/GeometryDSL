@@ -16,19 +16,19 @@ bool larger(r1: Rectangle, r2: Rectangle)
      (r1.p1.y - r1.p2.y) * (r1.p1.y - r1.p2.y))
 )
 
-Set largest(R: Set)
+set largest(R: set)
 (
     return {r in R | all(t in R, larger(r, t)) | r}
 )
 
-Set main()
+set main()
 (
-    A: Set := {Point(33, 52), Point(73, 69), Point(31, 80), Point(8, 79), Point(53, 70)}
-    X: Set := getX(A)
-    Y: Set := getY(A)
-    P: Set := Point(X, Y)
-    R: Set := Rectangle(P, P)
-    R2: Set := {r in R | r.p1.x < r.p2.x && r.p1.y < r.p2.y | r}
-    LR: Set := largest(R2)
+    A: set := {Point(33, 52), Point(73, 69), Point(31, 80), Point(8, 79), Point(53, 70)}
+    X: set := getX(A)
+    Y: set := getY(A)
+    P: set := Point(X, Y)
+    R: set := Rectangle(P, P)
+    R2: set := {r in R | r.p1.x < r.p2.x && r.p1.y < r.p2.y | r}
+    LR: set := largest(R2)
     return LR
 )

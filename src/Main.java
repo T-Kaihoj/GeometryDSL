@@ -18,17 +18,16 @@ import org.antlr.v4.runtime.CharStream;
 public class Main {
     public static void main(String[] args) throws Exception {
         GdslParse gdslParse  = new GdslParse();
-        System.out.println("Hello world");
         InputStream inputStream;
         Program x;
         String file = "examples/boundingBox.gdsl";
         try {
             inputStream = new FileInputStream(file);
             x = gdslParse.parse(inputStream);
-            System.out.println(x);
+            //System.out.println(x);
 
             Executor executor = new Executor();
-            executor.executeProgram(x, "main");
+            System.out.println(executor.executeProgram(x, "main"));
 
             IdentifierErrors identifierErrors = new IdentifierErrors();
 

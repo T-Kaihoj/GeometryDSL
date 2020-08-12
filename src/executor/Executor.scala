@@ -92,7 +92,7 @@ class Executor
         case value => throw new Exception(s"'$value' is not an object")
     }
 
-    def executeSetComprehension(elem: ElementDefinition, cond: Expression, app: Expression, stack: VarStack): Value =
+    def executeSetComprehension(elem: ElementDefinition, cond: Expression, app: Expression, stack: VarStack): SetValue =
     {
         executeExpression(elem.exp, stack) match
         {
