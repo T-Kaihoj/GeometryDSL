@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import executor.Executor;
 import optimizer.BaseOptimizer;
 import optimizer.IdentifierErrors;
 import optimizer.Messages;
@@ -20,10 +21,13 @@ public class Main {
         System.out.println("Hello world");
         InputStream inputStream;
         Program x;
-        String file = "Example/testin.gdsl";
+        String file = "examples/boundingBox.gdsl";
         try {
             inputStream = new FileInputStream(file);
             x = gdslParse.parse(inputStream);
+
+            Executor executor = new Executor();
+            executor.executeProgram(x, "main");
 
             IdentifierErrors identifierErrors = new IdentifierErrors();
 
