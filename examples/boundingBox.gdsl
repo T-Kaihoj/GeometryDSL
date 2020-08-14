@@ -1,5 +1,5 @@
 // Originally produced by Carl Schultz
-// Tested on the 1/06/2020
+// Tested on the 2020-08-14
 
 type Point(x:int, y:int)
 type Rectangle(p1: Point, p2: Point)
@@ -12,8 +12,8 @@ bool larger(r1: Rectangle, r2: Rectangle)
     return
     ((r1.p1.x - r1.p2.x) * (r1.p1.x - r1.p2.x) *
      (r1.p1.y - r1.p2.y) * (r1.p1.y - r1.p2.y)) >=
-    ((r1.p1.x - r1.p2.x) * (r1.p1.x - r1.p2.x) *
-     (r1.p1.y - r1.p2.y) * (r1.p1.y - r1.p2.y))
+    ((r2.p1.x - r2.p2.x) * (r2.p1.x - r2.p2.x) *
+     (r2.p1.y - r2.p2.y) * (r2.p1.y - r2.p2.y))
 )
 
 set largest(R: set)
