@@ -1,0 +1,26 @@
+A:int := 1
+b:int := 54
+int test()
+(
+    switch(
+        case a<15 && b<15 => a := 2
+        case a<b  => a := 23
+        case b<15 => a := 5
+    )
+)
+
+type point (x:number,y:number)
+
+number distance2(a:point,b:point)
+a.x-b.x**2+a.y-b.y**2
+
+bool isRightAngle(a:point,b:point, c:point)(
+        ab:int := distance(a,b)
+        ac:int := distance(a,c)
+        bc:int := distance(b,c)
+    switch(
+        case ab == ac+bc => return true
+        case ac == ac+bc =>  return true
+        case ab != ac+bc &&  ac != ac+bc => return false
+    )
+)

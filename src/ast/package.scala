@@ -4,6 +4,8 @@ package object ast
 }
 
 package ast {
+    class StatementInfo(lineNumber:Int,tags: List[String])
+
     sealed trait ProgramEntity
     sealed case class Program(prog: List[ProgramEntity])
 
@@ -19,10 +21,10 @@ package ast {
     sealed case class MethodDefinition(name: String, retType: Type, params: List[ValueDeclaration], block: Block) extends ProgramEntity
     sealed case class TypeDefinition(name: String, fields: List[ValueDeclaration]) extends ProgramEntity
 
-    sealed trait Statement
-    case class ValueDefinition(decl: ValueDeclaration, exp: Expression) extends Statement with ProgramEntity
-    case class Conditional(condition: Expression, trueBlock: Block, falseBlock: Block) extends Statement
-    case class Return(exp: Expression) extends Statement
+    sealed class Statement(info : StatementInfo)
+    case class ValueDefinition(decl: ValueDeclaration, exp: Expression,info : StatementInfo) extends Statement(info) with ProgramEntity
+    case class Conditional(condition: Expression, trueBlock: Block, falseBlock: Block,info : StatementInfo) extends Statement(info)
+    case class Return(exp: Expression, info : StatementInfo) extends Statement(info)
 
     sealed trait Expression
     case class BoolLiteral(value: Boolean) extends Expression
