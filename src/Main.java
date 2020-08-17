@@ -20,11 +20,11 @@ public class Main {
         GdslParse gdslParse  = new GdslParse();
         InputStream inputStream;
         Program x;
-        String file = "examples/boundingBox.gdsl";
+        String file = "examples/testing.gdsl";
         try {
             inputStream = new FileInputStream(file);
             x = gdslParse.parse(inputStream);
-            //System.out.println(x);
+            System.out.println(x);
 
             Executor executor = new Executor();
             System.out.println(executor.executeProgram(x, "main"));

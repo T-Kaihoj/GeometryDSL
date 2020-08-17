@@ -19,7 +19,7 @@ public class IdentifierErrors extends BaseOptimizer {
         valueDefinitions.forEach(valueDefinition ->
         {
             if (strings.contains(valueDefinition.decl().name()))
-                data.messagesList.add(new Messages(Messages.Priority.Error,"IdentifierErrors",-1));
+                data.messagesList.add(new Messages(Messages.Priority.Error,"IdentifierErrors",valueDefinition.info().lineNumber()));
             strings.add(valueDefinition.decl().name());
         });
 

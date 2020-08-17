@@ -1,11 +1,17 @@
 package parser.helpers;
 
+import ast.StatementInfo;
+import org.antlr.v4.runtime.ParserRuleContext;
 import scala.collection.immutable.$colon$colon;
 import scala.collection.immutable.List;
 import scala.collection.immutable.List$;
 
 public class ParsingHelper
 {
+    public static StatementInfo info(ParserRuleContext context, String ... tags){
+        return new StatementInfo(context.start.getLine(),scalaList(tags));
+    }
+
     public static <T> List<T> scalaList(T ... ts)
     {
         List<T> result = List$.MODULE$.empty();
@@ -15,6 +21,7 @@ public class ParsingHelper
         }
         return result;
     }
+
     public static <T> List<T> scalaList(java.util.List<T> l)
     {
         List<T> result = List$.MODULE$.empty();

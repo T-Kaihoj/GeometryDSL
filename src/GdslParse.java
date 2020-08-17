@@ -189,7 +189,7 @@ public class GdslParse {
         public ProgramEntity visitVariableDefinition(GdslParser.VariableDefinitionContext ctx) {
             ExpressionVisitor expressionVisitor = new ExpressionVisitor();
             DeclarationVisitor declarationVisitor = new DeclarationVisitor();
-            return new ValueDefinition(declarationVisitor.visit(ctx.declaration()),expressionVisitor.visit(ctx.expression()));
+            return new ValueDefinition(declarationVisitor.visit(ctx.declaration()),expressionVisitor.visit(ctx.expression()),ParsingHelper.info(ctx));
         }
 
         @Override
@@ -238,7 +238,7 @@ public class GdslParse {
             ScopeVisitor scopeVisitor = new ScopeVisitor();
             return new Conditional(expressionVisitor.visit(ctx.condition),
                     ParsingHelper.scalaList(scopeVisitor.visitScope(ctx.trueBranch)),
-                    ParsingHelper.scalaList());
+                    ParsingHelper.scalaList(),ParsingHelper.info(ctx));
         }
 
         @Override
@@ -249,32 +249,46 @@ public class GdslParse {
             if(ctx.elseIfStatement != null){
                 return new Conditional(expressionVisitor.visit(ctx.condition),
                         ParsingHelper.scalaList(scopeVisitor.visitScope(ctx.trueBranch)),
-                        ParsingHelper.scalaList(statementVisitor.visit(ctx.elseIfStatement)));
+                        ParsingHelper.scalaList(statementVisitor.visit(ctx.elseIfStatement)),
+                        ParsingHelper.info(ctx));
             }
             else{
                 return new Conditional(expressionVisitor.visit(ctx.condition),
                         ParsingHelper.scalaList(scopeVisitor.visitScope(ctx.trueBranch)),
-                        ParsingHelper.scalaList(scopeVisitor.visitScope(ctx.falseBranch)));
+                        ParsingHelper.scalaList(scopeVisitor.visitScope(ctx.falseBranch)),ParsingHelper.info(ctx));
             }
         }
 
         //TODO Fix
         @Override
         public Statement visitSwitchCase(GdslParser.SwitchCaseContext ctx) {
-            return super.visitSwitchCase(ctx);
+            ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+            ScopeVisitor scopeVisitor = new ScopeVisitor();
+
+            Conditional conditional =null;
+            if (ctx.defaultscope != null) //Creates default path
+                conditional = new Conditional(new BoolLiteral(true),ParsingHelper.scalaList(scopeVisitor.visit(ctx.defaultscope)),ParsingHelper.scalaList(),ParsingHelper.info(ctx.defaultscope,"SwitchCase"));
+            for (int i = ctx.expression().size() - 1; i >= 0; i--) {
+                conditional = new Conditional(expressionVisitor.visit(ctx.expression(i)),
+                        ParsingHelper.scalaList(scopeVisitor.visit(ctx.scope(i))),
+                        ParsingHelper.scalaList( conditional),ParsingHelper.info(ctx,"SwitchCase"));
+            }
+
+
+            return conditional;
         }
 
         @Override
         public Statement visitVariableDefinition(GdslParser.VariableDefinitionContext ctx) {
             ExpressionVisitor expressionVisitor = new ExpressionVisitor();
             DeclarationVisitor declarationVisitor = new DeclarationVisitor();
-            return new ValueDefinition(declarationVisitor.visit(ctx.declaration()),expressionVisitor.visit(ctx.expression()));
+            return new ValueDefinition(declarationVisitor.visit(ctx.declaration()),expressionVisitor.visit(ctx.expression()),ParsingHelper.info(ctx));
         }
 
         @Override
         public Statement visitReturnStatement(GdslParser.ReturnStatementContext ctx) {
             ExpressionVisitor expressionVisitor = new ExpressionVisitor();
-            return new Return(expressionVisitor.visit(ctx.expression()));
+            return new Return(expressionVisitor.visit(ctx.expression()),ParsingHelper.info(ctx));
         }
     }
 

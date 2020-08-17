@@ -4,7 +4,7 @@ package object ast
 }
 
 package ast {
-    class StatementInfo(lineNumber:Int,tags: List[String])
+    case class StatementInfo(lineNumber:Int, tags: List[String])
 
     sealed trait ProgramEntity
     sealed case class Program(prog: List[ProgramEntity])

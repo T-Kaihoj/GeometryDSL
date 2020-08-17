@@ -23,7 +23,7 @@ variableDefinition: declaration ASSIGNMENT expression ;
 
 returnStatement: 'return' expression;
 
-switchCase: 'switch' (variables (',' variables)*) ('case' expression ':' scope)* ;
+switchCase: 'switch' '(' ('case' expression '=>' scope)*  ('default' '=>'defaultscope= scope)? ')' ;
 
 conditionalIf: IF '(' condition=expression ')' trueBranch=scope #ifStatement
              | IF '(' condition=expression ')' trueBranch=scope ELSE (elseIfStatement=conditionalIf)? falseBranch=scope #ifElseStatement;
