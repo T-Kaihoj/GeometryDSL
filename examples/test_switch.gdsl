@@ -6,7 +6,7 @@ int test()
         case a<15 && b<15 => return 2
         case a<b  => return 23
         case b<15 => return 5
-        //default => return true
+        default => return true
     )
 )
 
