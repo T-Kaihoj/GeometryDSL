@@ -10,7 +10,7 @@ package object executor
         case (IntType, IntValue(_)) => true
         case (RealType, RealValue(_)) => true
         case (SetType, SetValue(_)) => true
-        case (ObjectType(_), ObjectValue(_, _)) => true
+        case (ObjectType(typeName), ObjectValue(valName, _)) if typeName == valName => true
         case _ => false
     }
 }

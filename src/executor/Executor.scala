@@ -17,7 +17,11 @@ class Executor
                 case _ => false
             }).getOrElse(throw new Exception(s"No method named '$mainFuncName' exists")) match
             {
-                case MethodDefinition(_, _, _, block) => executeBlock(block, Nil)
+                case MethodDefinition(_, _, _, block) => executeBlock(block, Nil) match
+                {
+                    case Right(r) => NoValue
+                    case Left(l) => l
+                }
             }
     }
 
@@ -35,28 +39,38 @@ class Executor
         case Nil => None
     }
 
-    def executeBlock(block: Block, stack: VarStack): Value = block match
+    def executeBlock(block: Block, stack: VarStack): Either[Value, VarStack] = block match
     {
-        case Nil => NoValue
-        case Return(exp,_) :: _ => executeExpression(exp, stack)
-        case h :: t => executeBlock(t, executeStatement(h, stack))
+        case Nil => Right(stack)
+        case Return(exp, _) :: _ => Left(executeExpression(exp, stack))
+        case h :: t =>
+            executeStatement(h, stack) match
+            {
+                case Right(newStack) => executeBlock(t, newStack)
+                case Left(retVal) => Left(retVal)
+            }
     }
 
-    def executeStatement(stm: Statement, stack: VarStack): VarStack = stm match
+    def executeStatement(stm: Statement, stack: VarStack): Either[Value, VarStack] = stm match
     {
-        case ValueDefinition(decl, exp,_) => Variable(decl.name, executeExpression(exp, stack)) :: stack
-        case Conditional(cond, trueBlock, falseBlock,_) => executeExpression(cond, stack) match
-        {
-            case BoolValue(true) => executeBlock(trueBlock, stack); stack
-            case BoolValue(false) => executeBlock(falseBlock, stack); stack
-            case IntValue(0) => executeBlock(falseBlock, stack); stack
-            case IntValue(_) => executeBlock(trueBlock, stack); stack
-            case RealValue(0.0) => executeBlock(falseBlock, stack); stack
-            case RealValue(_) => executeBlock(trueBlock, stack); stack
-            case x => throw new Exception(s"Conditionals on ${x.getClass} is not supported")
-        }
-        case Return(_,info) => throw new Exception("Should not happen"+info)
-        case null =>stack
+        case ValueDefinition(decl, exp,_) => Right(Variable(decl.name, executeExpression(exp, stack)) :: stack)
+        case Conditional(cond, trueBlock, falseBlock, _) =>
+            (executeExpression(cond, stack) match
+            {
+                case BoolValue(true) => true
+                case BoolValue(false) => false
+                case IntValue(0) => false
+                case IntValue(_) => true
+                case RealValue(0.0) => false
+                case RealValue(_) => true
+                case x => throw new Exception(s"Conditionals on ${x.getClass} is not supported")
+            }) match
+            {
+                case true => executeBlock(trueBlock, stack)
+                case false => executeBlock(falseBlock, stack)
+            }
+
+        case Return(_, info) => throw new Exception("Should not happen" + info)
     }
 
     def executeExpression(exp: Expression, stack: VarStack): Value = exp match
@@ -200,7 +214,11 @@ class Executor
                     callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, argValue) :: newStack)
                 case _ => throw new Exception(s"'$argValue' is not of type '$paramType'")
             }
-        case (Nil, Nil) => executeBlock(block, newStack)
+        case (Nil, Nil) => executeBlock(block, newStack) match
+        {
+            case Right(_) => NoValue
+            case Left(retVal) => retVal
+        }
         case _ => throw new Exception(s"Wrong number of arguments for calling method '$name")
     }
 

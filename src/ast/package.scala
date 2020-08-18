@@ -22,9 +22,9 @@ package ast {
     sealed case class TypeDefinition(name: String, fields: List[ValueDeclaration]) extends ProgramEntity
 
     sealed class Statement(info : StatementInfo)
-    case class ValueDefinition(decl: ValueDeclaration, exp: Expression,info : StatementInfo) extends Statement(info) with ProgramEntity
-    case class Conditional(condition: Expression, trueBlock: Block, falseBlock: Block,info : StatementInfo) extends Statement(info)
-    case class Return(exp: Expression, info : StatementInfo) extends Statement(info)
+    case class ValueDefinition(decl: ValueDeclaration, exp: Expression, info: StatementInfo) extends Statement(info) with ProgramEntity
+    case class Conditional(condition: Expression, trueBlock: Block, falseBlock: Block, info: StatementInfo) extends Statement(info)
+    case class Return(exp: Expression, info: StatementInfo) extends Statement(info)
 
     sealed trait Expression
     case class BoolLiteral(value: Boolean) extends Expression
