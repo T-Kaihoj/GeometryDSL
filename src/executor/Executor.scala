@@ -52,6 +52,7 @@ class Executor
             case IntValue(0) => executeBlock(falseBlock, stack); stack
             case IntValue(_) => executeBlock(trueBlock, stack); stack
             case RealValue(0.0) => executeBlock(falseBlock, stack); stack
+            case RealValue(_) => executeBlock(trueBlock, stack); stack
             case x => throw new Exception(s"Conditionals on ${x.getClass} is not supported")
         }
         case Return(_,info) => throw new Exception("Should not happen"+info)
