@@ -16,7 +16,7 @@ public class Main {
         GdslParse gdslParse  = new GdslParse();
         InputStream inputStream;
         Program x;
-        String file = "examples/boundingBox.gdsl";
+        String file = "examples/returnValueTest.gdsl";
         try {
             inputStream = new FileInputStream(file);
             x = gdslParse.parse(inputStream);

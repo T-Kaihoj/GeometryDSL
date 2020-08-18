@@ -19,7 +19,7 @@ class Executor
             {
                 case MethodDefinition(_, _, _, block) => executeBlock(block, Nil) match
                 {
-                    case Right(r) => NoValue
+                    case Right(_) => NoValue
                     case Left(l) => l
                 }
             }
@@ -39,6 +39,12 @@ class Executor
         case Nil => None
     }
 
+    /**
+     * Executes block of GDSL code.
+     *
+     * Returns either a (potentially) modified variable stack or a single value.
+     * If a single value is returned, the block contained a Return statement.
+     */
     def executeBlock(block: Block, stack: VarStack): Either[Value, VarStack] = block match
     {
         case Nil => Right(stack)
@@ -51,26 +57,44 @@ class Executor
             }
     }
 
+    /**
+     * Executes a Statement.
+     *
+     * Returns either a (potentially) modified variable stack or a single value.
+     * If a single value is returned, the block contained a Return statement.
+     */
     def executeStatement(stm: Statement, stack: VarStack): Either[Value, VarStack] = stm match
     {
         case ValueDefinition(decl, exp,_) => Right(Variable(decl.name, executeExpression(exp, stack)) :: stack)
-        case Conditional(cond, trueBlock, falseBlock, _) =>
-            (executeExpression(cond, stack) match
-            {
-                case BoolValue(true) => true
-                case BoolValue(false) => false
-                case IntValue(0) => false
-                case IntValue(_) => true
-                case RealValue(0.0) => false
-                case RealValue(_) => true
-                case x => throw new Exception(s"Conditionals on ${x.getClass} is not supported")
-            }) match
-            {
-                case true => executeBlock(trueBlock, stack)
-                case false => executeBlock(falseBlock, stack)
-            }
-
+        case Conditional(cond, trueBlock, falseBlock, _) => executeConditional(cond, trueBlock, falseBlock, stack)
         case Return(_, info) => throw new Exception("Should not happen" + info)
+    }
+
+    /**
+     * Executes a Conditional statement.
+     *
+     * Returns either a (potentially) modified variable stack or a single value.
+     * If a single value is returned, the block contained a Return statement.
+     */
+    def executeConditional(cond: Expression, trueBlock: Block, falseBlock: Block, stack: VarStack): Either[Value, VarStack] =
+    {
+        if(executeExpression(cond, stack) match
+        {
+            case BoolValue(true) => true
+            case BoolValue(false) => false
+            case IntValue(0) => false
+            case IntValue(_) => true
+            case RealValue(0.0) => false
+            case RealValue(_) => true
+            case x => throw new Exception(s"Conditionals on ${x.getClass} is not supported")
+        })
+        {
+            executeBlock(trueBlock, stack)
+        }
+        else
+        {
+            executeBlock(falseBlock, stack)
+        }
     }
 
     def executeExpression(exp: Expression, stack: VarStack): Value = exp match
