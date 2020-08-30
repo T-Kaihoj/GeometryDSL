@@ -1,5 +1,4 @@
 import com.microsoft.z3._
-import org.antlr.v4.runtime.atn.ContextSensitivityInfo
 
 import scala.collection.mutable
 import scala.jdk.javaapi.CollectionConverters
@@ -28,7 +27,9 @@ object Z3Test
         //parserExample1(ctx)
         //circleIntersection(ctx)
         //improvedCircleIntersection(ctx)
-        treeExample(ctx)
+        //treeExample(ctx)
+        //forrestExample(ctx)
+        translationExample()
     }
 
     def prove(ctx: Context, f: BoolExpr, useMBQI: Boolean, assumptions: BoolExpr*): Unit =
@@ -238,76 +239,6 @@ object Z3Test
         val m: Model = check(ctx, f, Status.SATISFIABLE)
     }
 
-    def circleIntersection(ctx: Context): Unit =
-    {
-        println("--- Circle Intersection Example ---")
-
-        val func: BoolExpr = ctx.parseSMTLIB2String(
-            "(declare-datatypes () ((Circle (Circle (x Real) (y Real) (r Real)))))" +
-            "(define-fun intersects ((a Circle) (b Circle)) Bool (not (> (+ (* (- (x a) (x b)) (- (x a) (x b))) (* (- (y a) (y b)) (- (y a) (y b)))) (* (+ (r a) (r b)) (+ (r a) (r b))))))" +
-            "(declare-const C Circle)" +
-            "(assert (not (intersects C C)))",
-            null,
-            null,
-            null,
-            null)(0)
-
-        println(func)
-
-        val m: Model = check(ctx, func, Status.UNSATISFIABLE)
-        println(m)
-    }
-
-    def improvedCircleIntersection(ctx: Context): Unit =
-    {
-        println("--- Improved Circle Intersection Example ---")
-
-        val circleSort: DatatypeSort = ctx.mkDatatypeSort(
-            ctx.mkSymbol("Circle"), Array(ctx.mkConstructor(
-                "Circle",
-                "Circle",
-                Array("x", "y", "r"),
-                Array(ctx.mkRealSort(), ctx.mkRealSort(), ctx.mkRealSort()),
-                null))
-        )
-
-        val getX: FuncDecl = circleSort.getAccessors()(0)(0)
-        val getY: FuncDecl = circleSort.getAccessors()(0)(1)
-        val getR: FuncDecl = circleSort.getAccessors()(0)(2)
-
-        val intersectionFunc: FuncDecl = ctx.mkFuncDecl(
-            ctx.mkSymbol("intersects"),
-            Array(circleSort, circleSort).asInstanceOf[Array[Sort]],
-            ctx.getBoolSort)
-
-        val constCirlce: FuncDecl = ctx.mkConstDecl("C", circleSort)
-
-        val intersects: BoolExpr =
-            ctx.mkNot(ctx.mkGt(
-                ctx.mkAdd(
-                    ctx.mkMul(
-                        ctx.mkSub(ctx.mkRealConst("ax"), ctx.mkRealConst("bx")),
-                        ctx.mkSub(ctx.mkRealConst("ax"), ctx.mkRealConst("bx"))),
-                    ctx.mkMul(
-                        ctx.mkSub(ctx.mkRealConst("ay"), ctx.mkRealConst("by")),
-                        ctx.mkSub(ctx.mkRealConst("ay"), ctx.mkRealConst("by")))
-                ),
-                ctx.mkMul(
-                    ctx.mkAdd(ctx.mkRealConst("ar"), ctx.mkRealConst("br")),
-                    ctx.mkAdd(ctx.mkRealConst("ar"), ctx.mkRealConst("br"))
-                )))
-
-        val conjecture = ctx.mkNot(intersects).substitute(ctx.mkRealConst("ax"), ctx.mkRealConst("ty"))
-
-        println(intersectionFunc)
-        println(constCirlce)
-
-        println(getX)
-        println(getY)
-        println(getR)
-        //val circle = ctx.mkConst("C", ctx.mkSort)
-    }
-
     def treeExample(ctx: Context): Unit =
     {
         println("--- Tree Example ---")
@@ -356,5 +287,150 @@ object Z3Test
         prove(ctx, fml, false)
 
         disprove(ctx, fml1, false)
+    }
+
+    def forrestExample(ctx: Context): Unit =
+    {
+        println("--- Forrest Example ---")
+
+        val head_tail1: Array[Symbol] = Array(ctx.mkSymbol("head"), ctx.mkSymbol("tail"))
+        val sorts1: Array[Sort] = Array(null, null)
+        val sort1_refs: Array[Int] = Array(1, 0)
+
+        val head_tail2: Array[Symbol] = Array(ctx.mkSymbol("car"), ctx.mkSymbol("cdr"))
+        val sorts2: Array[Sort] = Array(null, null)
+        val sort2_refs: Array[Int] = Array(0, 0)
+
+        val sort_names: Array[Symbol] = Array(ctx.mkSymbol("forrest"), ctx.mkSymbol("tree"))
+
+        val nil1_con = ctx.mkConstructor(ctx.mkSymbol("nil"), ctx.mkSymbol("is_nil"), null, null, null)
+        val cons1_con = ctx.mkConstructor(ctx.mkSymbol("cons1"), ctx.mkSymbol("is_cons1"), head_tail1, sorts1, sort1_refs)
+
+        val nil2_con = ctx.mkConstructor(ctx.mkSymbol("nil2"), ctx.mkSymbol("is_nil2"), null, null, null)
+        val cons2_con = ctx.mkConstructor(ctx.mkSymbol("cons2"), ctx.mkSymbol("is_cons2"), head_tail2, sorts2, sort2_refs)
+
+        val clists: Array[Array[Constructor]] = Array(Array(nil1_con, cons1_con), Array(nil2_con, cons2_con))
+
+        val sorts: Array[Sort] = ctx.mkDatatypeSorts(sort_names, clists).asInstanceOf[Array[Sort]]
+        val forest = sorts(0)
+        val tree = sorts(1)
+
+        val nil1_decl = nil1_con.ConstructorDecl()
+        val is_nil1_decl = nil1_con.getTesterDecl
+        val cons1_decl = cons1_con.ConstructorDecl()
+        val is_cons1_decl = cons1_con.getTesterDecl
+        val cons1_accessors = cons1_con.getAccessorDecls
+        val car1_decl = cons1_accessors(0)
+        val cdr1_decl = cons1_accessors(1)
+    }
+
+    def translationExample(): Unit =
+    {
+        val ctx1: Context = new Context()
+        val ctx2: Context = new Context()
+
+        val s1: Sort = ctx1.getIntSort
+        val s2: Sort = ctx2.getIntSort
+        val s3: Sort = s1.translate(ctx2)
+
+        println(s1 == s2)
+        println(s1.equals(s2))
+        println(s2.equals(s3))
+        println(s1.equals(s3))
+
+        val e1: Expr = ctx1.mkIntConst("e1")
+        val e2: Expr = ctx2.mkIntConst("e1")
+        val e3: Expr = e1.translate(ctx2)
+
+        println(e1 == e2)
+        println(e1.equals(e2))
+        println(e2.equals(e3))
+        println(e1.equals(e3))
+    }
+
+    def circleIntersection(ctx: Context): Unit =
+    {
+        println("--- Circle Intersection Example ---")
+
+        val func: BoolExpr = ctx.parseSMTLIB2String(
+            "(declare-datatypes () ((Circle (Circle (x Real) (y Real) (r Real)))))" +
+                "(define-fun intersects ((a Circle) (b Circle)) Bool (not (> (+ (* (- (x a) (x b)) (- (x a) (x b))) (* (- (y a) (y b)) (- (y a) (y b)))) (* (+ (r a) (r b)) (+ (r a) (r b))))))" +
+                "(declare-const C Circle)" +
+                "(assert (not (intersects C C)))",
+            null,
+            null,
+            null,
+            null)(0)
+
+        println(func)
+
+        val m: Model = check(ctx, func, Status.UNSATISFIABLE)
+        println(m)
+    }
+
+    def improvedCircleIntersection(ctx: Context): Unit =
+    {
+        println("--- Improved Circle Intersection Example ---")
+
+        val circleConstructor = ctx.mkConstructor(
+            "Circle",
+            "Circle",
+            Array("x", "y", "r"),
+            Array(ctx.mkRealSort, ctx.mkRealSort, ctx.mkRealSort),
+            null)
+
+        val circleSort: DatatypeSort = ctx.mkDatatypeSort(
+            ctx.mkSymbol("Circle"), Array(circleConstructor))
+
+        val getX: FuncDecl = circleSort.getAccessors()(0)(0)
+        val getY: FuncDecl = circleSort.getAccessors()(0)(1)
+        val getR: FuncDecl = circleSort.getAccessors()(0)(2)
+
+        val intersectionFunc: FuncDecl = ctx.mkFuncDecl(
+            ctx.mkSymbol("intersects"),
+            Array(circleSort, circleSort).asInstanceOf[Array[Sort]],
+            ctx.getBoolSort)
+
+        val constCircle: FuncDecl = ctx.mkConstDecl("theCircle", circleSort)
+
+        val intersects: BoolExpr =
+            ctx.mkNot(ctx.mkGt(
+                ctx.mkAdd(
+                    ctx.mkMul(
+                        ctx.mkSub(_ , _),
+                        ctx.mkSub(_ , _)),
+                    ctx.mkMul(
+                        ctx.mkSub(_, _),
+                        ctx.mkSub(_, _))),
+                ctx.mkMul(
+                    ctx.mkAdd(_, _),
+                    ctx.mkAdd(_, _))))
+
+        val Oldintersects: BoolExpr =
+            ctx.mkNot(ctx.mkGt(
+                ctx.mkAdd(
+                    ctx.mkMul(
+                        ctx.mkSub(ctx.mkRealConst("ax"), ctx.mkRealConst("bx")),
+                        ctx.mkSub(ctx.mkRealConst("ax"), ctx.mkRealConst("bx"))),
+                    ctx.mkMul(
+                        ctx.mkSub(ctx.mkRealConst("ay"), ctx.mkRealConst("by")),
+                        ctx.mkSub(ctx.mkRealConst("ay"), ctx.mkRealConst("by")))
+                ),
+                ctx.mkMul(
+                    ctx.mkAdd(ctx.mkRealConst("ar"), ctx.mkRealConst("br")),
+                    ctx.mkAdd(ctx.mkRealConst("ar"), ctx.mkRealConst("br"))
+                )))
+
+        val x = ctx.mkGt(C.x, C.y)
+
+        val conjecture = ctx.mkNot(intersects).substitute(ctx.mkRealConst("ax"), ctx.mkRealConst("ty"))
+
+        println(intersectionFunc)
+        println(constCircle)
+
+        println(getX)
+        println(getY)
+        println(getR)
+        //val circle = ctx.mkConst("C", ctx.mkSort)
     }
 }
