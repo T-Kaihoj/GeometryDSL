@@ -25,11 +25,12 @@ object Z3Test
         //quantifierExample2(ctx)
         //quantifierExample3(ctx)
         //parserExample1(ctx)
-        //circleIntersection(ctx)
-        //improvedCircleIntersection(ctx)
         //treeExample(ctx)
         //forrestExample(ctx)
-        translationExample()
+        //translationExample()
+        circleIntersection(ctx)
+        improvedCircleIntersection(ctx)
+
     }
 
     def prove(ctx: Context, f: BoolExpr, useMBQI: Boolean, assumptions: BoolExpr*): Unit =
@@ -391,23 +392,35 @@ object Z3Test
             Array(circleSort, circleSort).asInstanceOf[Array[Sort]],
             ctx.getBoolSort)
 
-        val constCircle: FuncDecl = ctx.mkConstDecl("theCircle", circleSort)
+        val constCircle = ctx.mkConst("theCircle", circleSort)
 
-        /*
+        val x = ctx.mkApp(getX, constCircle)
+
+
         val intersects: BoolExpr =
             ctx.mkNot(ctx.mkGt(
                 ctx.mkAdd(
                     ctx.mkMul(
-                        ctx.mkSub(_ , _),
-                        ctx.mkSub(_ , _)),
+                        ctx.mkSub(
+                            ctx.mkApp(getX, constCircle).asInstanceOf[ArithExpr],
+                            ctx.mkApp(getX, constCircle).asInstanceOf[ArithExpr]),
+                        ctx.mkSub(
+                            ctx.mkApp(getX, constCircle).asInstanceOf[ArithExpr],
+                            ctx.mkApp(getX, constCircle).asInstanceOf[ArithExpr])),
                     ctx.mkMul(
-                        ctx.mkSub(_, _),
-                        ctx.mkSub(_, _))),
+                        ctx.mkSub(
+                            ctx.mkApp(getY, constCircle).asInstanceOf[ArithExpr],
+                            ctx.mkApp(getY, constCircle).asInstanceOf[ArithExpr]),
+                        ctx.mkSub(
+                            ctx.mkApp(getY, constCircle).asInstanceOf[ArithExpr],
+                            ctx.mkApp(getY, constCircle).asInstanceOf[ArithExpr]))),
                 ctx.mkMul(
-                    ctx.mkAdd(_, _),
-                    ctx.mkAdd(_, _))))
-
-         */
+                    ctx.mkAdd(
+                        ctx.mkApp(getR, constCircle).asInstanceOf[ArithExpr],
+                        ctx.mkApp(getR, constCircle).asInstanceOf[ArithExpr]),
+                    ctx.mkAdd(
+                        ctx.mkApp(getR, constCircle).asInstanceOf[ArithExpr],
+                        ctx.mkApp(getR, constCircle).asInstanceOf[ArithExpr]))))
 
         val Oldintersects: BoolExpr =
             ctx.mkNot(ctx.mkGt(
@@ -424,16 +437,16 @@ object Z3Test
                     ctx.mkAdd(ctx.mkRealConst("ar"), ctx.mkRealConst("br"))
                 )))
 
-        //val x = ctx.mkGt(C.x, C.y)
+        val conjecture = ctx.mkNot(intersects)
 
-        //val conjecture = ctx.mkNot(intersects).substitute(ctx.mkRealConst("ax"), ctx.mkRealConst("ty"))
+        disprove(ctx, conjecture, false)
 
-        println(intersectionFunc)
-        println(constCircle)
+        //println(intersectionFunc)
+        //println(constCircle)
 
-        println(getX)
-        println(getY)
-        println(getR)
+        //println(getX)
+        //println(getY)
+        //println(getR)
         //val circle = ctx.mkConst("C", ctx.mkSort)
     }
 }
