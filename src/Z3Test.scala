@@ -393,6 +393,7 @@ object Z3Test
 
         val constCircle: FuncDecl = ctx.mkConstDecl("theCircle", circleSort)
 
+        /*
         val intersects: BoolExpr =
             ctx.mkNot(ctx.mkGt(
                 ctx.mkAdd(
@@ -405,6 +406,8 @@ object Z3Test
                 ctx.mkMul(
                     ctx.mkAdd(_, _),
                     ctx.mkAdd(_, _))))
+
+         */
 
         val Oldintersects: BoolExpr =
             ctx.mkNot(ctx.mkGt(
@@ -421,9 +424,9 @@ object Z3Test
                     ctx.mkAdd(ctx.mkRealConst("ar"), ctx.mkRealConst("br"))
                 )))
 
-        val x = ctx.mkGt(C.x, C.y)
+        //val x = ctx.mkGt(C.x, C.y)
 
-        val conjecture = ctx.mkNot(intersects).substitute(ctx.mkRealConst("ax"), ctx.mkRealConst("ty"))
+        //val conjecture = ctx.mkNot(intersects).substitute(ctx.mkRealConst("ax"), ctx.mkRealConst("ty"))
 
         println(intersectionFunc)
         println(constCircle)
