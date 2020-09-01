@@ -10,7 +10,9 @@ class Executor
     def executeProgram(program: Program, mainFuncName: String): Value = program match
     {
         case Program(entities) =>
-            prepareProgramExecution(entities)
+            val (_programMemory, _globalStack) = prepareProgramExecution(entities)
+            programMemory = _programMemory
+            globalStack = _globalStack
             programMemory.find(p => p match
             {
                 case MethodDefinition(name, _, params, _) => name == mainFuncName && params.isEmpty
@@ -25,18 +27,20 @@ class Executor
             }
     }
 
-    def prepareProgramExecution(program: List[ProgramEntity]): Unit = program match
+    /**
+     * Returns program memory and global stack for a program before execution.
+     */
+    def prepareProgramExecution(program: List[ProgramEntity],
+                                _programMemory: List[ProgramEntity] = List(),
+                                _globalStack: VarStack = List()):(List[ProgramEntity], VarStack) = program match
     {
         case (valDef: ValueDefinition) :: tail =>
-            globalStack = defToVar(valDef, globalStack) :: globalStack
-            prepareProgramExecution(tail)
+            prepareProgramExecution(tail, _programMemory, defToVar(valDef, _globalStack) :: _globalStack)
         case (methodDef: MethodDefinition) :: tail =>
-            programMemory = methodDef :: programMemory
-            prepareProgramExecution(tail)
+            prepareProgramExecution(tail, methodDef :: _programMemory, _globalStack)
         case (typeDef: TypeDefinition) :: tail =>
-            programMemory = typeDef :: programMemory
-            prepareProgramExecution(tail)
-        case Nil => None
+            prepareProgramExecution(tail, typeDef :: _programMemory, _globalStack)
+        case Nil => (_programMemory, _globalStack)
     }
 
     /**
