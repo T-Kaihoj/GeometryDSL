@@ -28,11 +28,10 @@ object TestMain
                         Operation(Add, List(MemberAccess(Identifier("a"), "r"), MemberAccess(Identifier("b"), "r"))),
                         Operation(Add, List(MemberAccess(Identifier("a"), "r"), MemberAccess(Identifier("b"), "r")))
                     ))
-                )))),
-                    StatementInfo(0, Nil)))),
+                ))))))),
             MethodDefinition("main", ObjectType("Circle"), List(), List(
-                ValueDefinition(ValueDeclaration("C", ObjectType("Circle")), Operation(MethodCall("Circle", 3), List(RealLiteral(4.1), RealLiteral(2.78), RealLiteral(1.12))), StatementInfo(0, Nil)),
-                Return(Operation(MethodCall("intersects", 2), List(Identifier("C"), Identifier("C"))), StatementInfo(0, Nil))))))
+                ValueDefinition(ValueDeclaration("C", ObjectType("Circle")), Operation(MethodCall("Circle", 3), List(RealLiteral(4.1), RealLiteral(2.78), RealLiteral(1.12)))),
+                Return(Operation(MethodCall("intersects", 2), List(Identifier("C"), Identifier("C"))))))))
 
 
         val newProgram = RelationChecker.checkRelations(program)

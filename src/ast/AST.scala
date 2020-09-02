@@ -11,11 +11,11 @@ object AST
 
     def containsExpression(stm: Statement, targetExp: Expression): Boolean = stm match
     {
-        case Conditional(cond, t, f,_) => containsExpression(cond, targetExp) ||
+        case Conditional(cond, t, f) => containsExpression(cond, targetExp) ||
                                         containsExpression(t, targetExp) ||
                                         containsExpression(f, targetExp)
-        case ValueDefinition(_, exp,_) => containsExpression(exp, targetExp)
-        case Return(exp,_) => containsExpression(exp, targetExp)
+        case ValueDefinition(_, exp) => containsExpression(exp, targetExp)
+        case Return(exp) => containsExpression(exp, targetExp)
     }
 
     def containsExpression(exp: Expression, targetExp: Expression): Boolean =
@@ -44,8 +44,8 @@ object AST
 
     def replaceExpression(stm: Statement, oldExp: Expression, newExp: Expression): Statement = stm match
     {
-        case Conditional(cond, t, f,info) => Conditional(replaceExpression(cond, oldExp, newExp), replaceExpression(t, oldExp, newExp), replaceExpression(f, oldExp, newExp),info)
-        case ValueDefinition(decl, exp,info) => ValueDefinition(decl, replaceExpression(exp, oldExp, newExp),info)
+        case Conditional(cond, t, f) => Conditional(replaceExpression(cond, oldExp, newExp), replaceExpression(t, oldExp, newExp), replaceExpression(f, oldExp, newExp))
+        case ValueDefinition(decl, exp) => ValueDefinition(decl, replaceExpression(exp, oldExp, newExp))
         case _ => stm
     }
 

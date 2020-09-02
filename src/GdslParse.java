@@ -189,7 +189,9 @@ public class GdslParse {
         public ProgramEntity visitVariableDefinition(GdslParser.VariableDefinitionContext ctx) {
             ExpressionVisitor expressionVisitor = new ExpressionVisitor();
             DeclarationVisitor declarationVisitor = new DeclarationVisitor();
-            return new ValueDefinition(declarationVisitor.visit(ctx.declaration()),expressionVisitor.visit(ctx.expression()),ParsingHelper.info(ctx));
+            ValueDefinition valDef = new ValueDefinition(declarationVisitor.visit(ctx.declaration()), expressionVisitor.visit(ctx.expression()));
+            valDef.info_$eq(ParsingHelper.info(ctx));
+            return valDef;
         }
 
         @Override
@@ -236,9 +238,12 @@ public class GdslParse {
         public Statement visitIfStatement(GdslParser.IfStatementContext ctx){
             ExpressionVisitor expressionVisitor = new ExpressionVisitor();
             ScopeVisitor scopeVisitor = new ScopeVisitor();
-            return new Conditional(expressionVisitor.visit(ctx.condition),
+            Conditional cond = new Conditional(
+                    expressionVisitor.visit(ctx.condition),
                     ParsingHelper.scalaList(scopeVisitor.visitScope(ctx.trueBranch)),
-                    ParsingHelper.scalaList(),ParsingHelper.info(ctx));
+                    ParsingHelper.scalaList());
+            cond.info_$eq(ParsingHelper.info(ctx));
+            return cond;
         }
 
         @Override
@@ -247,15 +252,19 @@ public class GdslParse {
             StatementVisitor statementVisitor = new StatementVisitor();
             ScopeVisitor scopeVisitor = new ScopeVisitor();
             if(ctx.elseIfStatement != null){
-                return new Conditional(expressionVisitor.visit(ctx.condition),
+                Conditional cond = new Conditional(
+                        expressionVisitor.visit(ctx.condition),
                         ParsingHelper.scalaList(scopeVisitor.visitScope(ctx.trueBranch)),
-                        ParsingHelper.scalaList(statementVisitor.visit(ctx.elseIfStatement)),
-                        ParsingHelper.info(ctx));
-            }
-            else{
-                return new Conditional(expressionVisitor.visit(ctx.condition),
+                        ParsingHelper.scalaList());
+                cond.info_$eq(ParsingHelper.info(ctx));
+                return cond;
+            }else{
+                Conditional cond = new Conditional(
+                        expressionVisitor.visit(ctx.condition),
                         ParsingHelper.scalaList(scopeVisitor.visitScope(ctx.trueBranch)),
-                        ParsingHelper.scalaList(scopeVisitor.visitScope(ctx.falseBranch)),ParsingHelper.info(ctx));
+                        ParsingHelper.scalaList());
+                cond.info_$eq(ParsingHelper.info(ctx));
+                return cond;
             }
         }
 
@@ -267,13 +276,18 @@ public class GdslParse {
 
             Conditional conditional =null;
             if (ctx.defaultscope != null) //Creates default path
-                conditional = new Conditional(new BoolLiteral(true),ParsingHelper.scalaList(scopeVisitor.visit(ctx.defaultscope)),ParsingHelper.scalaList(),ParsingHelper.info(ctx.defaultscope,"SwitchCase"));
+                conditional = new Conditional(
+                        new BoolLiteral(true),
+                        ParsingHelper.scalaList(scopeVisitor.visit(ctx.defaultscope)),
+                        ParsingHelper.scalaList());
+                conditional.info_$eq(ParsingHelper.info(ctx.defaultscope,"SwitchCase"));
             for (int i = ctx.expression().size() - 1; i >= 0; i--) {
-                conditional = new Conditional(expressionVisitor.visit(ctx.expression(i)),
+                conditional = new Conditional(
+                        expressionVisitor.visit(ctx.expression(i)),
                         ParsingHelper.scalaList(scopeVisitor.visit(ctx.scope(i))),
-                        ParsingHelper.scalaList( conditional),ParsingHelper.info(ctx,"SwitchCase"));
+                        ParsingHelper.scalaList( conditional));
+                conditional.info_$eq(ParsingHelper.info(ctx,"SwitchCase"));
             }
-
 
             return conditional;
         }
@@ -282,13 +296,17 @@ public class GdslParse {
         public Statement visitVariableDefinition(GdslParser.VariableDefinitionContext ctx) {
             ExpressionVisitor expressionVisitor = new ExpressionVisitor();
             DeclarationVisitor declarationVisitor = new DeclarationVisitor();
-            return new ValueDefinition(declarationVisitor.visit(ctx.declaration()),expressionVisitor.visit(ctx.expression()),ParsingHelper.info(ctx));
+            ValueDefinition valDef = new ValueDefinition(declarationVisitor.visit(ctx.declaration()), expressionVisitor.visit(ctx.expression()));
+            valDef.info_$eq(ParsingHelper.info(ctx));
+            return valDef;
         }
 
         @Override
         public Statement visitReturnStatement(GdslParser.ReturnStatementContext ctx) {
             ExpressionVisitor expressionVisitor = new ExpressionVisitor();
-            return new Return(expressionVisitor.visit(ctx.expression()),ParsingHelper.info(ctx));
+            Return ret = new Return(expressionVisitor.visit(ctx.expression()));
+            ret.info_$eq(ParsingHelper.info(ctx));
+            return ret;
         }
     }
 
@@ -300,6 +318,4 @@ public class GdslParse {
             return new ElementDefinition(ctx.localName.getText(),expressionVisitor.visit(ctx.globalName));
         }
     }
-
-
 }

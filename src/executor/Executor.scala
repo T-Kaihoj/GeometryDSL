@@ -52,7 +52,7 @@ class Executor
     def executeBlock(block: Block, stack: VarStack): Either[Value, VarStack] = block match
     {
         case Nil => Right(stack)
-        case Return(exp, _) :: _ => Left(executeExpression(exp, stack))
+        case Return(exp) :: _ => Left(executeExpression(exp, stack))
         case h :: t =>
             executeStatement(h, stack) match
             {
@@ -69,9 +69,9 @@ class Executor
      */
     def executeStatement(stm: Statement, stack: VarStack): Either[Value, VarStack] = stm match
     {
-        case ValueDefinition(decl, exp,_) => Right(Variable(decl.name, executeExpression(exp, stack)) :: stack)
-        case Conditional(cond, trueBlock, falseBlock, _) => executeConditional(cond, trueBlock, falseBlock, stack)
-        case Return(_, info) => throw new Exception("Should not happen" + info)
+        case ValueDefinition(decl, exp) => Right(Variable(decl.name, executeExpression(exp, stack)) :: stack)
+        case Conditional(cond, trueBlock, falseBlock) => executeConditional(cond, trueBlock, falseBlock, stack)
+        case r: Return => throw new Exception("Should not happen" + r.info)
     }
 
     /**
@@ -279,9 +279,9 @@ class Executor
 
     def defToVar(valDef: ValueDefinition, stack: VarStack): Variable = valDef match
     {
-        case ValueDefinition(ValueDeclaration(name, BoolType), exp,_) => Variable(name, executeExpression(exp, stack))
-        case ValueDefinition(ValueDeclaration(name, IntType), exp,_) => Variable(name, executeExpression(exp, stack))
-        case ValueDefinition(ValueDeclaration(name, RealType), exp,_) => Variable(name, executeExpression(exp, stack))
-        case ValueDefinition(ValueDeclaration(name, SetType), exp,_) => Variable(name, executeExpression(exp, stack))
+        case ValueDefinition(ValueDeclaration(name, BoolType), exp) => Variable(name, executeExpression(exp, stack))
+        case ValueDefinition(ValueDeclaration(name, IntType), exp) => Variable(name, executeExpression(exp, stack))
+        case ValueDefinition(ValueDeclaration(name, RealType), exp) => Variable(name, executeExpression(exp, stack))
+        case ValueDefinition(ValueDeclaration(name, SetType), exp) => Variable(name, executeExpression(exp, stack))
     }
 }
