@@ -19,22 +19,33 @@ object RelationChecker
     {
         case MethodDefinition(name, BoolType, params, block)
             if  params.length == 2 &&
-                params.head.typeId == params.tail.head.typeId => checkReflexivity(program, params, block); methodDef
+                params.head.typeId == params.tail.head.typeId => if(checkReflexivity(program, params, block))
+            {
+                println(s"Method '${name}' is reflexive!")
+            }
+            else
+            {
+                println(s"Method '${name}' is NOT reflexive!")
+            }; methodDef
         case _ => methodDef
     }
 
-    def checkReflexivity(program: Program, params: List[ValueDeclaration], block: Block): Unit =
+    def checkReflexivity(program: Program, params: List[ValueDeclaration], block: Block): Boolean =
     {
-        val paramNames = params.map(p => p.name)
-        val paramTypes = params.map(p => p.typeId)
         val ctx = new Context()
         val converter = new AstToZ3Converter(ctx, program)
 
-        block match
+        val expression: BoolExpr = block match
         {
-            case Return(exp) :: Nil => converter.convert(exp, params)
+            case Return(exp) :: Nil => converter.convertExpression(exp, params) match
+            {
+                case b: BoolExpr => b
+                case _ => throw new Exception("Conversion does not result in a BoolExpr")
+            }
             case (stm: Statement) :: _ => throw new Exception("checkReflexivity only works with a single return statement " + stm.info)
         }
+
+        prove(ctx, expression, ctx.mkBool(false))
     }
 
     def run(): Unit =

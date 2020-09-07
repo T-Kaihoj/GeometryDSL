@@ -16,7 +16,7 @@ class AstToZ3Converter(ctx: z3.Context, program: ast.Program)
                 name,
                 "mk" + name,
                 fields.map(f => f.name).toArray,
-                fields.map(f => typeToSort(ctx, f.typeId)).toArray,
+                fields.map(f => convertType(f.typeId).get).toArray,
                 null)
             ctx.mkDatatypeSort(name, Array(constructor))
     })
@@ -26,16 +26,16 @@ class AstToZ3Converter(ctx: z3.Context, program: ast.Program)
         case ast.ValueDefinition(decl, _) => decl
     }
 
-    def typeToSort(ctx: z3.Context, typeId: ast.Type): com.microsoft.z3.Sort = typeId match
+    def convertType(typeId: ast.Type): Option[z3.Sort] = typeId match
     {
-        case ast.BoolType => ctx.mkBoolSort
-        case ast.IntType => ctx.mkIntSort
-        case ast.RealType => ctx.mkRealSort
-        case ast.SetType => ctx.mkRealSort()
-        case ast.ObjectType(typeName) => ctx.mkDatatypeSort(typeName, Array())
+        case ast.BoolType => Some(ctx.mkBoolSort)
+        case ast.IntType => Some(ctx.mkIntSort)
+        case ast.RealType => Some(ctx.mkRealSort)
+        case ast.SetType => throw new Exception("Cannot convert from SetType to Z3 equivalent")
+        case ast.ObjectType(typeName) => sorts.find(s => s.getName.toString == typeName)
     }
 
-    def convert(exp: ast.Expression, values: List[ast.ValueDeclaration]): z3.Expr = exp match
+    def convertExpression(exp: ast.Expression, values: List[ast.ValueDeclaration]): z3.Expr = exp match
     {
         case ast.BoolLiteral(b) => ctx.mkBool(b)
         case ast.IntLiteral(i) => ctx.mkInt(i)
@@ -48,70 +48,70 @@ class AstToZ3Converter(ctx: z3.Context, program: ast.Program)
         {
             case ast.Negation => throw new Exception("Negation to Z3-Expr not supported")
             case ast.Not => ctx.mkNot(
-                convert(operands.head, values ++ globalValues).asInstanceOf[z3.BoolExpr])
+                convertExpression(operands.head, values ++ globalValues).asInstanceOf[z3.BoolExpr])
             case ast.Cardinality => throw new Exception("Cardinality to Z3-Expr not supported")
             case ast.Forall(_) => throw new Exception("Forall to Z3-Expr not supported")
             case ast.Exists(_) => throw new Exception("Exists to Z3-Expr not supported")
             case ast.Add => ctx.mkAdd(
-                convert(operands.head, values).asInstanceOf[z3.ArithExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.ArithExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
             case ast.Sub => ctx.mkSub(
-                convert(operands.head, values).asInstanceOf[z3.ArithExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.ArithExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
             case ast.Mul => ctx.mkMul(
-                convert(operands.head, values).asInstanceOf[z3.ArithExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.ArithExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
             case ast.Div => ctx.mkDiv(
-                convert(operands.head, values).asInstanceOf[z3.ArithExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.ArithExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
             case ast.Pow => ctx.mkPower(
-                convert(operands.head, values).asInstanceOf[z3.ArithExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.ArithExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
             case ast.Equal => ctx.mkEq(
-                convert(operands.head, values).asInstanceOf[z3.ArithExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.ArithExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
             case ast.NotEqual => ctx.mkNot(ctx.mkEq(
-                convert(operands.head, values),
-                convert(operands.tail.head, values)))
+                convertExpression(operands.head, values),
+                convertExpression(operands.tail.head, values)))
             case ast.LessThan => ctx.mkLt(
-                convert(operands.head, values).asInstanceOf[z3.ArithExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.ArithExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
             case ast.LessThanEqual => ctx.mkLe(
-                convert(operands.head, values).asInstanceOf[z3.ArithExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.ArithExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
             case ast.GreaterThan => ctx.mkGt(
-                convert(operands.head, values).asInstanceOf[z3.ArithExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.ArithExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
             case ast.GreaterThanEqual => ctx.mkGe(
-                convert(operands.head, values).asInstanceOf[z3.ArithExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.ArithExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.ArithExpr])
             case ast.And => ctx.mkAnd(
-                convert(operands.head, values).asInstanceOf[z3.BoolExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.BoolExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.BoolExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.BoolExpr])
             case ast.Or => ctx.mkOr(
-                convert(operands.head, values).asInstanceOf[z3.BoolExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.BoolExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.BoolExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.BoolExpr])
             case ast.Implies => ctx.mkImplies(
-                convert(operands.head, values).asInstanceOf[z3.BoolExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.BoolExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.BoolExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.BoolExpr])
             case ast.Union => ctx.mkUnion(
-                convert(operands.head, values).asInstanceOf[z3.ReExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.ReExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.ReExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.ReExpr])
             case ast.Intersect => ctx.mkIntersect(
-                convert(operands.head, values).asInstanceOf[z3.ReExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.ReExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.ReExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.ReExpr])
             case ast.Difference => ctx.mkSetDifference(
-                convert(operands.head, values).asInstanceOf[z3.ArrayExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.ArrayExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.ArrayExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.ArrayExpr])
             case ast.Subset => ctx.mkSetSubset(
-                convert(operands.head, values).asInstanceOf[z3.ArrayExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.ArrayExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.ArrayExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.ArrayExpr])
             case ast.PropSubset => ctx.mkSetSubset(
-                convert(operands.head, values).asInstanceOf[z3.ArrayExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.ArrayExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.ArrayExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.ArrayExpr])
             case ast.InSet => ctx.mkSetMembership(
-                convert(operands.head, values).asInstanceOf[z3.ReExpr],
-                convert(operands.tail.head, values).asInstanceOf[z3.ArrayExpr])
+                convertExpression(operands.head, values).asInstanceOf[z3.ReExpr],
+                convertExpression(operands.tail.head, values).asInstanceOf[z3.ArrayExpr])
             case ast.MethodCall(name, argumentCount) => throw new Exception("MethodCall to Z3-Expr not supported")
         }
     }
