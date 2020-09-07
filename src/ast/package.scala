@@ -6,7 +6,7 @@ package object ast
 package ast
 {
     sealed trait ProgramEntity
-    sealed case class Program(prog: List[ProgramEntity])
+    sealed case class Program(program: List[ProgramEntity])
 
     sealed class MetaInfo(val lineNumber: Int = 0, val tags: List[String] = List())
 

@@ -1,5 +1,7 @@
 package ast
 
+import scala.annotation.tailrec
+
 object AST
 {
     @scala.annotation.tailrec
@@ -65,4 +67,25 @@ object AST
         }
     }
 
+    @tailrec
+    def getTypeOf(name: String, block: Block): Option[Type] = block match
+    {
+        case head :: tail => head match
+        {
+            case ValueDefinition(ValueDeclaration(n, typeId), _) if n == name => Some(typeId)
+            case _ => getTypeOf(name, tail)
+        }
+        case Nil => None
+    }
+
+    @tailrec
+    def getTypeDefinition(tree: Program, typeName: String): Option[TypeDefinition] = tree.program match
+    {
+        case head :: tail => head match
+        {
+            case TypeDefinition(name, fields) if name == typeName => Some(TypeDefinition(name, fields))
+            case _ => getTypeDefinition(Program(tail), typeName)
+        }
+        case Nil => None
+    }
 }
