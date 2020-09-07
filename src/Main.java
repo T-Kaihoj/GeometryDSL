@@ -17,12 +17,13 @@ public class Main {
             inputStream = new FileInputStream(fileName);
         }catch(IOException e){
             System.out.println("Could not find file: " + fileName);
+            return;
         }
 
         Program program = parser.parse(inputStream);
         Executor executor = new Executor();
         System.out.println(executor.executeProgram(program, "main"));
 
-        //RelationChecker.checkRelations(program);
+        RelationChecker.checkRelations(program);
     }
 }

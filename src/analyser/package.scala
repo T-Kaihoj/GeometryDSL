@@ -36,13 +36,4 @@ package object analyser
             case Status.UNSATISFIABLE => false
         }
     }
-
-    def typeToSort(ctx: Context, typeId: ast.Type): com.microsoft.z3.Sort = typeId match
-    {
-        case ast.BoolType => ctx.mkBoolSort
-        case ast.IntType => ctx.mkIntSort
-        case ast.RealType => ctx.mkRealSort
-        case ast.SetType => ctx.mkRealSort()
-        case ast.ObjectType(typeName) => ctx.mkDatatypeSort(typeName, Array())
-    }
 }

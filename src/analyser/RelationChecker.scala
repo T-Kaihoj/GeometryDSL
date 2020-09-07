@@ -7,26 +7,34 @@ object RelationChecker
 {
     def checkRelations(program: Program): Program =
     {
-        Program(program.prog.map
+        Program(program.program.map
         {
             case t: TypeDefinition => t
-            case m: MethodDefinition => checkRelation(m)
+            case m: MethodDefinition => checkRelation(program, m)
             case v: ValueDefinition => v
         })
     }
 
-    def checkRelation(methodDef: MethodDefinition): MethodDefinition = methodDef match
+    def checkRelation(program: Program, methodDef: MethodDefinition): MethodDefinition = methodDef match
     {
         case MethodDefinition(name, BoolType, params, block)
             if  params.length == 2 &&
-                params.head.typeId == params.tail.head.typeId => checkReflexivity(params, block); methodDef
+                params.head.typeId == params.tail.head.typeId => checkReflexivity(program, params, block); methodDef
         case _ => methodDef
     }
 
-    def checkReflexivity(params: List[ValueDeclaration], block: Block): Unit =
+    def checkReflexivity(program: Program, params: List[ValueDeclaration], block: Block): Unit =
     {
         val paramNames = params.map(p => p.name)
         val paramTypes = params.map(p => p.typeId)
+        val ctx = new Context()
+        val converter = new AstToZ3Converter(ctx, program)
+
+        block match
+        {
+            case Return(exp) :: Nil => converter.convert(exp, params)
+            case (stm: Statement) :: _ => throw new Exception("checkReflexivity only works with a single return statement " + stm.info)
+        }
     }
 
     def run(): Unit =
