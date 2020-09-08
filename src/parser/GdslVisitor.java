@@ -141,6 +141,13 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitOrExp(GdslParser.OrExpContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code notExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNotExp(GdslParser.NotExpContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code addSubExp}
 	 * labeled alternative in {@link GdslParser#expression}.
 	 * @param ctx the parse tree
@@ -210,10 +217,4 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSetQuantificationCallExp(GdslParser.SetQuantificationCallExpContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link GdslParser#variables}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitVariables(GdslParser.VariablesContext ctx);
 }

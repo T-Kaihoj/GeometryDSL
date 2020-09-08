@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GdslParse {
+public class CustomGdslParser {
 
     public Program parse(String someLangSourceCode) {
         CharStream charStream = new ANTLRInputStream(someLangSourceCode);
@@ -126,6 +126,12 @@ public class GdslParse {
         @Override
         public Expression visitOrExp(GdslParser.OrExpContext ctx) {
             return new Operation(ParsingHelper.operatorObject("Or",2), ParsingHelper.scalaList(this.visit(ctx.expression(0)), this.visit(ctx.expression(1))));
+        }
+
+        // not expression #notExp
+        @Override
+        public Expression visitNotExp(GdslParser.NotExpContext ctx) {
+            return new Operation(ParsingHelper.operatorObject("Not", 1), ParsingHelper.scalaList(this.visit(ctx.expression())));
         }
 
         // '{' setElementDefinition ('|'expression )? '|' expression '}'#setComprehensionExp

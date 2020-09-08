@@ -9,7 +9,7 @@ import java.io.InputStream;
 public class Main {
     public static void main(String[] args) throws Exception
     {
-        GdslParse parser = new GdslParse();
+        CustomGdslParser parser = new CustomGdslParser();
         InputStream inputStream = null;
         String fileName = "examples/circleIntersection.gdsl";
 

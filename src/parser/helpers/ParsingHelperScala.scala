@@ -28,6 +28,7 @@ object ParsingHelperScala
         case ">=" => GreaterThanEqual
         case "And" => And
         case "Or" => Or
+        case "Not" => Not
         case "Implies" => Implies
         case "Union" => Union
         case "Intersect" => Intersect

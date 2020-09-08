@@ -256,6 +256,18 @@ public class GdslBaseListener implements GdslListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterNotExp(GdslParser.NotExpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNotExp(GdslParser.NotExpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAddSubExp(GdslParser.AddSubExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -371,18 +383,6 @@ public class GdslBaseListener implements GdslListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSetQuantificationCallExp(GdslParser.SetQuantificationCallExpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterVariables(GdslParser.VariablesContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitVariables(GdslParser.VariablesContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
