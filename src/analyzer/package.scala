@@ -1,8 +1,8 @@
 import com.microsoft.z3._
 
-package object analyser
+package object analyzer
 {
-    def check(ctx: Context, conjecture: BoolExpr, assumptions: BoolExpr*): Status =
+    def checkSatisfiability(ctx: Context, conjecture: BoolExpr, assumptions: BoolExpr*): Status =
     {
         val solver: Solver = ctx.mkSolver()
         val params: Params = ctx.mkParams()
@@ -12,14 +12,14 @@ package object analyser
 
         solver.setParameters(params)
         assumptions.foreach(a => solver.add(a))
-        solver.add(ctx.mkNot(conjecture))
+        solver.add(conjecture)
 
         solver.check()
     }
 
     def prove(ctx: Context, conjecture: BoolExpr, assumptions: BoolExpr*): Boolean =
     {
-        check(ctx, conjecture, assumptions:_*) match
+        checkSatisfiability(ctx, ctx.mkNot(conjecture), assumptions:_*) match
         {
             case Status.UNKNOWN => false
             case Status.SATISFIABLE => false
@@ -29,7 +29,7 @@ package object analyser
 
     def disprove(ctx: Context, conjecture: BoolExpr, assumptions: BoolExpr*): Boolean =
     {
-        check(ctx, conjecture, assumptions:_*) match
+        checkSatisfiability(ctx, ctx.mkNot(conjecture), assumptions:_*) match
         {
             case Status.UNKNOWN => false
             case Status.SATISFIABLE => true

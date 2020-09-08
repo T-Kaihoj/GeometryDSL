@@ -1,4 +1,4 @@
-package analyser
+package analyzer
 
 import ast._
 import com.microsoft.z3._
@@ -39,11 +39,13 @@ object RelationChecker
         {
             case Return(exp) :: Nil => converter.convertExpression(exp, params) match
             {
-                case b: BoolExpr => b
+                case b: BoolExpr => println(exp); b
                 case _ => throw new Exception("Conversion does not result in a BoolExpr")
             }
             case (stm: Statement) :: _ => throw new Exception("checkReflexivity only works with a single return statement " + stm.info)
         }
+
+        println(expression.toString)
 
         prove(ctx, expression, ctx.mkBool(false))
     }

@@ -1,4 +1,4 @@
-package analyser
+package analyzer
 
 import com.microsoft.z3
 

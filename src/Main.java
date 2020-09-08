@@ -1,4 +1,4 @@
-import analyser.RelationChecker;
+import analyzer.RelationChecker;
 import ast.Program;
 import executor.Executor;
 
@@ -22,7 +22,7 @@ public class Main {
 
         Program program = parser.parse(inputStream);
         Executor executor = new Executor();
-        System.out.println(executor.executeProgram(program, "main"));
+        executor.executeProgram(program, "main");
 
         RelationChecker.checkRelations(program);
     }
