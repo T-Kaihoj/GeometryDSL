@@ -57,7 +57,7 @@ object AST
         else exp match
         {
             case SetLiteral(l) => SetLiteral(l.map(s => replaceExpression(s, oldExp, newExp)))
-            //case Operation(op, operands) => Operation(op, operands.map(x => replaceExpression(x, oldExp, newExp)))
+            case Operation(operator, operands) => Operation(operator, operands.map(x => replaceExpression(x, oldExp, newExp)))
             case MemberAccess(exp, field) => MemberAccess(replaceExpression(exp, oldExp, newExp), field)
             case SetComprehension(ElementDefinition(name, exp), check, app) => SetComprehension(
                 ElementDefinition(name, replaceExpression(exp, oldExp, newExp)),
