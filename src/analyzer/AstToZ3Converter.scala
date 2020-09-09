@@ -50,7 +50,7 @@ class AstToZ3Converter(ctx: z3.Context, program: ast.Program)
             case ast.Not => ctx.mkNot(
                 convertExpression(operands.head, values ++ globalValues).asInstanceOf[z3.BoolExpr])
             case ast.Cardinality => throw new Exception("Cardinality to Z3-Expr not supported")
-            case ast.Forall(elem) => convertForall(elem, convertExpression(exp, values))
+            case ast.Forall(elem) => convertForall(elem, convertExpression(operands.head, values))
             case ast.Exists(_) => throw new Exception("Exists to Z3-Expr not supported")
             case ast.Add => ctx.mkAdd(
                 convertExpression(operands.head, values).asInstanceOf[z3.ArithExpr],
@@ -136,20 +136,25 @@ class AstToZ3Converter(ctx: z3.Context, program: ast.Program)
         case _ => None
     }
 
-    def convertForall(element: ast.ElementDefinition, exp: z3.Expr): z3.Expr =
+    def convertForall(elementDefinition: ast.ElementDefinition, conditionExpression: z3.Expr): z3.Expr =
     {
-        val sort = element.exp match
+        val sort: z3.Sort = elementDefinition.exp match
         {
-            case ast.Identifier(name) => sorts.find(s => s.getName.toString == name)
+            case ast.Identifier(name) => sorts.find(s => s.getName.toString == name).get
         }
-        ctx.mkForall(
+
+        val forall = ctx.mkForall(
             Array(sort),
-            Array(element.name),
-            exp,
+            Array(ctx.mkSymbol(elementDefinition.name)),
+            conditionExpression,
             1,
             Array(),
             null,
             null,
             null)
+
+        println(forall.toString)
+        forall
+
     }
 }
