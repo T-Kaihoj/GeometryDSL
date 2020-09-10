@@ -12,7 +12,7 @@ public class Transpilation {
 
     public String convert(ast.Program ast) {
         List<String> python = new LinkedList<>();
-        ast.prog().foreach(v1 -> python.add(convertProgramEntity(v1)));
+        ast.program().foreach(v1 -> python.add(convertProgramEntity(v1)));
         return String.join("\n", python);
     }
 

@@ -1,11 +1,10 @@
+import analyzer.RelationChecker;
 import ast.Program;
+import executor.Executor;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 import executor.Executor;
 import optimizer.BaseOptimizer;
@@ -17,40 +16,25 @@ import org.antlr.v4.runtime.CharStream;
 import transpilation.Transpilation;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
-        GdslParse gdslParse  = new GdslParse();
-        InputStream inputStream;
-        Program x;
-        String file = "examples/boundingBox.gdsl";
-        try {
-            inputStream = new FileInputStream(file);
-            x = gdslParse.parse(inputStream);
-            System.out.println(x);
+    public static void main(String[] args) throws Exception
+    {
+        CustomGdslParser parser = new CustomGdslParser();
+        InputStream inputStream = null;
+        String fileName = "examples/boundingBox.gdsl";
 
-            Transpilation transpilation = new Transpilation();
-
-            System.out.println(transpilation.convert(x));
-
-            /*
-            Executor executor = new Executor();
-            System.out.println(executor.executeProgram(x, "main"));
-
-            IdentifierErrors identifierErrors = new IdentifierErrors();
-
-            List<BaseOptimizer> optimizerList= new LinkedList<>();
-            optimizerList.add(identifierErrors);
-
-            OptimizerData data = new OptimizerData(x,new LinkedList<>(),new LinkedList<>());
-            for (BaseOptimizer baseOptimizer : optimizerList) {
-                data = baseOptimizer.run(data);
-            }
-
-            data.messagesList.forEach(messages ->  System.out.println(messages));
-            */
-
-        } catch (IOException e) {
-            System.out.println(file);
-            e.printStackTrace();
+        try{
+            inputStream = new FileInputStream(fileName);
+        }catch(IOException e){
+            System.out.println("Could not find file: " + fileName);
+            return;
         }
+
+        Program program = parser.parse(inputStream);
+        Executor executor = new Executor();
+        Transpilation transpilation = new Transpilation();
+        System.out.println(transpilation.convert(program));
+        executor.executeProgram(program, "main");
+
+        RelationChecker.checkRelations(program);
     }
 }

@@ -1,6 +1,5 @@
 package optimizer;
 
-import ast.Program;
 import ast.*;
 
 import java.util.ArrayList;
@@ -11,7 +10,7 @@ public class IdentifierErrors extends BaseOptimizer {
     public OptimizerData run(OptimizerData data) {
         List<ValueDefinition> valueDefinitions =new ArrayList<>();
         List<String>strings = new ArrayList<>();
-        data.tree.prog().foreach(v ->
+        data.tree.program().foreach(v ->
         {if(v.getClass() == ValueDefinition.class)
             valueDefinitions.add((ValueDefinition)v);
             return null;

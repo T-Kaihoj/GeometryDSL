@@ -1,5 +1,7 @@
 package ast
 
+import scala.annotation.tailrec
+
 object AST
 {
     @scala.annotation.tailrec
@@ -11,11 +13,11 @@ object AST
 
     def containsExpression(stm: Statement, targetExp: Expression): Boolean = stm match
     {
-        case Conditional(cond, t, f,_) => containsExpression(cond, targetExp) ||
+        case Conditional(cond, t, f) => containsExpression(cond, targetExp) ||
                                         containsExpression(t, targetExp) ||
                                         containsExpression(f, targetExp)
-        case ValueDefinition(_, exp,_) => containsExpression(exp, targetExp)
-        case Return(exp,_) => containsExpression(exp, targetExp)
+        case ValueDefinition(_, exp) => containsExpression(exp, targetExp)
+        case Return(exp) => containsExpression(exp, targetExp)
     }
 
     def containsExpression(exp: Expression, targetExp: Expression): Boolean =
@@ -44,8 +46,8 @@ object AST
 
     def replaceExpression(stm: Statement, oldExp: Expression, newExp: Expression): Statement = stm match
     {
-        case Conditional(cond, t, f,info) => Conditional(replaceExpression(cond, oldExp, newExp), replaceExpression(t, oldExp, newExp), replaceExpression(f, oldExp, newExp),info)
-        case ValueDefinition(decl, exp,info) => ValueDefinition(decl, replaceExpression(exp, oldExp, newExp),info)
+        case Conditional(cond, t, f) => Conditional(replaceExpression(cond, oldExp, newExp), replaceExpression(t, oldExp, newExp), replaceExpression(f, oldExp, newExp))
+        case ValueDefinition(decl, exp) => ValueDefinition(decl, replaceExpression(exp, oldExp, newExp))
         case _ => stm
     }
 
@@ -55,7 +57,7 @@ object AST
         else exp match
         {
             case SetLiteral(l) => SetLiteral(l.map(s => replaceExpression(s, oldExp, newExp)))
-            //case Operation(op, operands) => Operation(op, operands.map(x => replaceExpression(x, oldExp, newExp)))
+            case Operation(operator, operands) => Operation(operator, operands.map(x => replaceExpression(x, oldExp, newExp)))
             case MemberAccess(exp, field) => MemberAccess(replaceExpression(exp, oldExp, newExp), field)
             case SetComprehension(ElementDefinition(name, exp), check, app) => SetComprehension(
                 ElementDefinition(name, replaceExpression(exp, oldExp, newExp)),
@@ -65,4 +67,25 @@ object AST
         }
     }
 
+    @tailrec
+    def getTypeOf(name: String, block: Block): Option[Type] = block match
+    {
+        case head :: tail => head match
+        {
+            case ValueDefinition(ValueDeclaration(n, typeId), _) if n == name => Some(typeId)
+            case _ => getTypeOf(name, tail)
+        }
+        case Nil => None
+    }
+
+    @tailrec
+    def getTypeDefinition(tree: Program, typeName: String): Option[TypeDefinition] = tree.program match
+    {
+        case head :: tail => head match
+        {
+            case TypeDefinition(name, fields) if name == typeName => Some(TypeDefinition(name, fields))
+            case _ => getTypeDefinition(Program(tail), typeName)
+        }
+        case Nil => None
+    }
 }

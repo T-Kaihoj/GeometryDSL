@@ -228,6 +228,18 @@ public interface GdslListener extends ParseTreeListener {
 	 */
 	void exitOrExp(GdslParser.OrExpContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code notExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterNotExp(GdslParser.NotExpContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code notExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitNotExp(GdslParser.NotExpContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code addSubExp}
 	 * labeled alternative in {@link GdslParser#expression}.
 	 * @param ctx the parse tree
@@ -347,14 +359,4 @@ public interface GdslListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSetQuantificationCallExp(GdslParser.SetQuantificationCallExpContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link GdslParser#variables}.
-	 * @param ctx the parse tree
-	 */
-	void enterVariables(GdslParser.VariablesContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link GdslParser#variables}.
-	 * @param ctx the parse tree
-	 */
-	void exitVariables(GdslParser.VariablesContext ctx);
 }

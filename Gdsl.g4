@@ -33,6 +33,7 @@ setElementDefinition: localName=IDENTIFIER IN globalName=expression ;
 expression: '(' expression ')' #parenthesisExp
           | '|' expression '|' #absoluteExp
           | expression '.' IDENTIFIER #dotExp
+          | NOT expression #notExp
           | setL=expression operator=(UNION | DIFFERENCE | INTERSECTION) setR=expression #setOperatorExp
           | quantifier=QUANTIFIER '(' setElementDefinition ',' expression ')' #setQuantificationCallExp
           | CHOOSE expression #setChooseExp // Selects an element from a set
@@ -48,8 +49,6 @@ expression: '(' expression ')' #parenthesisExp
           | IDENTIFIER #variableExp
           | bool=BOOL #boolExp
           | NUMBER #numberExp ;
-
-variables: IDENTIFIER ('.' IDENTIFIER)*;
 
 /*
  * Lexer Rules
@@ -82,14 +81,15 @@ AND: '&&'
    | 'and' ;
 OR: '||'
   | 'or' ;
+NOT: '!'
+   | 'not' ;
 
 ASSIGNMENT: ':=' ;
 
-UNION:'UNION';
-DIFFERENCE: 'DIFF' ;
-INTERSECTION: 'INTER';
-FILLER: 'FILLER' ;
-CHOOSE: 'CHOOSE' ;
+UNION: 'union' ;
+DIFFERENCE: 'diff' ;
+INTERSECTION: 'inter' ;
+CHOOSE: 'choose' ;
 IN: 'in' ;
 
 NUMBER: ([0-9])* '.' ([0-9])+

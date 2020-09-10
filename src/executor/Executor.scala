@@ -10,52 +10,95 @@ class Executor
     def executeProgram(program: Program, mainFuncName: String): Value = program match
     {
         case Program(entities) =>
-            prepareProgramExecution(entities)
+            val (_programMemory, _globalStack) = prepareProgramExecution(entities)
+            programMemory = _programMemory
+            globalStack = _globalStack
             programMemory.find(p => p match
             {
                 case MethodDefinition(name, _, params, _) => name == mainFuncName && params.isEmpty
                 case _ => false
             }).getOrElse(throw new Exception(s"No method named '$mainFuncName' exists")) match
             {
-                case MethodDefinition(_, _, _, block) => executeBlock(block, Nil)
+                case MethodDefinition(_, _, _, block) => executeBlock(block, Nil) match
+                {
+                    case Right(_) => NoValue
+                    case Left(l) => l
+                }
             }
     }
 
-    def prepareProgramExecution(program: List[ProgramEntity]): Unit = program match
+    /**
+     * Returns program memory and global stack for a program before execution.
+     */
+    def prepareProgramExecution(program: List[ProgramEntity],
+                                _programMemory: List[ProgramEntity] = List(),
+                                _globalStack: VarStack = List()):(List[ProgramEntity], VarStack) = program match
     {
         case (valDef: ValueDefinition) :: tail =>
-            globalStack = defToVar(valDef, globalStack) :: globalStack
-            prepareProgramExecution(tail)
+            prepareProgramExecution(tail, _programMemory, defToVar(valDef, _globalStack) :: _globalStack)
         case (methodDef: MethodDefinition) :: tail =>
-            programMemory = methodDef :: programMemory
-            prepareProgramExecution(tail)
+            prepareProgramExecution(tail, methodDef :: _programMemory, _globalStack)
         case (typeDef: TypeDefinition) :: tail =>
-            programMemory = typeDef :: programMemory
-            prepareProgramExecution(tail)
-        case Nil => None
+            prepareProgramExecution(tail, typeDef :: _programMemory, _globalStack)
+        case Nil => (_programMemory, _globalStack)
     }
 
-    def executeBlock(block: Block, stack: VarStack): Value = block match
+    /**
+     * Executes block of GDSL code.
+     *
+     * Returns either a (potentially) modified variable stack or a single value.
+     * If a single value is returned, the block contained a Return statement.
+     */
+    def executeBlock(block: Block, stack: VarStack): Either[Value, VarStack] = block match
     {
-        case Nil => NoValue
-        case Return(exp,_) :: _ => executeExpression(exp, stack)
-        case h :: t => executeBlock(t, executeStatement(h, stack))
+        case Nil => Right(stack)
+        case Return(exp) :: _ => Left(executeExpression(exp, stack))
+        case h :: t =>
+            executeStatement(h, stack) match
+            {
+                case Right(newStack) => executeBlock(t, newStack)
+                case Left(retVal) => Left(retVal)
+            }
     }
 
-    def executeStatement(stm: Statement, stack: VarStack): VarStack = stm match
+    /**
+     * Executes a Statement.
+     *
+     * Returns either a (potentially) modified variable stack or a single value.
+     * If a single value is returned, the block contained a Return statement.
+     */
+    def executeStatement(stm: Statement, stack: VarStack): Either[Value, VarStack] = stm match
     {
-        case ValueDefinition(decl, exp,_) => Variable(decl.name, executeExpression(exp, stack)) :: stack
-        case Conditional(cond, trueBlock, falseBlock,_) => executeExpression(cond, stack) match
+        case ValueDefinition(decl, exp) => Right(Variable(decl.name, executeExpression(exp, stack)) :: stack)
+        case Conditional(cond, trueBlock, falseBlock) => executeConditional(cond, trueBlock, falseBlock, stack)
+        case r: Return => throw new Exception("Should not happen" + r.info)
+    }
+
+    /**
+     * Executes a Conditional statement.
+     *
+     * Returns either a (potentially) modified variable stack or a single value.
+     * If a single value is returned, the block contained a Return statement.
+     */
+    def executeConditional(cond: Expression, trueBlock: Block, falseBlock: Block, stack: VarStack): Either[Value, VarStack] =
+    {
+        if(executeExpression(cond, stack) match
         {
-            case BoolValue(true) => executeBlock(trueBlock, stack); stack
-            case BoolValue(false) => executeBlock(falseBlock, stack); stack
-            case IntValue(0) => executeBlock(falseBlock, stack); stack
-            case IntValue(_) => executeBlock(trueBlock, stack); stack
-            case RealValue(0.0) => executeBlock(falseBlock, stack); stack
+            case BoolValue(true) => true
+            case BoolValue(false) => false
+            case IntValue(0) => false
+            case IntValue(_) => true
+            case RealValue(0.0) => false
+            case RealValue(_) => true
             case x => throw new Exception(s"Conditionals on ${x.getClass} is not supported")
+        })
+        {
+            executeBlock(trueBlock, stack)
         }
-        case Return(_,info) => throw new Exception("Should not happen"+info)
-        case null =>stack
+        else
+        {
+            executeBlock(falseBlock, stack)
+        }
     }
 
     def executeExpression(exp: Expression, stack: VarStack): Value = exp match
@@ -199,7 +242,11 @@ class Executor
                     callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, argValue) :: newStack)
                 case _ => throw new Exception(s"'$argValue' is not of type '$paramType'")
             }
-        case (Nil, Nil) => executeBlock(block, newStack)
+        case (Nil, Nil) => executeBlock(block, newStack) match
+        {
+            case Right(_) => NoValue
+            case Left(retVal) => retVal
+        }
         case _ => throw new Exception(s"Wrong number of arguments for calling method '$name")
     }
 
@@ -232,9 +279,9 @@ class Executor
 
     def defToVar(valDef: ValueDefinition, stack: VarStack): Variable = valDef match
     {
-        case ValueDefinition(ValueDeclaration(name, BoolType), exp,_) => Variable(name, executeExpression(exp, stack))
-        case ValueDefinition(ValueDeclaration(name, IntType), exp,_) => Variable(name, executeExpression(exp, stack))
-        case ValueDefinition(ValueDeclaration(name, RealType), exp,_) => Variable(name, executeExpression(exp, stack))
-        case ValueDefinition(ValueDeclaration(name, SetType), exp,_) => Variable(name, executeExpression(exp, stack))
+        case ValueDefinition(ValueDeclaration(name, BoolType), exp) => Variable(name, executeExpression(exp, stack))
+        case ValueDefinition(ValueDeclaration(name, IntType), exp) => Variable(name, executeExpression(exp, stack))
+        case ValueDefinition(ValueDeclaration(name, RealType), exp) => Variable(name, executeExpression(exp, stack))
+        case ValueDefinition(ValueDeclaration(name, SetType), exp) => Variable(name, executeExpression(exp, stack))
     }
 }
