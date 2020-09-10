@@ -41,7 +41,7 @@ class AstToZ3Converter(ctx: z3.Context, program: ast.Program)
         case ast.IntLiteral(i) => ctx.mkInt(i)
         case ast.RealLiteral(r) => ctx.mkReal(r.toString)
         case ast.SetLiteral(_) => throw new Exception("SetLiteral to Z3-Expr not supported")
-        case ast.Identifier(name) => ctx.mkSymbol(name).asInstanceOf[z3.Expr]
+        case ast.Identifier(name) => ctx.mkConst(name, convertType(values.find(v => v.name == name).get.typeId).get)
         case ast.MemberAccess(exp, field) => convertMemberAccess(exp, field, values).get
         case ast.SetComprehension(_, _, _) => throw new Exception("SetComprehension to Z3-Expr not supported")
         case ast.Operation(operator, operands) => operator match
@@ -50,7 +50,7 @@ class AstToZ3Converter(ctx: z3.Context, program: ast.Program)
             case ast.Not => ctx.mkNot(
                 convertExpression(operands.head, values ++ globalValues).asInstanceOf[z3.BoolExpr])
             case ast.Cardinality => throw new Exception("Cardinality to Z3-Expr not supported")
-            case ast.Forall(elem) => convertForall(elem, convertExpression(operands.head, values))
+            case ast.Forall(elem) => throw new Exception("Forall to Z3-Expr not supported")
             case ast.Exists(_) => throw new Exception("Exists to Z3-Expr not supported")
             case ast.Add => ctx.mkAdd(
                 convertExpression(operands.head, values).asInstanceOf[z3.ArithExpr],
@@ -112,7 +112,7 @@ class AstToZ3Converter(ctx: z3.Context, program: ast.Program)
             case ast.InSet => ctx.mkSetMembership(
                 convertExpression(operands.head, values).asInstanceOf[z3.ReExpr],
                 convertExpression(operands.tail.head, values).asInstanceOf[z3.ArrayExpr])
-            case ast.MethodCall(name, argumentCount) => throw new Exception("MethodCall to Z3-Expr not supported")
+            case ast.MethodCall(_, _) => throw new Exception("MethodCall to Z3-Expr not supported")
         }
     }
 
@@ -134,27 +134,5 @@ class AstToZ3Converter(ctx: z3.Context, program: ast.Program)
             val targetObject: z3.Expr = ctx.mkConst(objectName, objectSort)
             Some(ctx.mkApp(accessor, targetObject))
         case _ => None
-    }
-
-    def convertForall(elementDefinition: ast.ElementDefinition, conditionExpression: z3.Expr): z3.Expr =
-    {
-        val sort: z3.Sort = elementDefinition.exp match
-        {
-            case ast.Identifier(name) => sorts.find(s => s.getName.toString == name).get
-        }
-
-        val forall = ctx.mkForall(
-            Array(sort),
-            Array(ctx.mkSymbol(elementDefinition.name)),
-            conditionExpression,
-            1,
-            Array(),
-            null,
-            null,
-            null)
-
-        println(forall.toString)
-        forall
-
     }
 }

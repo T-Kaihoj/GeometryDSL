@@ -30,6 +30,7 @@ public class Main {
         }
 
         Program program = parser.parse(inputStream);
+
         Executor executor = new Executor();
         Transpilation transpilation = new Transpilation();
         System.out.println(transpilation.convert(program));
