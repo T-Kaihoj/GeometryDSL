@@ -14,18 +14,24 @@ import optimizer.Messages;
 import optimizer.OptimizerData;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
+import transpilation.Transpilation;
 
 public class Main {
     public static void main(String[] args) throws Exception {
         GdslParse gdslParse  = new GdslParse();
         InputStream inputStream;
         Program x;
-        String file = "examples/test_switch.gdsl";
+        String file = "examples/boundingBox.gdsl";
         try {
             inputStream = new FileInputStream(file);
             x = gdslParse.parse(inputStream);
             System.out.println(x);
 
+            Transpilation transpilation = new Transpilation();
+
+            System.out.println(transpilation.convert(x));
+
+            /*
             Executor executor = new Executor();
             System.out.println(executor.executeProgram(x, "main"));
 
@@ -40,6 +46,7 @@ public class Main {
             }
 
             data.messagesList.forEach(messages ->  System.out.println(messages));
+            */
 
         } catch (IOException e) {
             System.out.println(file);

@@ -8,5 +8,6 @@ int main()
     if(true)(
     return 5
     )
+    for
     return 8
 )

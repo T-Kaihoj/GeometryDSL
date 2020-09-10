@@ -4,8 +4,8 @@
 type Point(x:int, y:int)
 type Rectangle(p1: Point, p2: Point)
 
-int getX(p: Point)(return p.x)
-int getY(p: Point)(return p.y)
+//int getX(p: Point)(return p.x)
+//int getY(p: Point)(return p.y)
 
 bool larger(r1: Rectangle, r2: Rectangle)
 (
@@ -18,7 +18,7 @@ bool larger(r1: Rectangle, r2: Rectangle)
 
 set largest(R: set)
 (
-    return {r in R | all(t in R, larger(r, t)) | r}
+    return select(r in R,  all(t in R, larger(r, t)))
 )
 
 set main()
