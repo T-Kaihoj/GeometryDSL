@@ -1,6 +1,6 @@
 package optimizer;
 
-import ast.*;
+import syntaxTree.*;
 
 import java.util.ArrayList;
 import java.util.List;

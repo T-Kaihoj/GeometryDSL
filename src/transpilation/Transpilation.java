@@ -1,16 +1,15 @@
 package transpilation;
 
 
-import ast.*;
+import syntaxTree.*;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import transpilation.*;
 
 public class Transpilation {
 
-    public String convert(ast.Program ast) {
+    public String convert(syntaxTree.Program ast) {
         List<String> python = new LinkedList<>();
         ast.program().foreach(v1 -> python.add(convertProgramEntity(v1)));
         return String.join("\n", python);
@@ -18,7 +17,7 @@ public class Transpilation {
 
     final static String classNameTypeDefinition = TypeDefinition.class.getName();
 
-    public String convertProgramEntity(ast.ProgramEntity programEntity) {
+    public String convertProgramEntity(syntaxTree.ProgramEntity programEntity) {
 
         //return convertTypeDefinition((TypeDefinition)programEntity);
         switch (ClassNames.valueOf(programEntity.getClass().getSimpleName())) {
@@ -34,7 +33,7 @@ public class Transpilation {
     }
 
 
-    public String convertTypeDefinition(ast.TypeDefinition typeDefinition) {
+    public String convertTypeDefinition(syntaxTree.TypeDefinition typeDefinition) {
         List<String> ValueDeclaration = new ArrayList();
         List<String> name = new ArrayList<>();
         typeDefinition.fields().foreach(v1 -> name.add(v1.name()));
@@ -154,7 +153,7 @@ public class Transpilation {
         return "Expression BoolLiteral";
     }
 
-    public String convertMethodDefinition(ast.MethodDefinition methodDefinition) {
+    public String convertMethodDefinition(syntaxTree.MethodDefinition methodDefinition) {
         List<String> stringList = new ArrayList();
         List<String> statement = new ArrayList();
         methodDefinition.params().foreach(v1 -> stringList.add(v1.name()));

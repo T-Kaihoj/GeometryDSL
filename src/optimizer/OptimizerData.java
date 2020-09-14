@@ -1,7 +1,6 @@
 package optimizer;
 
-import ast.AST;
-import ast.Program;
+import syntaxTree.Program;
 
 import java.util.List;
 

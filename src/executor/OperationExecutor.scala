@@ -1,6 +1,6 @@
 package executor
 
-import ast._
+import syntaxTree._
 
 object OperationExecutor
 {

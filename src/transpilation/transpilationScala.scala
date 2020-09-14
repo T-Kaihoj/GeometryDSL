@@ -1,9 +1,9 @@
 package transpilation
-import ast.{Add, And, Cardinality, Difference, Div, Equal, Exists, Forall, GreaterThan, GreaterThanEqual, Implies, InSet, Intersect, LessThan, LessThanEqual, MethodCall, Mul, Negation, Not, NotEqual, Or, Pow, PropSubset, Sub, Subset, Union}
+import syntaxTree.{Add, And, Cardinality, Difference, Div, Equal, Exists, Forall, GreaterThan, GreaterThanEqual, Implies, InSet, Intersect, LessThan, LessThanEqual, MethodCall, Mul, Negation, Not, NotEqual, Or, Pow, PropSubset, Sub, Subset, Union}
 
 object transpilationScala
 {
-    def operatorStringScala(o: ast.Operator): String = o match
+    def operatorStringScala(o: syntaxTree.Operator): String = o match
     {
         case Add => "+";
         case Or => "or";

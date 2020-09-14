@@ -1,6 +1,6 @@
 package analyzer
 
-import ast._
+import syntaxTree._
 import com.microsoft.z3
 
 object RelationChecker
@@ -24,7 +24,7 @@ object RelationChecker
             {
                 case Return(retExp) :: Nil =>
                     val ctx = new z3.Context()
-                    val converter = new AstToZ3Converter(ctx, program)
+                    val converter = new SyntaxTreeToZ3Converter(ctx, program)
                     val methodExp: z3.Expr = converter.convertExpression(retExp, params)
 
                     val typeName: String = converter.typeDefinitions.find(td => td.name == (params.head.typeId match
