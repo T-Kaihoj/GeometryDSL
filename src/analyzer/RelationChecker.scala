@@ -3,9 +3,9 @@ package analyzer
 import syntaxTree._
 import com.microsoft.z3
 
-object RelationChecker
+object RelationChecker extends ProgramTransformer
 {
-    def checkRelations(program: Program): Program =
+    override def transform(program: Program): Program =
     {
         Program(program.program.map
         {

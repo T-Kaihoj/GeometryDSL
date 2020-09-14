@@ -28,7 +28,7 @@ public class Main {
         //System.out.println(transpilation.convert(program));
         //executor.executeProgram(program, "main");
 
-        RelationChecker.checkRelations(program);
+        RelationChecker.transform(program);
 
         Logger logger = Logger.getInstance();
         System.out.print(logger.toString());
