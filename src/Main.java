@@ -1,4 +1,6 @@
 import analyzer.RelationChecker;
+import logger.Message;
+import logger.Logger;
 import syntaxTree.Program;
 
 import java.io.FileInputStream;
@@ -27,5 +29,8 @@ public class Main {
         //executor.executeProgram(program, "main");
 
         RelationChecker.checkRelations(program);
+
+        Logger logger = Logger.getInstance();
+        System.out.print(logger.toString());
     }
 }

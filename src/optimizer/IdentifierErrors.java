@@ -1,5 +1,6 @@
 package optimizer;
 
+import logger.Message;
 import syntaxTree.*;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class IdentifierErrors extends BaseOptimizer {
         valueDefinitions.forEach(valueDefinition ->
         {
             if (strings.contains(valueDefinition.decl().name()))
-                data.messagesList.add(new Messages(Messages.Priority.Error,"IdentifierErrors",valueDefinition.info().lineNumber()));
+                data.messageList.add(new Message(Message.Severity.Error,"IdentifierErrors",valueDefinition.info().lineNumber()));
             strings.add(valueDefinition.decl().name());
         });
 
