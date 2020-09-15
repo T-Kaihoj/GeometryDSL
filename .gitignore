@@ -1,10 +1,8 @@
+# IntelliJ Idea files
+.idea/*
 
-.idea/workspace.xml
+#
+*.iml
 
-out/
-
-.idea/codeStyles/codeStyleConfig.xml
-
-.idea/codeStyles/Project.xml
-
-.idea/
+# Compiled binary files
+out/*
