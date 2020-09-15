@@ -9,9 +9,8 @@ object RelationChecker extends ProgramTransformer
     {
         Program(program.program.map
         {
-            case t: TypeDefinition => t
             case m: MethodDefinition => checkMethodReflexivity(program, m)
-            case v: ValueDefinition => v
+            case x => x
         })
     }
 
