@@ -1,6 +1,5 @@
 import analyzer.RelationChecker;
 import executor.Executor;
-import logger.Message;
 import logger.Logger;
 import syntaxTree.Program;
 import transpilation.Transpilation;
@@ -8,8 +7,6 @@ import transpilation.Transpilation;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,12 +17,11 @@ public class Main {
         
         CustomGdslParser parser = new CustomGdslParser();
         InputStream inputStream = null;
-        String fileName = "examples/circleIntersection.gdsl";
 
         try{
             inputStream = new FileInputStream(options.fileName);
         }catch(IOException e){
-            System.out.println("Could not find file: " + fileName);
+            System.out.println("Could not find file: " + options.fileName);
             return;
         }
 
@@ -35,15 +31,17 @@ public class Main {
             Transpilation transpilation = new Transpilation();
             System.out.println(transpilation.convert(program));
         }
+
         if (options.isExecutor){
             System.out.println(executor.executeProgram(program, options.executorFunctionName));
         }
 
         if (options.isRelationChecker) {
-            Logger logger = Logger.getInstance();
-            System.out.print(logger.toString());
             RelationChecker.transform(program);
         }
+
+        Logger logger = Logger.getInstance();
+        System.out.print(logger.toString());
     }
 
     private static class ProgramOptions {
@@ -55,12 +53,12 @@ public class Main {
 
         public ProgramOptions(String[] args) {
             List<String> input = Arrays.asList(args);
-            isExecutor= true;
-            isRelationChecker= input.contains("-r")|| input.contains("--relation");
-            isTranspilation= input.contains("-t")|| input.contains("--transpilation");
+            isExecutor = true;
+            isRelationChecker = input.contains("-r") || input.contains("--relation");
+            isTranspilation = input.contains("-t") || input.contains("--transpilation");
             input.forEach(s -> {
                 if(!s.startsWith("-"))
-                    fileName =s;
+                    fileName = s;
             });
             executorFunctionName= "main";
         }
