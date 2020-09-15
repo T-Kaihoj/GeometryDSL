@@ -9,71 +9,83 @@ import java.util.List;
 import transpilation.*;
 
 public class Transpilation {
-
+    scala.collection.immutable.List<Statement> block;
+    Program program;
+    List<String> python = new LinkedList<>();
     public String convert(ast.Program ast) {
-        List<String> python = new LinkedList<>();
-        ast.program().foreach(v1 -> python.add(convertProgramEntity(v1)));
+        program = ast;
+
+        ast.program().foreach(v1 -> {convertProgramEntity(v1);
+            return null;
+        });
         return String.join("\n", python);
     }
 
     final static String classNameTypeDefinition = TypeDefinition.class.getName();
 
-    public String convertProgramEntity(ast.ProgramEntity programEntity) {
+    public void convertProgramEntity(ast.ProgramEntity programEntity) {
 
         //return convertTypeDefinition((TypeDefinition)programEntity);
         switch (ClassNames.valueOf(programEntity.getClass().getSimpleName())) {
             case TypeDefinition:
-                return convertTypeDefinition((TypeDefinition) programEntity);
+                convertTypeDefinition((TypeDefinition) programEntity);
+                return;
             case MethodDefinition:
-                return convertMethodDefinition((MethodDefinition) programEntity);
+                convertMethodDefinition((MethodDefinition) programEntity);
+                return;
             case ValueDefinition:
-                return convertValueDefinition((ValueDefinition) programEntity, "\n");
+                convertValueDefinition((ValueDefinition) programEntity, "\n");
+                return ;
             default:
                 throw new IllegalStateException("Unexpected value: " + programEntity.getClass().getName());
         }
     }
 
 
-    public String convertTypeDefinition(ast.TypeDefinition typeDefinition) {
+    public void convertTypeDefinition(ast.TypeDefinition typeDefinition) {
         List<String> ValueDeclaration = new ArrayList();
         List<String> name = new ArrayList<>();
         typeDefinition.fields().foreach(v1 -> name.add(v1.name()));
         typeDefinition.fields().foreach(v1 -> ValueDeclaration.add("\t\t self." + v1.name() + "=" + v1.name()));
-        return "class " + typeDefinition.name() + ":\n" +
+           python.add(  "class " + typeDefinition.name() + ":\n" +
                 "\tdef __init__(self," + String.join(",", name) + "):\n" +
-                String.join("\n", ValueDeclaration);
+                String.join("\n", ValueDeclaration));
+        return;
     }
 
-    public String convertValueDefinition(ValueDefinition valueDefinition, String s ) {
+    public void convertValueDefinition(ValueDefinition valueDefinition, String s ) {
 
-        return s+valueDefinition.decl().name() + " = "+ convertExpression(valueDefinition.exp())  ;
+         python.add( s+valueDefinition.decl().name() + " = "+ convertExpression(valueDefinition.exp()))  ;
+        return ;
     }
 
-    private String convertStatement(Statement statement, String s) {
+    private void convertStatement(Statement statement, String s) {
         switch (ClassNames.valueOf(statement.getClass().getSimpleName())) {
             case ValueDefinition:
-                return convertValueDefinition((ValueDefinition) statement,s);
+                convertValueDefinition((ValueDefinition) statement,s);
+                break;
             case Conditional:
-                return convertConditional((Conditional) statement,s);
+                convertConditional((Conditional) statement,s);
+                break;
             case Return:
-                return convertReturn((Return) statement,s);
+                convertReturn((Return) statement,s);
+                break;
         }
-        return null;
+        return;
     }
 
-    private String convertReturn(Return statement, String s) {
-        return "\treturn "+ convertExpression(statement.exp());
+    private void convertReturn(Return statement, String s) {
+        python.add("\treturn "+ convertExpression(statement.exp()));
+        return;
     }
 
-    private String convertConditional(Conditional statement, String s) {
-        return "convertConditional";
+    private void convertConditional(Conditional statement, String s) {
+        python.add( s + "convertConditional");
     }
 
 
     public String convertExpression(Expression exp) {
         switch (ClassNames.valueOf(exp.getClass().getSimpleName())) {
-            case TypeDefinition:
-                return convertTypeDefinition((TypeDefinition) exp);
             case BoolLiteral:
                 return convertExpressionBoolLiteral((BoolLiteral) exp);
             case IntLiteral:
@@ -113,20 +125,66 @@ public class Transpilation {
 
         if(expressions.size()==2)
             return "("+convertExpression(expressions.get(0)) +" "+transpilationScala.operatorStringScala(  exp.operator()) + " "+ convertExpression( expressions.get(1))+")";
-        return exp.toString();
+        return "("+ transpilationScala.operatorStringScala(  exp.operator()) + convertExpression( expressions.get(0))+")";
+        //return exp.toString();
 
 
     }
 
     private String convertForall(Forall operator, List<Expression> expressions) {
 
-        return "Forall("+convertExpression(operator.element().exp())+", lambda "+ operator.element().name() +" : " +convertExpression(expressions.get(0))+")";
+        return "all("+convertExpression(operator.element().exp())+", lambda "+ operator.element().name() +" : " +convertExpression(expressions.get(0))+")";
     }
 
     private String convertMethodCall(MethodCall call, List<Expression> expressions) {
         List<String> strings = new ArrayList<>();
+        List<Boolean> isSetlist = new ArrayList<>();
+        List<Boolean> finalIsSetlist = isSetlist;
+
+        expressions.forEach(expression -> finalIsSetlist.add(transpilationScala.expressionisSetScala(expression,  block)));
+
+        isSetlist = methodCallIsSet(call,expressions, finalIsSetlist);
+
+        System.out.println(call.name()+", Variable type:"+finalIsSetlist +call.name()+" Need set expansion:"+isSetlist);
+
         expressions.forEach(expression -> strings.add( convertExpression(expression)));
+        if (isSetlist.contains(true)){
+            return setApplication(call, expressions, isSetlist);
+        }
         return call.name()+"(" +  String.join(",",strings)+ ")";
+    }
+    int z =0;
+    int p =0;
+    private String setApplication(MethodCall call, List<Expression> expressions, List<Boolean> isSetlist) {
+        p = p+1;
+        int indent =1 ;
+        String forString = "\t".repeat(indent)+"p"+p +"=[]\n";
+        List<String> parameterString = new ArrayList<>();
+
+        for (int i = 0; i < isSetlist.size() ; i++) {
+            if (isSetlist.get(i)){
+                forString = forString.concat( "\t".repeat(indent)+"for z"+z + " in "+ convertExpression(expressions.get(i)) +":\n");
+                parameterString.add("z"+z);
+                indent = indent+1;
+                z= z + 1;
+            }
+            else
+                parameterString.add(convertExpression(expressions.get(i)));
+        }
+        forString = forString.concat("\t".repeat(indent)+"p"+p +".append("+call.name()+"("+String.join(", ",parameterString) +"))");
+        python.add(forString);
+
+        return "p"+p;
+    }
+
+    private List<Boolean> methodCallIsSet(MethodCall call, List<Expression> expressions, List<Boolean> isSetlist) {
+        List<Boolean> booleanList =new ArrayList<>();
+        List<Boolean> list =new ArrayList<>();
+        transpilationScala.methodCallisSetScala(call.name(), program).foreach(b -> list.add((Boolean) b));
+        for (int i = 0; i < expressions.size(); i++) {
+             booleanList.add( !list.get(i)&&  isSetlist.get(i));
+        }
+        return booleanList;
     }
 
 
@@ -154,12 +212,18 @@ public class Transpilation {
         return "Expression BoolLiteral";
     }
 
-    public String convertMethodDefinition(ast.MethodDefinition methodDefinition) {
+    public void convertMethodDefinition(ast.MethodDefinition methodDefinition) {
         List<String> stringList = new ArrayList();
         List<String> statement = new ArrayList();
+        block = methodDefinition.block();
         methodDefinition.params().foreach(v1 -> stringList.add(v1.name()));
-        methodDefinition.block().foreach(v1 -> statement.add(convertStatement(v1,"\t")));
-        return "def "+methodDefinition.name()+"("+ String.join(",", stringList) +"):\n"+String.join("\n",statement);
+        python.add("def "+methodDefinition.name()+"("+ String.join(",", stringList) +"):");
+        methodDefinition.block().foreach(v1 -> {
+            convertStatement(v1,"\t");
+            return null;
+        });
+
+        return ;//"def "+methodDefinition.name()+"("+ String.join(",", stringList) +"):\n"+String.join("\n",statement);
     }
 
 

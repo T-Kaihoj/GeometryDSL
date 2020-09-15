@@ -33,8 +33,8 @@ public class Main {
         Executor executor = new Executor();
         Transpilation transpilation = new Transpilation();
         System.out.println(transpilation.convert(program));
-        executor.executeProgram(program, "main");
+        System.out.println(executor.executeProgram(program, "main"));
 
-        RelationChecker.checkRelations(program);
+        //RelationChecker.checkRelations(program);
     }
 }
