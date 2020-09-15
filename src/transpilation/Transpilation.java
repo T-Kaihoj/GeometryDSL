@@ -22,21 +22,21 @@ public class Transpilation {
 
     final static String classNameTypeDefinition = TypeDefinition.class.getName();
 
-    public void convertProgramEntity(ProgramEntity programEntity) {
+    public void convertProgramEntity(ProgramDefinition programDefinition) {
 
         //return convertTypeDefinition((TypeDefinition)programEntity);
-        switch (ClassNames.valueOf(programEntity.getClass().getSimpleName())) {
+        switch (ClassNames.valueOf(programDefinition.getClass().getSimpleName())) {
             case TypeDefinition:
-                convertTypeDefinition((TypeDefinition) programEntity);
+                convertTypeDefinition((TypeDefinition) programDefinition);
                 return;
             case MethodDefinition:
-                convertMethodDefinition((MethodDefinition) programEntity);
+                convertMethodDefinition((MethodDefinition) programDefinition);
                 return;
             case ValueDefinition:
-                convertValueDefinition((ValueDefinition) programEntity, "\n");
+                convertValueDefinition((ValueDefinition) programDefinition, "\n");
                 return ;
             default:
-                throw new IllegalStateException("Unexpected value: " + programEntity.getClass().getName());
+                throw new IllegalStateException("Unexpected value: " + programDefinition.getClass().getName());
         }
     }
 

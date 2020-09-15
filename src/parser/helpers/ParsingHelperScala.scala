@@ -37,7 +37,7 @@ object ParsingHelperScala
         case x => syntaxTree.MethodCall(x, arity)
     }
 
-    def print(entity: syntaxTree.ProgramEntity): Unit =
+    def print(entity: syntaxTree.ProgramDefinition): Unit =
     {
         println(entity);
     }

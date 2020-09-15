@@ -1,6 +1,5 @@
 package parser.helpers;
 
-import syntaxTree.MetaInfo;
 import org.antlr.v4.runtime.ParserRuleContext;
 import scala.collection.immutable.$colon$colon;
 import scala.collection.immutable.List;
@@ -8,10 +7,6 @@ import scala.collection.immutable.List$;
 
 public class ParsingHelper
 {
-    public static MetaInfo info(ParserRuleContext context, String ... tags){
-        return new MetaInfo(context.start.getLine(),scalaList(tags));
-    }
-
     public static <T> List<T> scalaList(T ... ts)
     {
         List<T> result = List$.MODULE$.empty();
@@ -32,10 +27,7 @@ public class ParsingHelper
         return result;
     }
 
-    public static syntaxTree.Type typeObject(String t)
-    {
-        return ParsingHelperScala.typeObjectScala(t);
-    }
+    public static syntaxTree.Type typeObject(String t) { return ParsingHelperScala.typeObjectScala(t); }
 
     public static syntaxTree.Operator operatorObject(String op, int arity) { return ParsingHelperScala.operatorObjectScala(op, arity); }
 }

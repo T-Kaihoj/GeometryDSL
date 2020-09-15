@@ -41,7 +41,7 @@ public class CustomGdslParser {
             @Override
             public Program visitGdsl(GdslParser.GdslContext ctx) {
                 ProgramEntityVisitor programEntityVisitor = new ProgramEntityVisitor();
-                List<ProgramEntity> programEntities =new ArrayList<>();
+                List<ProgramDefinition> programEntities =new ArrayList<>();
                 ctx.children.forEach(declarationContext -> programEntities.add( programEntityVisitor.visit(declarationContext)));
                 return new Program(ParsingHelper.scalaList( programEntities));
             }
@@ -190,34 +190,41 @@ public class CustomGdslParser {
     }
 
     //(typeDefinition | functionDefinition | variableDefinition)*
-    private class ProgramEntityVisitor extends GdslBaseVisitor<ProgramEntity>{
+    private class ProgramEntityVisitor extends GdslBaseVisitor<ProgramDefinition>{
         @Override
-        public ProgramEntity visitVariableDefinition(GdslParser.VariableDefinitionContext ctx) {
+        public ProgramDefinition visitVariableDefinition(GdslParser.VariableDefinitionContext ctx) {
             ExpressionVisitor expressionVisitor = new ExpressionVisitor();
             DeclarationVisitor declarationVisitor = new DeclarationVisitor();
             ValueDefinition valDef = new ValueDefinition(declarationVisitor.visit(ctx.declaration()), expressionVisitor.visit(ctx.expression()));
-            valDef.info_$eq(ParsingHelper.info(ctx));
+            valDef.lineNumber_$eq(ctx.start.getLine());
             return valDef;
         }
 
         @Override
-        public ProgramEntity visitFunctionDefinition(GdslParser.FunctionDefinitionContext ctx) {
+        public ProgramDefinition visitFunctionDefinition(GdslParser.FunctionDefinitionContext ctx) {
             DeclarationVisitor declarationVisitor = new DeclarationVisitor();
-            List<ValueDeclaration> valueDeclarations =new ArrayList<>();
-            ctx.declaration().forEach(declarationContext -> valueDeclarations.add( declarationVisitor.visit(declarationContext)));
+            List<ValueDeclaration> valueDeclarations = new ArrayList<>();
+            ctx.declaration().forEach(declarationContext -> valueDeclarations.add(declarationVisitor.visit(declarationContext)));
 
             ScopeVisitor scopeVisitor = new ScopeVisitor();
-            List<Statement> statements = new ArrayList<>();
 
-            return new MethodDefinition(ctx.functionId.getText(), ParsingHelper.typeObject( ctx.retType.getText()),ParsingHelper.scalaList(valueDeclarations),ParsingHelper.scalaList( scopeVisitor.visit( ctx.scope())));
+            MethodDefinition methDef = new MethodDefinition(
+                ctx.functionId.getText(),
+                ParsingHelper.typeObject(ctx.retType.getText()),
+                ParsingHelper.scalaList(valueDeclarations),
+                ParsingHelper.scalaList(scopeVisitor.visit(ctx.scope())));
+            methDef.lineNumber_$eq(ctx.start.getLine());
+            return methDef;
         }
 
         @Override
-        public ProgramEntity visitTypeDefinition(GdslParser.TypeDefinitionContext ctx) {
+        public ProgramDefinition visitTypeDefinition(GdslParser.TypeDefinitionContext ctx) {
             DeclarationVisitor declarationVisitor = new DeclarationVisitor();
             List<ValueDeclaration> valueDeclarations =new ArrayList<>();
             ctx.declaration().forEach(declarationContext -> valueDeclarations.add( declarationVisitor.visit(declarationContext)));
-            return new TypeDefinition(ctx.id.getText(),ParsingHelper.scalaList(valueDeclarations));
+            TypeDefinition typeDef = new TypeDefinition(ctx.id.getText(),ParsingHelper.scalaList(valueDeclarations));
+            typeDef.lineNumber_$eq(ctx.start.getLine());
+            return typeDef;
         }
     }
 
@@ -225,7 +232,10 @@ public class CustomGdslParser {
     private class DeclarationVisitor extends GdslBaseVisitor<ValueDeclaration>{
         @Override
         public ValueDeclaration visitDeclaration(GdslParser.DeclarationContext ctx) {
-            return new ValueDeclaration(ctx.id.getText(),ParsingHelperScala.typeObjectScala(ctx.type.getText()));
+            ValueDeclaration valDecl = new ValueDeclaration(
+                ctx.id.getText(),
+                ParsingHelperScala.typeObjectScala(ctx.type.getText()));
+            return valDecl;
         }
     }
 
@@ -248,7 +258,7 @@ public class CustomGdslParser {
                     expressionVisitor.visit(ctx.condition),
                     ParsingHelper.scalaList(scopeVisitor.visitScope(ctx.trueBranch)),
                     ParsingHelper.scalaList());
-            cond.info_$eq(ParsingHelper.info(ctx));
+            cond.lineNumber_$eq(ctx.start.getLine());
             return cond;
         }
 
@@ -262,14 +272,14 @@ public class CustomGdslParser {
                         expressionVisitor.visit(ctx.condition),
                         ParsingHelper.scalaList(scopeVisitor.visitScope(ctx.trueBranch)),
                         ParsingHelper.scalaList());
-                cond.info_$eq(ParsingHelper.info(ctx));
+                cond.lineNumber_$eq(ctx.start.getLine());
                 return cond;
             }else{
                 Conditional cond = new Conditional(
                         expressionVisitor.visit(ctx.condition),
                         ParsingHelper.scalaList(scopeVisitor.visitScope(ctx.trueBranch)),
                         ParsingHelper.scalaList());
-                cond.info_$eq(ParsingHelper.info(ctx));
+                cond.lineNumber_$eq(ctx.start.getLine());
                 return cond;
             }
         }
@@ -280,19 +290,19 @@ public class CustomGdslParser {
             ExpressionVisitor expressionVisitor = new ExpressionVisitor();
             ScopeVisitor scopeVisitor = new ScopeVisitor();
 
-            Conditional conditional =null;
+            Conditional conditional = null;
             if (ctx.defaultscope != null) //Creates default path
                 conditional = new Conditional(
                         new BoolLiteral(true),
                         ParsingHelper.scalaList(scopeVisitor.visit(ctx.defaultscope)),
                         ParsingHelper.scalaList());
-                conditional.info_$eq(ParsingHelper.info(ctx.defaultscope,"SwitchCase"));
             for (int i = ctx.expression().size() - 1; i >= 0; i--) {
                 conditional = new Conditional(
                         expressionVisitor.visit(ctx.expression(i)),
                         ParsingHelper.scalaList(scopeVisitor.visit(ctx.scope(i))),
-                        ParsingHelper.scalaList( conditional));
-                conditional.info_$eq(ParsingHelper.info(ctx,"SwitchCase"));
+                        ParsingHelper.scalaList(conditional));
+                conditional.lineNumber_$eq(ctx.start.getLine());
+                conditional.tags_$eq(ParsingHelper.scalaList("SwitchCase"));
             }
 
             return conditional;
@@ -303,7 +313,7 @@ public class CustomGdslParser {
             ExpressionVisitor expressionVisitor = new ExpressionVisitor();
             DeclarationVisitor declarationVisitor = new DeclarationVisitor();
             ValueDefinition valDef = new ValueDefinition(declarationVisitor.visit(ctx.declaration()), expressionVisitor.visit(ctx.expression()));
-            valDef.info_$eq(ParsingHelper.info(ctx));
+            valDef.lineNumber_$eq(ctx.start.getLine());
             return valDef;
         }
 
@@ -311,7 +321,7 @@ public class CustomGdslParser {
         public Statement visitReturnStatement(GdslParser.ReturnStatementContext ctx) {
             ExpressionVisitor expressionVisitor = new ExpressionVisitor();
             Return ret = new Return(expressionVisitor.visit(ctx.expression()));
-            ret.info_$eq(ParsingHelper.info(ctx));
+            ret.lineNumber_$eq(ctx.start.getLine());
             return ret;
         }
     }

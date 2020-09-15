@@ -4,7 +4,7 @@ import syntaxTree._
 
 class Executor
 {
-    var programMemory: List[ProgramEntity] = List()
+    var programMemory: List[ProgramDefinition] = List()
     var globalStack: VarStack = List()
 
     def executeProgram(program: Program, mainFuncName: String): Value = program match
@@ -30,9 +30,9 @@ class Executor
     /**
      * Returns program memory and global stack for a program before execution.
      */
-    def prepareProgramExecution(program: List[ProgramEntity],
-                                _programMemory: List[ProgramEntity] = List(),
-                                _globalStack: VarStack = List()):(List[ProgramEntity], VarStack) = program match
+    def prepareProgramExecution(program: List[ProgramDefinition],
+                                _programMemory: List[ProgramDefinition] = List(),
+                                _globalStack: VarStack = List()):(List[ProgramDefinition], VarStack) = program match
     {
         case (valDef: ValueDefinition) :: tail =>
             prepareProgramExecution(tail, _programMemory, defToVar(valDef, _globalStack) :: _globalStack)
@@ -71,7 +71,7 @@ class Executor
     {
         case ValueDefinition(decl, exp) => Right(Variable(decl.name, executeExpression(exp, stack)) :: stack)
         case Conditional(cond, trueBlock, falseBlock) => executeConditional(cond, trueBlock, falseBlock, stack)
-        case r: Return => throw new Exception("Should not happen" + r.info)
+        case r: Return => throw new Exception("Should not happen")
     }
 
     /**

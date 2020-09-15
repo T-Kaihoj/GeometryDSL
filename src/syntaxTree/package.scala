@@ -5,10 +5,14 @@ package object syntaxTree
 
 package syntaxTree
 {
-    sealed trait ProgramEntity
-    sealed case class Program(program: List[ProgramEntity])
+    abstract sealed class ProgramEntity(ln : Int = 0)
+    {
+        var lineNumber: Int = ln
+        var tags: List[String] = List()
+    }
 
-    sealed class MetaInfo(val lineNumber: Int = 0, val tags: List[String] = List())
+    sealed trait ProgramDefinition extends ProgramEntity
+    sealed case class Program(program: List[ProgramDefinition])
 
     sealed trait Type
     case object BoolType extends Type
@@ -19,13 +23,13 @@ package syntaxTree
 
     sealed case class ValueDeclaration(name: String, typeId: Type)
     sealed case class ElementDefinition(name: String, exp: Expression)
-    sealed case class MethodDefinition(name: String, retType: Type, params: List[ValueDeclaration], block: Block) extends ProgramEntity
-    sealed case class TypeDefinition(name: String, fields: List[ValueDeclaration]) extends ProgramEntity
+    sealed case class MethodDefinition(name: String, retType: Type, params: List[ValueDeclaration], block: Block) extends ProgramDefinition
+    sealed case class TypeDefinition(name: String, fields: List[ValueDeclaration]) extends ProgramDefinition
 
-    sealed class Statement(var info: MetaInfo = new MetaInfo())
-    case class ValueDefinition(decl: ValueDeclaration, exp: Expression) extends Statement() with ProgramEntity
-    case class Conditional(condition: Expression, trueBlock: Block, falseBlock: Block) extends Statement()
-    case class Return(exp: Expression) extends Statement()
+    sealed class Statement extends ProgramEntity
+    case class ValueDefinition(decl: ValueDeclaration, exp: Expression) extends Statement with ProgramDefinition
+    case class Conditional(condition: Expression, trueBlock: Block, falseBlock: Block) extends Statement
+    case class Return(exp: Expression) extends Statement
 
     sealed trait Expression
     case class BoolLiteral(value: Boolean) extends Expression
