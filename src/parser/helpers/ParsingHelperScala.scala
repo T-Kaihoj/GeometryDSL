@@ -1,45 +1,44 @@
 package parser.helpers
 
-import ast._
-
 object ParsingHelperScala
 {
-    def typeObjectScala(t: String): ast.Type = t match
+    def typeObjectScala(t: String): syntaxTree.Type = t match
     {
-        case "bool" => BoolType
-        case "int" => IntType
-        case "real" => RealType
-        case "set" => SetType
-        case x => ObjectType(x)
+        case "bool" => syntaxTree.BoolType
+        case "int" => syntaxTree.IntType
+        case "real" => syntaxTree.RealType
+        case "set" => syntaxTree.SetType
+        case x => syntaxTree.ObjectType(x)
     }
 
-    def operatorObjectScala(op: String, arity: Int): ast.Operator = op match
+    def operatorObjectScala(op: String, arity: Int): syntaxTree.Operator = op match
     {
-        case "+" => Add
-        case "-" => Sub
-        case "*" => Mul
-        case "/" => Div
-        case "Pow" => Pow
-        case "==" => Equal
-        case "!=" => NotEqual
-        case "<" => LessThan
-        case "<=" => LessThanEqual
-        case ">" => GreaterThan
-        case ">=" => GreaterThanEqual
-        case "And" => And
-        case "Or" => Or
-        case "Not" => Not
-        case "Implies" => Implies
-        case "Union" => Union
-        case "Intersect" => Intersect
-        case "Difference" => Difference
-        case "Subset" => Subset
-        case "PropSubset" => PropSubset
-        case "InSet" => InSet
-        case x => MethodCall(x, arity)
+        case "+" => syntaxTree.Add
+        case "-" => syntaxTree.Sub
+        case "*" => syntaxTree.Mul
+        case "/" => syntaxTree.Div
+        case "Pow" => syntaxTree.Pow
+        case "==" => syntaxTree.Equal
+        case "!=" => syntaxTree.NotEqual
+        case "<" => syntaxTree.LessThan
+        case "<=" => syntaxTree.LessThanEqual
+        case ">" => syntaxTree.GreaterThan
+        case ">=" => syntaxTree.GreaterThanEqual
+        case "And" => syntaxTree.And
+        case "Or" => syntaxTree.Or
+        case "Not" => syntaxTree.Not
+        case "Implies" => syntaxTree.Implies
+        case "Union" => syntaxTree.Union
+        case "Intersect" => syntaxTree.Intersect
+        case "Difference" => syntaxTree.Difference
+        case "Subset" => syntaxTree.Subset
+        case "PropSubset" => syntaxTree.PropSubset
+        case "InSet" => syntaxTree.InSet
+        case x => syntaxTree.MethodCall(x, arity)
     }
 
-    def Print(entity:ProgramEntity): Unit ={
+    def print(entity: syntaxTree.ProgramEntity): Unit =
+    {
         println(entity);
     }
 }

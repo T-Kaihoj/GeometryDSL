@@ -2,7 +2,7 @@ import org.antlr.v4.runtime.*;
 import parser.GdslBaseVisitor;
 import parser.GdslLexer;
 import parser.GdslParser;
-import ast.*;
+import syntaxTree.*;
 import parser.helpers.ParsingHelper;
 import parser.helpers.ParsingHelperScala;
 

@@ -1,8 +1,8 @@
-package ast
+package syntaxTree
 
 import scala.annotation.tailrec
 
-object AST
+object Helper
 {
     @scala.annotation.tailrec
     def containsExpression(block: Block, targetExp: Expression): Boolean = block match

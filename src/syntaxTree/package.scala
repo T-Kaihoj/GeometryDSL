@@ -1,9 +1,9 @@
-package object ast
+package object syntaxTree
 {
     type Block = List[Statement]
 }
 
-package ast
+package syntaxTree
 {
     sealed trait ProgramEntity
     sealed case class Program(program: List[ProgramEntity])

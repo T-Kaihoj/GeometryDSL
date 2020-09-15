@@ -1,10 +1,9 @@
 package transpilation
-import ast.{_}
-import com.sun.org.apache.xpath.internal.operations.Bool
+import syntaxTree.{_}
 
 object transpilationScala
 {
-    def operatorStringScala(o: ast.Operator): String = o match
+    def operatorStringScala(o: syntaxTree.Operator): String = o match
     {
         case Add => "+";
         case Or => "or";
@@ -36,14 +35,14 @@ object transpilationScala
 
     def isIdentifierSet(name: String, block:Block): Boolean ={
 
-        ast.AST.getTypeOf(name, block ).getOrElse(false) match
+        syntaxTree.Helper.getTypeOf(name, block ).getOrElse(false) match
         {
-            case ast.SetType => true
+            case syntaxTree.SetType => true
             case _ => false
         }
     }
 
-    def expressionisSetScala(o: ast.Expression, block:Block): Boolean = o match
+    def expressionisSetScala(o: syntaxTree.Expression, block:Block): Boolean = o match
     {
         case BoolLiteral(value) => false
         case IntLiteral(value) =>false
@@ -64,7 +63,7 @@ object transpilationScala
             })
         }.get.map(f => f.asInstanceOf[ValueDeclaration].typeId.getClass == SetType.getClass)
 
-    def operationisSetScala(o: ast.Operator): Boolean = o match
+    def operationisSetScala(o: Operator): Boolean = o match
     {
         case Add => false;
         case Or => false;

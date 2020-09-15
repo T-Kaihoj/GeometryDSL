@@ -1,21 +1,20 @@
 package transpilation;
 
 
-import ast.*;
+import syntaxTree.*;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import transpilation.*;
 
 public class Transpilation {
     scala.collection.immutable.List<Statement> block;
     Program program;
     List<String> python = new LinkedList<>();
-    public String convert(ast.Program ast) {
-        program = ast;
+    public String convert(Program program) {
+        this.program = program;
 
-        ast.program().foreach(v1 -> {convertProgramEntity(v1);
+        program.program().foreach(v1 -> {convertProgramEntity(v1);
             return null;
         });
         return String.join("\n", python);
@@ -23,7 +22,7 @@ public class Transpilation {
 
     final static String classNameTypeDefinition = TypeDefinition.class.getName();
 
-    public void convertProgramEntity(ast.ProgramEntity programEntity) {
+    public void convertProgramEntity(ProgramEntity programEntity) {
 
         //return convertTypeDefinition((TypeDefinition)programEntity);
         switch (ClassNames.valueOf(programEntity.getClass().getSimpleName())) {
@@ -42,7 +41,7 @@ public class Transpilation {
     }
 
 
-    public void convertTypeDefinition(ast.TypeDefinition typeDefinition) {
+    public void convertTypeDefinition(TypeDefinition typeDefinition) {
         List<String> ValueDeclaration = new ArrayList();
         List<String> name = new ArrayList<>();
         typeDefinition.fields().foreach(v1 -> name.add(v1.name()));
@@ -212,7 +211,7 @@ public class Transpilation {
         return "Expression BoolLiteral";
     }
 
-    public void convertMethodDefinition(ast.MethodDefinition methodDefinition) {
+    public void convertMethodDefinition(MethodDefinition methodDefinition) {
         List<String> stringList = new ArrayList();
         List<String> statement = new ArrayList();
         block = methodDefinition.block();
