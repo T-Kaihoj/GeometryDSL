@@ -16,6 +16,10 @@ public class Logger {
         return SINGLETON_MESSAGE_QUEUE;
     }
 
+    public static void log(Message.Severity severity, String message, int lineNumber) {
+        getInstance().add(new Message(severity, message, lineNumber));
+    }
+
     public void add(Message message) {
         messageList.add(message);
     }
