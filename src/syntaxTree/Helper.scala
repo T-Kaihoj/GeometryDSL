@@ -78,14 +78,21 @@ object Helper
         case Nil => None
     }
 
-    @tailrec
-    def getTypeDefinition(tree: Program, typeName: String): Option[TypeDefinition] = tree.program match
+    def getMethodDefinition(program: Program, methodName: String): Option[MethodDefinition] =
     {
-        case head :: tail => head match
+        program.program.find
         {
-            case TypeDefinition(name, fields) if name == typeName => Some(TypeDefinition(name, fields))
-            case _ => getTypeDefinition(Program(tail), typeName)
+            case m: MethodDefinition if m.name == methodName => true
+            case _ => false
         }
-        case Nil => None
-    }
+    }.asInstanceOf[Option[MethodDefinition]]
+
+    def getTypeDefinition(program: Program, typeName: String): Option[TypeDefinition] =
+    {
+        program.program.find
+        {
+            case t: TypeDefinition if t.name == typeName => true
+            case _ => false
+        }
+    }.asInstanceOf[Option[TypeDefinition]]
 }
