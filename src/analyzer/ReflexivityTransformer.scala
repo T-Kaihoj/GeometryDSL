@@ -2,7 +2,7 @@ package analyzer
 
 import syntaxTree._
 import com.microsoft.z3
-import logger.{Logger, Message}
+import logger.{Logger, Severity}
 
 object ReflexivityTransformer extends syntaxTree.MethodDefinitionTransformer
 {
@@ -11,11 +11,11 @@ object ReflexivityTransformer extends syntaxTree.MethodDefinitionTransformer
         if(checkReflexivity(program, methodDef))
         {
             methodDef.tags = "prop:reflexive" :: methodDef.tags
-            Logger.log(Message.Severity.Info, s"Method '${methodDef.name}' is reflexive", methodDef.lineNumber)
+            Logger.log(Severity.Info, s"Method '${methodDef.name}' is reflexive", methodDef.lineNumber)
         }
         else
         {
-            Logger.log(Message.Severity.Info, s"Method '${methodDef.name}' is NOT reflexive", methodDef.lineNumber)
+            Logger.log(Severity.Info, s"Method '${methodDef.name}' is NOT reflexive", methodDef.lineNumber)
         }
 
         methodDef

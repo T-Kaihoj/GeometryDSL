@@ -16,7 +16,7 @@ public class Logger {
         return SINGLETON_MESSAGE_QUEUE;
     }
 
-    public static void log(Message.Severity severity, String message, int lineNumber) {
+    public static void log(Severity severity, String message, int lineNumber) {
         getInstance().add(new Message(severity, message, lineNumber));
     }
 
@@ -25,10 +25,10 @@ public class Logger {
     }
 
     public String toString() {
-        return toString(Message.Severity.Warning);
+        return toString(Severity.Warning);
     }
 
-    public String toString(Message.Severity severityLevel) {
+    public String toString(Severity severityLevel) {
         List<Message> sortedMessageList = messageList.stream()
             .filter(m -> m.severity.getLevel() <= severityLevel.getLevel())
             .sorted(Comparator.comparingInt(o -> o.severity.getLevel()))

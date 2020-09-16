@@ -9,20 +9,12 @@ object SymmetryTransformer extends syntaxTree.MethodDefinitionTransformer
     {
         if(checkSymmetry(program, methodDef))
         {
-            logger.Logger.getInstance().add(new logger.Message(
-                logger.Message.Severity.Info,
-                s"Method '${methodDef.name}' is symmetric",
-                methodDef.lineNumber)
-            )
+            logger.Logger.log(logger.Severity.Info, s"Method '${methodDef.name}' is symmetric", methodDef.lineNumber)
             methodDef.tags=  "prop:symmetric" :: methodDef.tags
         }
         else
         {
-            logger.Logger.getInstance().add(new logger.Message(
-                logger.Message.Severity.Info,
-                s"Method '${methodDef.name}' is NOT symmetric",
-                methodDef.lineNumber)
-            )
+            logger.Logger.log(logger.Severity.Info,s"Method '${methodDef.name}' is NOT symmetric", methodDef.lineNumber)
         }
 
         methodDef
