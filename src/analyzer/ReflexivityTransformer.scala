@@ -23,7 +23,7 @@ object ReflexivityTransformer extends syntaxTree.MethodDefinitionTransformer
 
     def checkReflexivity(program: Program, methodDef: MethodDefinition): Boolean = methodDef match
     {
-        case MethodDefinition(_, BoolType, List(left, right), Return(retExp) :: Nil) =>
+        case MethodDefinition(_, BoolType, List(left, right), Return(retExp) :: Nil) if left.typeId == right.typeId =>
             val ctx = new z3.Context()
             val converter = new SyntaxTreeToZ3Converter(ctx, program)
             val methodExp: z3.Expr = converter.convertExpression(retExp, List(left, right))
