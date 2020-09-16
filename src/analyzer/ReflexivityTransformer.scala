@@ -4,9 +4,15 @@ import syntaxTree._
 import com.microsoft.z3
 import logger.{Logger, Severity}
 
-object ReflexivityTransformer extends syntaxTree.MethodDefinitionTransformer
+object ReflexivityTransformer extends ProgramDefinitionTransformer
 {
-    override def transform(program: Program, methodDef: MethodDefinition): MethodDefinition =
+    override def transform(program: Program, programDefinition: ProgramDefinition): ProgramDefinition = programDefinition match
+    {
+        case m: MethodDefinition => transform(program, programDefinition.asInstanceOf[MethodDefinition])
+        case _ => programDefinition
+    }
+
+    def transform(program: Program, methodDef: MethodDefinition): MethodDefinition =
     {
         if(checkReflexivity(program, methodDef))
         {
