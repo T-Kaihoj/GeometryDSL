@@ -5,15 +5,15 @@ import com.microsoft.z3
 
 object SymmetryTransformer extends ProgramDefinitionTransformer
 {
-    override def transform(program: Program, programDefinition: ProgramDefinition): ProgramDefinition = programDefinition match
+    override def transform(programDefinition: ProgramDefinition, context: ProgramContext): ProgramDefinition = programDefinition match
     {
-        case m: MethodDefinition => transform(program, programDefinition.asInstanceOf[MethodDefinition])
+        case m: MethodDefinition => transform(m, context)
         case _ => programDefinition
     }
 
-    def transform(program: Program, methodDef: MethodDefinition): MethodDefinition =
+    def transform(methodDef: MethodDefinition, context: ProgramContext): MethodDefinition =
     {
-        if(checkSymmetry(program, methodDef))
+        if(checkSymmetry(Program(context), methodDef))
         {
             logger.Logger.log(logger.Severity.Info, s"Method '${methodDef.name}' is symmetric", methodDef.lineNumber)
             methodDef.tags=  "prop:symmetric" :: methodDef.tags

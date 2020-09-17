@@ -6,11 +6,11 @@ object RelationChecker extends ProgramTransformer
 {
     override def transform(program: Program): Program =
     {
-        Program(program.program.map
+        Program(program.programDefinitions.map
         {
             case m: MethodDefinition =>
                 ReflexivityTransformer.transform(program,
-                SymmetryTransformer.transform(program, m))
+                SymmetryTransformer.transform(m, program.programDefinitions))
             case x => x
         })
     }

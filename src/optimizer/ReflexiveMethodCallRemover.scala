@@ -3,12 +3,11 @@ import syntaxTree._
 
 object ReflexiveMethodCallRemover extends OperationTransformer
 {
-    def transform(program: Program, block: Block, statement: Statement, operation: Operation): Expression = operation match
+    override def transform(operation: Operation, context: ProgramContext): Expression = operation match
     {
         case Operation(MethodCall(methodName, 2), List(leftOp, rightOp)) =>
-
-            val methodDef: MethodDefinition = Helper.getMethodDefinition(program, methodName).getOrElse({
-                logger.Logger.log(logger.Severity.Info,  s"No method called '$methodName' found", statement.lineNumber)
+            val methodDef: MethodDefinition = Helper.getMethodDefinition(methodName, context).getOrElse({
+                logger.Logger.log(logger.Severity.Info,  s"No method called '$methodName' found", 0)
                 return operation
             })
 

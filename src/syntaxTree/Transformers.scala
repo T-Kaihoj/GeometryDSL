@@ -13,11 +13,19 @@ trait ProgramTransformer
  */
 trait ProgramDefinitionTransformer extends ProgramTransformer
 {
-    def transform(program: Program, programDefinition: ProgramDefinition): ProgramDefinition
+    def transform(programDefinition: ProgramDefinition, context: ProgramContext): ProgramDefinition
 
     override def transform(program: Program): Program =
     {
-        Program(program.program.map(pd => transform(program, pd)))
+        def transformProgDefs(progDefs: List[ProgramDefinition], context: ProgramContext): ProgramContext = progDefs match
+        {
+            case head :: tail =>
+                val newProgDef = transform(head, context)
+                newProgDef :: transformProgDefs(tail, newProgDef :: context)
+            case Nil => Nil
+        }
+
+        Program(transformProgDefs(program.programDefinitions, Nil))
     }
 }
 
@@ -26,12 +34,12 @@ trait ProgramDefinitionTransformer extends ProgramTransformer
  */
 trait BlockTransformer extends ProgramDefinitionTransformer
 {
-    def transform(program: Program, block: Block): Block
+    def transform(block: Block, context: ProgramContext): Block
 
-    override def transform(program: Program, progDef: ProgramDefinition): ProgramDefinition = progDef match
+    override def transform(progDef: ProgramDefinition, context: ProgramContext): ProgramDefinition = progDef match
     {
+        case MethodDefinition(name, retType, params, block) => MethodDefinition(name, retType, params, transform(block, context))
         case TypeDefinition(name, fields) => TypeDefinition(name, fields)
-        case MethodDefinition(name, retType, params, block) => MethodDefinition(name, retType, params, transform(program, block))
         case ValueDefinition(decl, exp) => ValueDefinition(decl, exp)
     }
 }
@@ -41,11 +49,12 @@ trait BlockTransformer extends ProgramDefinitionTransformer
  */
 trait StatementTransformer extends BlockTransformer
 {
-    def transform(program: Program, block: Block, statement: Statement): Statement
+    def transform(statement: Statement, context: ProgramContext): Statement
 
-    override def transform(program: Program, block: Block): Block = block match
+    override def transform(block: Block, context: ProgramContext): Block = block match
     {
-        case head :: tail => transform(program, block, head) :: transform(program, tail)
+        case (valDef: ValueDefinition) :: tail => transform(valDef, context) :: transform(tail, valDef :: context)
+        case head :: tail => transform(head, context) :: transform(tail, context)
         case Nil => Nil
     }
 }
@@ -55,15 +64,16 @@ trait StatementTransformer extends BlockTransformer
  */
 trait ExpressionTransformer extends StatementTransformer
 {
-    def transform(program: Program, block: Block, statement: Statement, expression: Expression): Expression
+    def transform(expression: Expression, context: ProgramContext): Expression
 
-    override def transform(program: Program, block: Block, statement: Statement): Statement = statement match
+    override def transform(statement: Statement, context: ProgramContext): Statement = statement match
     {
-        case ValueDefinition(decl, exp) => ValueDefinition(decl, transform(program, block, statement, exp))
-        case Conditional(condition, trueBlock, falseBlock) => Conditional(transform(program, block, statement, condition),
-                                                                          transform(program, trueBlock),
-                                                                          transform(program, falseBlock))
-        case Return(exp) => Return(transform(program, block, statement, exp))
+        case ValueDefinition(decl, exp) => ValueDefinition(decl, transform(exp, context))
+        case Conditional(condition, trueBlock, falseBlock) =>
+            Conditional(transform(condition, context),
+                        transform(trueBlock, context),
+                        transform(falseBlock, context))
+        case Return(exp) => Return(transform(exp, context))
         case _ => statement
     }
 }
@@ -73,20 +83,18 @@ trait ExpressionTransformer extends StatementTransformer
  */
 trait OperationTransformer extends ExpressionTransformer
 {
-    def transform(program: Program, block: Block, statement: Statement, operation: Operation): Expression
+    def transform(operation: Operation, context: ProgramContext): Expression
 
-    override def transform(program: Program, block: Block, statement: Statement, expression: Expression): Expression = expression match
+    override def transform(expression: Expression, context: ProgramContext): Expression = expression match
     {
         case BoolLiteral(value) => BoolLiteral(value)
         case IntLiteral(value) => IntLiteral(value)
         case RealLiteral(value) => RealLiteral(value)
         case SetLiteral(values) => SetLiteral(values)
         case Identifier(name) => Identifier(name)
-        case MemberAccess(exp, field) => MemberAccess(transform(program, block, statement, exp), field)
-        case SetComprehension(ElementDefinition(name, exp), condition, application) => SetComprehension(
-            ElementDefinition(name, transform(program, block, statement, exp)),
-            transform(program, block, statement, condition),
-            transform(program, block, statement, application))
-        case Operation(operator, operands) => transform(program, block, statement, Operation(operator, operands))
+        case MemberAccess(exp, field) => MemberAccess(transform(exp, context), field)
+        case SetComprehension(ElementDefinition(name, exp), condition, application) =>
+            SetComprehension(ElementDefinition(name, transform(exp, context)), transform(condition, context), transform(application, context))
+        case Operation(operator, operands) => transform(Operation(operator, operands.map(op => transform(op, context))), context)
     }
 }

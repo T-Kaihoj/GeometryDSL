@@ -6,9 +6,9 @@ import logger.{Logger, Severity}
 
 object ReflexivityTransformer extends ProgramDefinitionTransformer
 {
-    override def transform(program: Program, programDefinition: ProgramDefinition): ProgramDefinition = programDefinition match
+    override def transform(programDefinition: ProgramDefinition, context: ProgramContext): ProgramDefinition = programDefinition match
     {
-        case m: MethodDefinition => transform(program, programDefinition.asInstanceOf[MethodDefinition])
+        case m: MethodDefinition => transform(m, context)
         case _ => programDefinition
     }
 

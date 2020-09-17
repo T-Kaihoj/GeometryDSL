@@ -14,7 +14,7 @@ public class Transpilation {
     public String convert(Program program) {
         this.program = program;
 
-        program.program().foreach(v1 -> {convertProgramEntity(v1);
+        program.programDefinitions().foreach(v1 -> {convertProgramEntity(v1);
             return null;
         });
         return String.join("\n", python);

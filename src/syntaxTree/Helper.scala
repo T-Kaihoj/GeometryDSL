@@ -78,21 +78,43 @@ object Helper
         case Nil => None
     }
 
-    def getMethodDefinition(program: Program, methodName: String): Option[MethodDefinition] =
+    def getMethodDefinition(methodName: String, program: Program): Option[MethodDefinition] = program.programDefinitions match
     {
-        program.program.find
+        case head :: tail => head match
         {
-            case m: MethodDefinition if m.name == methodName => true
-            case _ => false
+            case m: MethodDefinition if m.name == methodName => Some(m)
+            case _ => getMethodDefinition(methodName, Program(tail))
         }
-    }.asInstanceOf[Option[MethodDefinition]]
+        case _ =>  None
+    }
 
-    def getTypeDefinition(program: Program, typeName: String): Option[TypeDefinition] =
+    def getMethodDefinition(methodName: String, context: ProgramContext): Option[MethodDefinition] = context match
     {
-        program.program.find
+        case head :: tail => head match
         {
-            case t: TypeDefinition if t.name == typeName => true
-            case _ => false
+            case m: MethodDefinition if m.name == methodName => Some(m)
+            case _ => getMethodDefinition(methodName, tail)
         }
-    }.asInstanceOf[Option[TypeDefinition]]
+        case Nil => None
+    }
+
+    def getTypeDefinition(typeName: String, program: Program): Option[TypeDefinition] = program.programDefinitions match
+    {
+        case head :: tail => head match
+        {
+            case t: TypeDefinition if t.name == typeName => Some(t)
+            case _ => getTypeDefinition(typeName, Program(tail))
+        }
+        case _ => None
+    }
+
+    def getTypeDefinition(typeName: String, context: ProgramContext): Option[TypeDefinition] = context match
+    {
+        case head :: tail => head match
+        {
+            case t: TypeDefinition if t.name == typeName => Some(t)
+            case _ => getTypeDefinition(typeName, tail)
+        }
+        case _ => None
+    }
 }
