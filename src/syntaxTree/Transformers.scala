@@ -38,7 +38,12 @@ trait BlockTransformer extends ProgramDefinitionTransformer
 
     override def transform(progDef: ProgramDefinition, context: ProgramContext): ProgramDefinition = progDef match
     {
-        case MethodDefinition(name, retType, params, block) => MethodDefinition(name, retType, params, transform(block, context))
+        case MethodDefinition(name, retType, params, block) =>
+            MethodDefinition(name, retType, params,
+                transform(block, params.map(param => ValueDefinition(param, Identifier(param.name))) ++ context))
+            // FIXME: The method parameters are passed along the context as references to them self (int a = a).
+            //        This is kinda weird, but im not sure how fix it, as transforming a block might utilize the
+            //        local variable in that block scope.
         case TypeDefinition(name, fields) => TypeDefinition(name, fields)
         case ValueDefinition(decl, exp) => ValueDefinition(decl, exp)
     }
