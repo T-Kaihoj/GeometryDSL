@@ -38,14 +38,16 @@ trait BlockTransformer extends ProgramDefinitionTransformer
 
     override def transform(progDef: ProgramDefinition, context: ProgramContext): ProgramDefinition = progDef match
     {
-        case MethodDefinition(name, retType, params, block) =>
-            MethodDefinition(name, retType, params,
-                transform(block, params.map(param => ValueDefinition(param, Identifier(param.name))) ++ context))
+        case methDef: MethodDefinition =>
+            val newMethodDef = MethodDefinition(methDef.name, methDef.retType, methDef.params,
+                transform(methDef.block, methDef.params.map(param => ValueDefinition(param, Identifier(param.name))) ++ context))
             // FIXME: The method parameters are passed along the context as references to them self (int a = a).
             //        This is kinda weird, but im not sure how fix it, as transforming a block might utilize the
             //        local variable in that block scope.
-        case TypeDefinition(name, fields) => TypeDefinition(name, fields)
-        case ValueDefinition(decl, exp) => ValueDefinition(decl, exp)
+            newMethodDef.lineNumber = methDef.lineNumber
+            newMethodDef.tags = methDef.tags
+            newMethodDef
+        case x => x
     }
 }
 
@@ -73,12 +75,23 @@ trait ExpressionTransformer extends StatementTransformer
 
     override def transform(statement: Statement, context: ProgramContext): Statement = statement match
     {
-        case ValueDefinition(decl, exp) => ValueDefinition(decl, transform(exp, context))
-        case Conditional(condition, trueBlock, falseBlock) =>
-            Conditional(transform(condition, context),
-                        transform(trueBlock, context),
-                        transform(falseBlock, context))
-        case Return(exp) => Return(transform(exp, context))
+        case valDef: ValueDefinition =>
+            val newValDef = ValueDefinition(valDef.decl, transform(valDef.exp, context))
+            newValDef.lineNumber = valDef.lineNumber
+            newValDef.tags = valDef.tags
+            newValDef
+        case cond: Conditional =>
+            val newCond = Conditional(transform(cond.condition, context),
+                transform(cond.trueBlock, context),
+                transform(cond.falseBlock, context))
+            newCond.lineNumber = cond.lineNumber
+            newCond.tags = cond.tags
+            newCond
+        case ret: Return =>
+            val newRet = Return(transform(ret.exp, context))
+            newRet.lineNumber = ret.lineNumber
+            newRet.tags = ret.tags
+            newRet
         case _ => statement
     }
 }
