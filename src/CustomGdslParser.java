@@ -194,9 +194,14 @@ public class CustomGdslParser {
 
         @Override
         public Expression visitNumberExp(GdslParser.NumberExpContext ctx) {
-            return new IntLiteral(Integer.parseInt(ctx.children.get(0).getText()));
+            if(ctx.num.start.getType() == GdslLexer.INTEGER) {
+                return new IntLiteral(Integer.parseInt(ctx.num.getText()));
+            } else if(ctx.num.start.getType() == GdslLexer.FLOAT) {
+                return new RealLiteral(Float.parseFloat(ctx.num.getText()));
+            } else {
+                return super.visitNumberExp(ctx);
+            }
         }
-
     }
 
     //(typeDefinition | functionDefinition | variableDefinition)*
@@ -237,7 +242,6 @@ public class CustomGdslParser {
             return typeDef;
         }
     }
-
 
     private class DeclarationVisitor extends GdslBaseVisitor<ValueDeclaration>{
         @Override

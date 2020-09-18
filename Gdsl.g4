@@ -9,6 +9,9 @@ typeDefinition: TYPE id=IDENTIFIER '(' declaration (',' declaration)* ')' ;
 
 functionDefinition: retType=IDENTIFIER functionId=IDENTIFIER '(' (declaration (',' declaration)* )? ')' scope ;
 
+number: INTEGER
+      | FLOAT ;
+
 declaration: id=IDENTIFIER ':' type=IDENTIFIER ;
 
 scope: statement
@@ -48,7 +51,7 @@ expression: '(' expression ')' #parenthesisExp
           | IDENTIFIER '(' (expression (',' expression)*)? ')' #functionCallExp
           | IDENTIFIER #variableExp
           | bool=BOOL #boolExp
-          | NUMBER #numberExp ;
+          | num=number #numberExp ;
 
 /*
  * Lexer Rules
@@ -95,9 +98,8 @@ DIFFERENCE: 'diff' ;
 INTERSECTION: 'inter' ;
 IN: 'in' ;
 
-NUMBER: ([0-9])* '.' ([0-9])+
-      | ([0-9])+;
-
+INTEGER: ([0-9])+ ;
+FLOAT: ([0-9])* '.' ([0-9])+ ;
 IDENTIFIER: ([a-z] | [A-Z])+ ([a-zA-Z_0-9])* ;
 
 WS: [ \t\n\r]+ -> skip ;

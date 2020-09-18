@@ -29,6 +29,12 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionDefinition(GdslParser.FunctionDefinitionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link GdslParser#number}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNumber(GdslParser.NumberContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link GdslParser#declaration}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
