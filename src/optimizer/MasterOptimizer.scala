@@ -8,11 +8,6 @@ object MasterOptimizer extends ProgramTransformer
         ReflexiveMethodCallRemover
     )
 
-    def addOptimizer(programTransformer: ProgramTransformer): Unit =
-    {
-        programOptimizers = programTransformer :: programOptimizers
-    }
-
     override def transform(program: Program): Program =
     {
         programOptimizers.foldLeft[Program](program)((program, optimizer) => optimizer.transform(program))
