@@ -192,6 +192,18 @@ public interface GdslListener extends ParseTreeListener {
 	 */
 	void exitFunctionCallExp(GdslParser.FunctionCallExpContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code setExtractionExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterSetExtractionExp(GdslParser.SetExtractionExpContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code setExtractionExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitSetExtractionExp(GdslParser.SetExtractionExpContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code boolExp}
 	 * labeled alternative in {@link GdslParser#expression}.
 	 * @param ctx the parse tree
@@ -264,6 +276,18 @@ public interface GdslListener extends ParseTreeListener {
 	 */
 	void exitSetLiteralExp(GdslParser.SetLiteralExpContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code setQuantificationExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterSetQuantificationExp(GdslParser.SetQuantificationExpContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code setQuantificationExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitSetQuantificationExp(GdslParser.SetQuantificationExpContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code powerExp}
 	 * labeled alternative in {@link GdslParser#expression}.
 	 * @param ctx the parse tree
@@ -300,18 +324,6 @@ public interface GdslListener extends ParseTreeListener {
 	 */
 	void exitComparisonExp(GdslParser.ComparisonExpContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code setChooseExp}
-	 * labeled alternative in {@link GdslParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterSetChooseExp(GdslParser.SetChooseExpContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code setChooseExp}
-	 * labeled alternative in {@link GdslParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitSetChooseExp(GdslParser.SetChooseExpContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code absoluteExp}
 	 * labeled alternative in {@link GdslParser#expression}.
 	 * @param ctx the parse tree
@@ -347,16 +359,4 @@ public interface GdslListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSetOperatorExp(GdslParser.SetOperatorExpContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code setQuantificationCallExp}
-	 * labeled alternative in {@link GdslParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterSetQuantificationCallExp(GdslParser.SetQuantificationCallExpContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code setQuantificationCallExp}
-	 * labeled alternative in {@link GdslParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitSetQuantificationCallExp(GdslParser.SetQuantificationCallExpContext ctx);
 }

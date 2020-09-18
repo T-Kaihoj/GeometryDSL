@@ -49,6 +49,7 @@ package syntaxTree
     case object Cardinality extends Operator(1)
     case class Forall(element: ElementDefinition) extends Operator(1)
     case class Exists(element: ElementDefinition) extends Operator(1)
+    case class Choose(element: ElementDefinition) extends Operator(1)
 
     case object Add extends Operator(2)
     case object Sub extends Operator(2)
