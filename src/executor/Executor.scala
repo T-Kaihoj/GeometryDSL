@@ -71,7 +71,7 @@ class Executor
     {
         case ValueDefinition(decl, exp) => Right(Variable(decl.name, executeExpression(exp, stack)) :: stack)
         case Conditional(cond, trueBlock, falseBlock) => executeConditional(cond, trueBlock, falseBlock, stack)
-        case r: Return => throw new Exception("Should not happen")
+        case _: Return => throw new Exception("Should not happen")
     }
 
     /**
@@ -159,6 +159,7 @@ class Executor
         case Cardinality => OperationExecutor.cardinality(executeExpression(operands.head, stack))
         case Forall(element) => executeForall(element, operands.head, stack)
         case Exists(element) => executeExists(element, operands.head, stack)
+        case Choose(element) => executeChoose(element, operands.head, stack).get
         case Add => OperationExecutor.add(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
         case Sub => OperationExecutor.sub(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
         case Mul => OperationExecutor.mul(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
@@ -200,6 +201,21 @@ class Executor
             case _ => throw new Exception("Execution of check expression does not result in a boolean")
         }))
         case _ => throw new Exception("Execution of element definition does not result in a set")
+    }
+
+    def executeChoose(element: ElementDefinition, cond: Expression, stack: VarStack): Option[Value] = executeExpression(element.exp, stack) match
+    {
+        case SetValue(set) =>
+            set.find(elementValue => executeExpression(cond, Variable(element.name, elementValue) :: stack) match
+            {
+                case BoolValue(b) => b
+                case _ =>
+                    logger.Logger.log(logger.Severity.Error, "Execution of choose condition does not result i a boolean", -0)
+                    false
+            })
+        case _ =>
+            logger.Logger.log(logger.Severity.Error, "Execution of element definition does not result in a set", -0)
+            None
     }
 
     def executeMethodCall(methodName: String, arity: Int, args: List[Expression], stack: VarStack): Value =
