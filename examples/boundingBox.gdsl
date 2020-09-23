@@ -3,6 +3,7 @@
 
 type Point(x:int, y:int)
 type Rectangle(p1: Point, p2: Point)
+//INV Rectangle.p1.x < Rectangle.p2.x && Rectangle.p1.y < Rectangle.p2.y
 
 int getX(p: Point)(return p.x)
 int getY(p: Point)(return p.y)
@@ -18,7 +19,7 @@ set largest(R: set)
 
 set main()
 (
-    A: set := {Point(33, 52), Point(73, 69), Point(31, 80), Point(8, 79), Point(53, 70)}
+    A: set := {Point(33, 52), Point(73, 69), Point(31, 80), Point(8, 79), Point(53, 70), Point(3, 77), Point(3, 87), Point(18, 29), Point(5, 7)}
     X: set := getX(A)
     Y: set := getY(A)
     P: set := Point(X, Y)
