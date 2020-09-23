@@ -80,6 +80,7 @@ object OperationExecutor
         case (BoolValue(l), BoolValue(r)) => BoolValue(l == r)
         case (IntValue(l), IntValue(r)) => BoolValue(l == r)
         case (RealValue(l), RealValue(r)) => BoolValue(l == r)
+        case (SetValue(l), SetValue(r)) => BoolValue(l.equals(r))
         case _ => throw new Exception(s"Equal of ${left.getClass} and ${right.getClass} is not supported")
     }
 
@@ -88,6 +89,7 @@ object OperationExecutor
         case (BoolValue(l), BoolValue(r)) => BoolValue(l != r)
         case (IntValue(l), IntValue(r)) => BoolValue(l != r)
         case (RealValue(l), RealValue(r)) => BoolValue(l != r)
+        case (SetValue(l), SetValue(r)) => BoolValue(!l.equals(r))
         case _ => throw new Exception(s"NotEqual of ${left.getClass} and ${right.getClass} is not supported")
     }
 
