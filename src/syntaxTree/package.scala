@@ -1,6 +1,8 @@
 package object syntaxTree
 {
     type Block = List[Statement]
+
+    type ProgramContext = List[ProgramDefinition]
 }
 
 package syntaxTree
@@ -12,7 +14,7 @@ package syntaxTree
     }
 
     sealed trait ProgramDefinition extends ProgramEntity
-    sealed case class Program(program: List[ProgramDefinition])
+    sealed case class Program(programDefinitions: List[ProgramDefinition])
 
     sealed trait Type
     case object BoolType extends Type
@@ -47,6 +49,7 @@ package syntaxTree
     case object Cardinality extends Operator(1)
     case class Forall(element: ElementDefinition) extends Operator(1)
     case class Exists(element: ElementDefinition) extends Operator(1)
+    case class Choose(element: ElementDefinition) extends Operator(1)
 
     case object Add extends Operator(2)
     case object Sub extends Operator(2)

@@ -2,12 +2,15 @@
  * Parser Rules
  */
 grammar Gdsl;
-//Types must be to find before first use variables must be defined before first use
+// Types and variables must be defined before first use
 gdsl: (typeDefinition | functionDefinition | variableDefinition)* ;
 
 typeDefinition: TYPE id=IDENTIFIER '(' declaration (',' declaration)* ')' ;
 
 functionDefinition: retType=IDENTIFIER functionId=IDENTIFIER '(' (declaration (',' declaration)* )? ')' scope ;
+
+number: INTEGER
+      | FLOAT ;
 
 declaration: id=IDENTIFIER ':' type=IDENTIFIER ;
 
@@ -21,7 +24,7 @@ statement: conditionalIf
 
 variableDefinition: declaration ASSIGNMENT expression ;
 
-returnStatement: 'return' expression;
+returnStatement: RETURN expression;
 
 switchCase: 'switch' '(' ('case' expression '=>' scope)*  ('default' '=>'defaultscope= scope)? ')' ;
 
@@ -35,8 +38,8 @@ expression: '(' expression ')' #parenthesisExp
           | expression '.' IDENTIFIER #dotExp
           | NOT expression #notExp
           | setL=expression operator=(UNION | DIFFERENCE | INTERSECTION) setR=expression #setOperatorExp
-          | quantifier=QUANTIFIER '(' setElementDefinition ',' expression ')' #setQuantificationCallExp
-          | CHOOSE expression #setChooseExp // Selects an element from a set
+          | quantifier=QUANTIFIER '(' setElementDefinition ',' expression ')' #setQuantificationExp
+          | extractor=EXTRACTOR '(' setElementDefinition ',' expression ')' #setExtractionExp
           | expression POWER expression #powerExp
           | expression operator=(DIVISION | MULTIPLICATION) expression #divMulExp
           | expression operator=(ADD | SUB) expression #addSubExp
@@ -48,20 +51,24 @@ expression: '(' expression ')' #parenthesisExp
           | IDENTIFIER '(' (expression (',' expression)*)? ')' #functionCallExp
           | IDENTIFIER #variableExp
           | bool=BOOL #boolExp
-          | NUMBER #numberExp ;
+          | num=number #numberExp ;
 
 /*
  * Lexer Rules
  */
 TYPE: 'type' ;
 
-BOOL: 'true' | 'false';
+BOOL: 'true'
+    | 'false';
 QUANTIFIER: 'exist'
-          | 'all'
-          | 'select' ;
+          | 'all';
+EXTRACTOR: 'select'
+         | 'choose' ;
 
 IF: 'if' ;
 ELSE: 'else' ;
+
+RETURN: 'return' ;
 
 COMPARISON: '=='
           | '!='
@@ -89,12 +96,10 @@ ASSIGNMENT: ':=' ;
 UNION: 'union' ;
 DIFFERENCE: 'diff' ;
 INTERSECTION: 'inter' ;
-CHOOSE: 'choose' ;
 IN: 'in' ;
 
-NUMBER: ([0-9])* '.' ([0-9])+
-      | ([0-9])+;
-
+INTEGER: ([0-9])+ ;
+FLOAT: ([0-9])* '.' ([0-9])+ ;
 IDENTIFIER: ([a-z] | [A-Z])+ ([a-zA-Z_0-9])* ;
 
 WS: [ \t\n\r]+ -> skip ;

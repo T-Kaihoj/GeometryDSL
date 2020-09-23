@@ -69,27 +69,37 @@ public class CustomGdslParser {
 
         // quantifier=QUANTIFIER '(' setElementDefinition ','  expression ')' #setQuantificationCallExp
         @Override
-        public Expression visitSetQuantificationCallExp(GdslParser.SetQuantificationCallExpContext ctx) {
+        public Expression visitSetQuantificationExp(GdslParser.SetQuantificationExpContext ctx) {
             SetElementDefinitionVisitor setElementDefinitionVisitor = new SetElementDefinitionVisitor();
-            if(ctx.quantifier.getText().equals("exist"))
-                return new Operation(new Exists(setElementDefinitionVisitor.visit(ctx.setElementDefinition())), ParsingHelper.scalaList(this.visit(ctx.expression())));
-            else if(ctx.quantifier.getText().equals("all"))
-                return new Operation(new Forall(setElementDefinitionVisitor.visit(ctx.setElementDefinition())), ParsingHelper.scalaList(this.visit(ctx.expression())));
-            else if(ctx.quantifier.getText().equals( "select")) {
-                ElementDefinition elementDefinition = setElementDefinitionVisitor.visit(ctx.setElementDefinition());
-                return new SetComprehension(elementDefinition, this.visit(ctx.expression()), new Identifier (elementDefinition.name()));
-            }
-            else
-                return super.visitSetQuantificationCallExp(ctx);
+            ElementDefinition elementDef = setElementDefinitionVisitor.visitSetElementDefinition(ctx.setElementDefinition());
 
+            Operator op;
+            if (ctx.quantifier.getText().equals("exist")) {
+                op = new Exists(elementDef);
+            } else if (ctx.quantifier.getText().equals("all")) {
+                op = new Forall(elementDef);
+            } else {
+                return super.visitSetQuantificationExp(ctx);
+            }
+
+            return new Operation(op, ParsingHelper.scalaList(this.visit(ctx.expression())));
         }
 
-            //Selects an element from a set
-            //| CHOOSE expression  #setChooseExp
-        //TODO: fix
         @Override
-        public Expression visitSetChooseExp(GdslParser.SetChooseExpContext ctx) {
-            return super.visitSetChooseExp(ctx);
+        public Expression visitSetExtractionExp(GdslParser.SetExtractionExpContext ctx) {
+            SetElementDefinitionVisitor setElementDefinitionVisitor = new SetElementDefinitionVisitor();
+            ElementDefinition elementDef = setElementDefinitionVisitor.visitSetElementDefinition(ctx.setElementDefinition());
+
+            Expression exp;
+            if (ctx.extractor.getText().equals("select")) {
+                exp = new SetComprehension(elementDef, this.visit(ctx.expression()), new Identifier(elementDef.name()));
+            } else if (ctx.extractor.getText().equals("choose")) {
+                exp = new Operation(new Choose(elementDef), ParsingHelper.scalaList(this.visit(ctx.expression())));
+            } else {
+                exp = super.visitSetExtractionExp(ctx);
+            }
+
+            return exp;
         }
 
         //| expression POWER expression #powerExp
@@ -184,9 +194,14 @@ public class CustomGdslParser {
 
         @Override
         public Expression visitNumberExp(GdslParser.NumberExpContext ctx) {
-            return new IntLiteral(Integer.parseInt(ctx.children.get(0).getText()));
+            if(ctx.num.start.getType() == GdslLexer.INTEGER) {
+                return new IntLiteral(Integer.parseInt(ctx.num.getText()));
+            } else if(ctx.num.start.getType() == GdslLexer.FLOAT) {
+                return new RealLiteral(Float.parseFloat(ctx.num.getText()));
+            } else {
+                return super.visitNumberExp(ctx);
+            }
         }
-
     }
 
     //(typeDefinition | functionDefinition | variableDefinition)*
@@ -227,7 +242,6 @@ public class CustomGdslParser {
             return typeDef;
         }
     }
-
 
     private class DeclarationVisitor extends GdslBaseVisitor<ValueDeclaration>{
         @Override

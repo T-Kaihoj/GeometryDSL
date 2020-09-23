@@ -56,7 +56,7 @@ object transpilationScala
 
     def methodCallisSetScala(methodName:String, program:Program):List[Boolean] =
         {
-            program.program.collectFirst(p => p match
+            program.programDefinitions.collectFirst(p => p match
             {
                 case MethodDefinition(name, retType, params, block) if methodName == name => params
                 case TypeDefinition(name, fields) if methodName == name => fields

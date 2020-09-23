@@ -4,7 +4,7 @@ import com.microsoft.z3
 
 class SyntaxTreeToZ3Converter(ctx: z3.Context, program: syntaxTree.Program)
 {
-    val typeDefinitions: List[syntaxTree.TypeDefinition] = program.program.collect
+    val typeDefinitions: List[syntaxTree.TypeDefinition] = program.programDefinitions.collect
     {
         case typeDef: syntaxTree.TypeDefinition => typeDef
     }
@@ -21,7 +21,7 @@ class SyntaxTreeToZ3Converter(ctx: z3.Context, program: syntaxTree.Program)
             ctx.mkDatatypeSort(name, Array(constructor))
     })
 
-    val globalValues: List[syntaxTree.ValueDeclaration] = program.program.collect
+    val globalValues: List[syntaxTree.ValueDeclaration] = program.programDefinitions.collect
     {
         case syntaxTree.ValueDefinition(decl, _) => decl
     }

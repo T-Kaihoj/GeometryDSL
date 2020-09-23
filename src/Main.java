@@ -1,4 +1,4 @@
-import analyzer.RelationChecker;
+import analyzer.MasterAnalyzer;
 import executor.Executor;
 import logger.Logger;
 import syntaxTree.Program;
@@ -37,7 +37,7 @@ public class Main {
         }
 
         if (options.isRelationChecker) {
-            RelationChecker.transform(program);
+            MasterAnalyzer.transform(program);
         }
 
         Logger logger = Logger.getInstance();

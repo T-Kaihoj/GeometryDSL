@@ -78,14 +78,43 @@ object Helper
         case Nil => None
     }
 
-    @tailrec
-    def getTypeDefinition(tree: Program, typeName: String): Option[TypeDefinition] = tree.program match
+    def getMethodDefinition(methodName: String, program: Program): Option[MethodDefinition] = program.programDefinitions match
     {
         case head :: tail => head match
         {
-            case TypeDefinition(name, fields) if name == typeName => Some(TypeDefinition(name, fields))
-            case _ => getTypeDefinition(Program(tail), typeName)
+            case m: MethodDefinition if m.name == methodName => Some(m)
+            case _ => getMethodDefinition(methodName, Program(tail))
+        }
+        case _ =>  None
+    }
+
+    def getMethodDefinition(methodName: String, context: ProgramContext): Option[MethodDefinition] = context match
+    {
+        case head :: tail => head match
+        {
+            case m: MethodDefinition if m.name == methodName => Some(m)
+            case _ => getMethodDefinition(methodName, tail)
         }
         case Nil => None
+    }
+
+    def getTypeDefinition(typeName: String, program: Program): Option[TypeDefinition] = program.programDefinitions match
+    {
+        case head :: tail => head match
+        {
+            case t: TypeDefinition if t.name == typeName => Some(t)
+            case _ => getTypeDefinition(typeName, Program(tail))
+        }
+        case _ => None
+    }
+
+    def getTypeDefinition(typeName: String, context: ProgramContext): Option[TypeDefinition] = context match
+    {
+        case head :: tail => head match
+        {
+            case t: TypeDefinition if t.name == typeName => Some(t)
+            case _ => getTypeDefinition(typeName, tail)
+        }
+        case _ => None
     }
 }

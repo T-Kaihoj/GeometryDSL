@@ -3,26 +3,24 @@ package analyzer
 import syntaxTree._
 import com.microsoft.z3
 
-object SymmetryTransformer extends syntaxTree.MethodDefinitionTransformer
+object SymmetryTransformer extends ProgramDefinitionTransformer
 {
-    override def transform(program: Program, methodDef: MethodDefinition): MethodDefinition =
+    override def transform(programDefinition: ProgramDefinition, context: ProgramContext): ProgramDefinition = programDefinition match
     {
-        if(checkSymmetry(program, methodDef))
+        case m: MethodDefinition => transform(m, context)
+        case _ => programDefinition
+    }
+
+    def transform(methodDef: MethodDefinition, context: ProgramContext): MethodDefinition =
+    {
+        if(checkSymmetry(Program(context), methodDef))
         {
-            logger.Logger.getInstance().add(new logger.Message(
-                logger.Message.Severity.Info,
-                s"Method '${methodDef.name}' is symmetric",
-                methodDef.lineNumber)
-            )
+            logger.Logger.log(logger.Severity.Info, s"Method '${methodDef.name}' is symmetric", methodDef.lineNumber)
             methodDef.tags=  "prop:symmetric" :: methodDef.tags
         }
         else
         {
-            logger.Logger.getInstance().add(new logger.Message(
-                logger.Message.Severity.Info,
-                s"Method '${methodDef.name}' is NOT symmetric",
-                methodDef.lineNumber)
-            )
+            logger.Logger.log(logger.Severity.Info,s"Method '${methodDef.name}' is NOT symmetric", methodDef.lineNumber)
         }
 
         methodDef
@@ -30,7 +28,7 @@ object SymmetryTransformer extends syntaxTree.MethodDefinitionTransformer
 
     def checkSymmetry(program: Program, methodDef: MethodDefinition): Boolean = methodDef match
     {
-        case MethodDefinition(_, BoolType, List(left, right), Return(retExp) :: Nil) =>
+        case MethodDefinition(_, BoolType, List(left, right), Return(retExp) :: Nil) if left.typeId == right.typeId =>
             val ctx = new z3.Context()
             val converter = new SyntaxTreeToZ3Converter(ctx, program)
             val methodExp: z3.Expr = converter.convertExpression(retExp, List(left, right))

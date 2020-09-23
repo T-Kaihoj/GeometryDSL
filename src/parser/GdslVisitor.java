@@ -29,6 +29,12 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionDefinition(GdslParser.FunctionDefinitionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link GdslParser#number}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNumber(GdslParser.NumberContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link GdslParser#declaration}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -120,6 +126,13 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionCallExp(GdslParser.FunctionCallExpContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code setExtractionExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSetExtractionExp(GdslParser.SetExtractionExpContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code boolExp}
 	 * labeled alternative in {@link GdslParser#expression}.
 	 * @param ctx the parse tree
@@ -162,6 +175,13 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSetLiteralExp(GdslParser.SetLiteralExpContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code setQuantificationExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSetQuantificationExp(GdslParser.SetQuantificationExpContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code powerExp}
 	 * labeled alternative in {@link GdslParser#expression}.
 	 * @param ctx the parse tree
@@ -183,13 +203,6 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitComparisonExp(GdslParser.ComparisonExpContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code setChooseExp}
-	 * labeled alternative in {@link GdslParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSetChooseExp(GdslParser.SetChooseExpContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code absoluteExp}
 	 * labeled alternative in {@link GdslParser#expression}.
 	 * @param ctx the parse tree
@@ -210,11 +223,4 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSetOperatorExp(GdslParser.SetOperatorExpContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code setQuantificationCallExp}
-	 * labeled alternative in {@link GdslParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSetQuantificationCallExp(GdslParser.SetQuantificationCallExpContext ctx);
 }
