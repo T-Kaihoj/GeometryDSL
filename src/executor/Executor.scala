@@ -71,7 +71,7 @@ class Executor
     {
         case ValueDefinition(decl, exp) => Right(Variable(decl.name, executeExpression(exp, stack)) :: stack)
         case Conditional(cond, trueBlock, falseBlock) => executeConditional(cond, trueBlock, falseBlock, stack)
-        case r: Return => throw new Exception("Should not happen")
+        case _: Return => throw new Exception("Should not happen")
     }
 
     /**
@@ -108,7 +108,7 @@ class Executor
         case RealLiteral(r) => RealValue(r)
         case SetLiteral(s) => SetValue(s.toSet.map(exp => executeExpression(exp, stack)))
         case Identifier(name) => executeIdentifier(name, stack)
-        case MemberAccess(exp, field) => executeMemberAccess(exp, field, stack)
+        case MemberAccess(exp, field) => executeMemberAccess(exp, field, stack).get
         case SetComprehension(elem, cond, app) => executeSetComprehension(elem, cond, app, stack)
         case Operation(operator, operands) => executeOperation(operator, operands, stack)
     }
@@ -121,19 +121,43 @@ class Executor
         ).value
     }
 
-    def executeMemberAccess(exp: Expression, fieldName: String, stack: VarStack): Value = executeExpression(exp, stack) match
+    /**
+     * Exstracts value from object, given a field name.
+     */
+    def getFieldValue(obj: Value, fieldName: String): Option[Value] = obj match
     {
         case ObjectValue(typeName, fields) =>
-            programMemory.find
+            val fieldIndex = programMemory.collectFirst
             {
-                case TypeDefinition(name, _) if typeName == name => true
-                case _ => false
-            }.getOrElse(throw new Exception(s"No type definition called '$typeName' exists'")) match
+                case TypeDefinition(name, fieldDefs) if typeName == name => fieldDefs.indexWhere(f => f.name == fieldName)
+            }.getOrElse(return None)
+
+            fieldIndex match
             {
-                case TypeDefinition(_, fieldsDef) => fields.apply(fieldsDef.indexWhere(f => f.name == fieldName))
-                case _ => throw new Exception("Should not happen")
+                case -1 => None
+                case n => Some(fields(n))
             }
-        case value => throw new Exception(s"'$value' is not an object")
+        case _ => None
+    }
+
+    /**
+     * Executes memberaccess (dot operator (.)) on objects.
+     *
+     * Given a set as input, it will return field values with the correct names.
+     */
+    def executeMemberAccess(exp: Expression, fieldName: String, stack: VarStack): Option[Value] = executeExpression(exp, stack) match
+    {
+        case objVal: ObjectValue => getFieldValue(objVal, fieldName)
+        case SetValue(set) =>
+            Some(SetValue(set.foldLeft(Set(): Set[Value])((s, elemVal) =>
+            {
+                getFieldValue(elemVal, fieldName) match
+                {
+                    case Some(fieldVal) => s.union(Set(fieldVal))
+                    case None => s
+                }
+            })))
+        case value => logger.Logger.log(logger.Severity.Error, s"'$value' is not an object", 0); None
     }
 
     def executeSetComprehension(elem: ElementDefinition, cond: Expression, app: Expression, stack: VarStack): SetValue =
@@ -159,6 +183,7 @@ class Executor
         case Cardinality => OperationExecutor.cardinality(executeExpression(operands.head, stack))
         case Forall(element) => executeForall(element, operands.head, stack)
         case Exists(element) => executeExists(element, operands.head, stack)
+        case Choose(element) => executeChoose(element, operands.head, stack).get
         case Add => OperationExecutor.add(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
         case Sub => OperationExecutor.sub(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
         case Mul => OperationExecutor.mul(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
@@ -200,6 +225,21 @@ class Executor
             case _ => throw new Exception("Execution of check expression does not result in a boolean")
         }))
         case _ => throw new Exception("Execution of element definition does not result in a set")
+    }
+
+    def executeChoose(element: ElementDefinition, cond: Expression, stack: VarStack): Option[Value] = executeExpression(element.exp, stack) match
+    {
+        case SetValue(set) =>
+            set.find(elementValue => executeExpression(cond, Variable(element.name, elementValue) :: stack) match
+            {
+                case BoolValue(b) => b
+                case _ =>
+                    logger.Logger.log(logger.Severity.Error, "Execution of choose condition does not result i a boolean", -0)
+                    false
+            })
+        case _ =>
+            logger.Logger.log(logger.Severity.Error, "Execution of element definition does not result in a set", -0)
+            None
     }
 
     def executeMethodCall(methodName: String, arity: Int, args: List[Expression], stack: VarStack): Value =

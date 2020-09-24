@@ -1,8 +1,0 @@
-int main()
-(
-    if(true)
-    (
-        return 5
-    )
-    return 8
-)
