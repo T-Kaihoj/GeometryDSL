@@ -121,6 +121,8 @@ public class Transpilation {
             return convertMethodCall((MethodCall)exp.operator(),expressions);
         if (operator.equals("Forall"))
             return convertForall((Forall)exp.operator(),expressions);
+        if (operator.equals("Choose"))
+            return convertChoose((Choose) exp.operator(),expressions);
 
         if(expressions.size()==2)
             return "("+convertExpression(expressions.get(0)) +" "+transpilationScala.operatorStringScala(  exp.operator()) + " "+ convertExpression( expressions.get(1))+")";
@@ -128,6 +130,10 @@ public class Transpilation {
         //return exp.toString();
 
 
+    }
+
+    private String convertChoose(Choose operator, List<Expression> expressions) {
+        return "choose("+convertExpression(operator.element().exp())+", lambda "+ operator.element().name() +" : " +convertExpression(expressions.get(0))+")";
     }
 
     private String convertForall(Forall operator, List<Expression> expressions) {

@@ -31,6 +31,7 @@ object transpilationScala
         case Forall(element) => "Forall"
         case GreaterThanEqual => ">="
         case MethodCall(name, argumentCount) => "MethodCall"
+        case Choose(element) => "Choose"
     }
 
     def isIdentifierSet(name: String, block:Block): Boolean ={
