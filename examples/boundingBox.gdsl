@@ -10,7 +10,8 @@ int getY(p: Point)(return p.y)
 
 bool larger(r1: Rectangle, r2: Rectangle)
 (
-    return  ((r1.p1.x - r1.p2.x) * (r1.p1.x - r1.p2.x) * (r1.p1.y - r1.p2.y) * (r1.p1.y - r1.p2.y)) >= ((r2.p1.x - r2.p2.x) * (r2.p1.x - r2.p2.x) *(r2.p1.y - r2.p2.y) * (r2.p1.y - r2.p2.y)))
+    return  ((r1.p1.x - r1.p2.x) * (r1.p1.x - r1.p2.x) * (r1.p1.y - r1.p2.y) * (r1.p1.y - r1.p2.y)) >= ((r2.p1.x - r2.p2.x) * (r2.p1.x - r2.p2.x) *(r2.p1.y - r2.p2.y) * (r2.p1.y - r2.p2.y))
+)
 
 Rectangle largest(R: set)
 (
@@ -20,11 +21,10 @@ Rectangle largest(R: set)
 set main()
 (
     A: set := {Point(33.3, 52.2), Point(18.3, 29.1), Point(5.1, 7.2)}
-    X: set := A.x
+    X: set := getX(A)
     Y: set := getY(A)
     P: set := Point(X, Y)
     R: set := Rectangle(P, P)
     R2: set := select(r in R, r.p1.x < r.p2.x && r.p1.y < r.p2.y) //{r in R | r.p1.x < r.p2.x && r.p1.y < r.p2.y | r}
-    LR: Rectangle := largest(R2)
-    return LR
+    return largest(R2)
 )

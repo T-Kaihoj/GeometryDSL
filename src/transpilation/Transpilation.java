@@ -1,6 +1,7 @@
 package transpilation;
 
 
+import com.microsoft.z3.Lambda;
 import syntaxTree.*;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ public class Transpilation {
     List<String> python = new LinkedList<>();
     public String convert(Program program) {
         this.program = program;
-
+        python.add("from gdsl import *\n" +"from realNumbers import RealNumbers");
         program.programDefinitions().foreach(v1 -> {convertProgramEntity(v1);
             return null;
         });
@@ -48,9 +49,22 @@ public class Transpilation {
         typeDefinition.fields().foreach(v1 -> ValueDeclaration.add("\t\t self." + v1.name() + "=" + v1.name()));
            python.add(  "class " + typeDefinition.name() + ":\n" +
                 "\tdef __init__(self," + String.join(",", name) + "):\n" +
-                String.join("\n", ValueDeclaration));
+                String.join("\n", ValueDeclaration)+"\n" +
+                   "\tdef __repr__(self):\n" + "\t\treturn  \" "+ String.join("  ", map( name ,s ->  s + ":(% s)" ))  +"\" % ("+String.join(", ", map( name ,(s ->  "str(self."+s+ " )")))+")" );
         return;
     }
+    interface MapOperation {
+        String operation(String a);
+    }
+
+    private List<String> map(List<String> stringList, MapOperation o) {
+        List<String> list= new ArrayList<>();
+        for (String s : stringList) {
+            list.add(o.operation(s));
+        }
+        return list;
+    }
+
 
     public void convertValueDefinition(ValueDefinition valueDefinition, String s ) {
 
@@ -110,7 +124,7 @@ public class Transpilation {
     }
 
     private String convertExpressionRealLiteral(RealLiteral exp) {
-        return  String.valueOf( exp.value());
+        return "RealNumbers("+ String.valueOf( exp.value())+")";
     }
 
     private String convertExpressionOperation(Operation exp) {
@@ -150,7 +164,7 @@ public class Transpilation {
 
         isSetlist = methodCallIsSet(call,expressions, finalIsSetlist);
 
-        System.out.println(call.name()+", Variable type:"+finalIsSetlist +call.name()+" Need set expansion:"+isSetlist);
+        //System.out.println(call.name()+", Variable type:"+finalIsSetlist +call.name()+" Need set expansion:"+isSetlist);
 
         expressions.forEach(expression -> strings.add( convertExpression(expression)));
         if (isSetlist.contains(true)){
