@@ -37,7 +37,7 @@ expression: '(' expression ')' #parenthesisExp
           | '|' expression '|' #absoluteExp
           | expression '.' IDENTIFIER #dotExp
           | NOT expression #notExp
-          | setL=expression operator=(UNION | DIFFERENCE | INTERSECTION) setR=expression #setOperatorExp
+          | setL=expression operator=(UNION | DIFFERENCE | INTERSECTION|PROPERSUBSET|SUBSET) setR=expression #setOperatorExp
           | quantifier=QUANTIFIER '(' setElementDefinition ',' expression ')' #setQuantificationExp
           | extractor=EXTRACTOR '(' setElementDefinition ',' expression ')' #setExtractionExp
           | expression POWER expression #powerExp
@@ -47,7 +47,7 @@ expression: '(' expression ')' #parenthesisExp
           | expression AND expression #andExp
           | expression OR expression #orExp
           | '{' setElementDefinition ('|' expression)? '|' expression '}'#setComprehensionExp
-          | '{' expression  (',' expression)* '}'#setLiteralExp
+          | '{' (expression  (',' expression)*)? '}'#setLiteralExp
           | IDENTIFIER '(' (expression (',' expression)*)? ')' #functionCallExp
           | IDENTIFIER #variableExp
           | bool=BOOL #boolExp
@@ -95,7 +95,9 @@ ASSIGNMENT: ':=' ;
 
 UNION: 'union' ;
 DIFFERENCE: 'diff' ;
-INTERSECTION: 'inter' ;
+INTERSECTION: 'inter' |'INTERSECTION' ;
+PROPERSUBSET: 'propersubset';
+SUBSET : 'subset';
 IN: 'in' ;
 
 INTEGER: ([0-9])+ ;

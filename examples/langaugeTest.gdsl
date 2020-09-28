@@ -24,5 +24,56 @@ int main()
     S: set := {s in S | 1 < s | s + 2}
     if(S != {4, 5, 6})(return 300)
 
-    return 0
+    // Set construction using select statement and  quantifiers
+    A:set := select(r in {1, 2, 3, 4,5}, r < 3)
+    if(A != {1, 2})(return 400)
+    if(!all(t in A, t >0 ))(return 401)
+    if(all(t in A, t >1 ))(return 402)
+    if(!exist(t in A, t == 1 ))(return 403)
+    if(exist(t in A, t ==0 ))(return 404)
+    B:set := select(r in {1, 2, 3, 4,5}, r < 0)
+    if(B != {})(return 405)
+    A:set := choose(r in {1, 2, 3, 4,5}, r < 3)
+    if(A != 1 && A != 2)(return 406)
+    A:set := choose(r in {1, 2, 3, 4,5}, r < 3)
+    if(A == 1 && A == 2  )(return 407)
+
+    //cardinality and Absolute
+    if(|{1, 2, 3, 4,5}| != 5 )(return 500)
+    if(|{}| != 0 )(return 501)
+    //if(|0-1| != 1 )(return 502)
+
+    //600 Set operations
+    //610 Set difference
+    if({1, 2, 3, 4,5} diff {1, 2, 3, 4,5} != {} )(return 611)
+    if({1, 2, 3, 4,5} diff {1, 2, 3} != {4,5} )(return 612)
+    //620 Set intersection
+    if({1, 2, 3, 4,5} inter {1, 2, 3, 4,5} != {1, 2, 3, 4,5} )(return 621)
+    if({1, 2, 3, 4,5} inter {1, 2, 3} != {1, 2, 3} )(return 622)
+    if({1, 2, 3, 4,5} inter {} != {} )(return 623)
+    if({1, 2 } inter {1, 2, 3, 4,5,6} != {1,2} )(return 624)
+    if({ } inter {1, 2, 3, 4,5,6} != {} )(return 625)
+    //630 set union
+    if({1, 2, 3, 4,5} union {1, 2, 3, 4,5} != {1, 2, 3, 4,5} )(return 631)
+    if({1, 2, 3, 4,5} union {1, 2, 3} != {1, 2, 3, 4,5} )(return 632)
+    if({1, 2} union { 3, 4,5} != {1, 2, 3, 4,5} )(return 633)
+    if({} union {6} != {6} )(return 634)
+    if({ } union {} != {} )(return 635)
+    //650 Subset
+    if(not ( {1, 2, 3, 4,5} subset {1, 2, 3, 4,5}))(return 651)
+    if(not ({1} subset {1, 2, 3, 4,5}))(return 652)
+    if(not ({} subset {1, 2, 3, 4,5}))(return 653)
+    if(  {1, 2, 3, 4,5} subset {})(return 654)
+    if(  {1, 2, 3, 4,5} subset {6})(return 655)
+    //660 Strict subset / proper subset
+    //if(not ( {1, 2, 3, 4,5} propersubset {1, 2, 3, 4,5}))(return 661)
+    //if(not ({1} propersubset {1, 2, 3, 4,5}))(return 662)
+    //if(not ({} propersubset {1, 2, 3, 4,5}))(return 663)
+    //if(  {1, 2, 3, 4,5} propersubset {})(return 664)
+    //if(  {1, 2, 3, 4,5} propersubset {6})(return 665)
+    //700 No set nesting
+    if( {1, 2, 3, 4,5} != {1, 2, 3, {4,5}})(return 701)
+    if( {1, 2, 3, {4,5}} != {1, 2, 3, {4,5}})(return 702)
+
+return 0
 )
