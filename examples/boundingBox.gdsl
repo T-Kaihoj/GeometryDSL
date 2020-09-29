@@ -1,11 +1,7 @@
 // Originally produced by Carl Schultz
-// Tested on the 2020-08-14
 
-type Point(x:real, y:real)
+type Point(x: int, y: int)
 type Rectangle(p1: Point, p2: Point)
-
-int getX(p: Point)(return p.x)
-int getY(p: Point)(return p.y)
 
 bool larger(r1: Rectangle, r2: Rectangle)
 (
@@ -13,19 +9,21 @@ bool larger(r1: Rectangle, r2: Rectangle)
            ((r2.p1.x - r2.p2.x)^2 * (r2.p1.y - r2.p2.y)^2)
 )
 
-Rectangle largest(R: set)
+set largest(R: set)
 (
-    return choose(r in R,  all(t in R, larger(r, t)))
+    return select(r in R,  all(t in R, larger(r, t)))
 )
 
 set main()
 (
-    A: set := {Point(33.3, 52.2), Point(18.3, 29.1), Point(5.1, 7.2)}
-    X: set := A.x
-    Y: set := A.y
-    P: set := Point(X, Y)
-    R: set := Rectangle(P, P)
-    R2: set := select(r in R, r.p1.x < r.p2.x && r.p1.y < r.p2.y)
-    LR: Rectangle := largest(R2)
-    return LR
+    points: set := {Point(33, 52), Point(73, 69),
+                    Point(31, 80), Point( 8, 79),
+                    Point(53, 70), Point(22, 50)}
+
+    xCoords: set := points.x
+    yCoords: set := points.y
+    allPoints: set := Point(xCoords, yCoords)
+    allRects: set := Rectangle(allPoints, allPoints)
+    allRects: set := select(r in allRects, r.p1.x < r.p2.x && r.p1.y < r.p2.y)
+    return largest(allRects)
 )
