@@ -3,14 +3,15 @@
 
 type Point(x:real, y:real)
 type Rectangle(p1: Point, p2: Point)
-//INV Rectangle.p1.x < Rectangle.p2.x && Rectangle.p1.y < Rectangle.p2.y
 
 int getX(p: Point)(return p.x)
 int getY(p: Point)(return p.y)
 
 bool larger(r1: Rectangle, r2: Rectangle)
 (
-    return  ((r1.p1.x - r1.p2.x) * (r1.p1.x - r1.p2.x) * (r1.p1.y - r1.p2.y) * (r1.p1.y - r1.p2.y)) >= ((r2.p1.x - r2.p2.x) * (r2.p1.x - r2.p2.x) *(r2.p1.y - r2.p2.y) * (r2.p1.y - r2.p2.y)))
+    return ((r1.p1.x - r1.p2.x)^2 * (r1.p1.y - r1.p2.y)^2) >=
+           ((r2.p1.x - r2.p2.x)^2 * (r2.p1.y - r2.p2.y)^2)
+)
 
 Rectangle largest(R: set)
 (
@@ -21,10 +22,10 @@ set main()
 (
     A: set := {Point(33.3, 52.2), Point(18.3, 29.1), Point(5.1, 7.2)}
     X: set := A.x
-    Y: set := getY(A)
+    Y: set := A.y
     P: set := Point(X, Y)
     R: set := Rectangle(P, P)
-    R2: set := select(r in R, r.p1.x < r.p2.x && r.p1.y < r.p2.y) //{r in R | r.p1.x < r.p2.x && r.p1.y < r.p2.y | r}
+    R2: set := select(r in R, r.p1.x < r.p2.x && r.p1.y < r.p2.y)
     LR: Rectangle := largest(R2)
     return LR
 )
