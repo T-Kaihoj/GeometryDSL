@@ -58,13 +58,15 @@ public class CustomGdslParser {
         // '|' expression '|' #absoluteExp
         @Override
         public Expression visitAbsoluteExp(GdslParser.AbsoluteExpContext ctx) {
-            return  this.visit(ctx.expression());
+
+            return new Operation( ParsingHelper.operatorObject("Cardinality",1), ParsingHelper.scalaList( this.visit(ctx.expression())));
+
         }
 
         //   | setL=expression operator=(UNION | DIFFERENCE| INTERSECTION) setR=expression #setOperatorExp
         @Override
         public Expression visitSetOperatorExp(GdslParser.SetOperatorExpContext ctx) {
-            return new Operation(ParsingHelper.operatorObject(ctx.operator.getText(),2), ParsingHelper.scalaList(this.visit(ctx.expression(0)), this.visit(ctx.expression(1))));
+            return new Operation(ParsingHelperScala.operatorObjectScala(ctx.operator.getType(),2), ParsingHelper.scalaList(this.visit(ctx.expression(0)), this.visit(ctx.expression(1))));
         }
 
         // quantifier=QUANTIFIER '(' setElementDefinition ','  expression ')' #setQuantificationCallExp
