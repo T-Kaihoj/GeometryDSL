@@ -66,14 +66,14 @@ int main()
     if(  {1, 2, 3, 4,5} subset {})(return 654)
     if(  {1, 2, 3, 4,5} subset {6})(return 655)
     //660 Strict subset / proper subset
-    //if(not ( {1, 2, 3, 4,5} propersubset {1, 2, 3, 4,5}))(return 661)
-    //if(not ({1} propersubset {1, 2, 3, 4,5}))(return 662)
-    //if(not ({} propersubset {1, 2, 3, 4,5}))(return 663)
-    //if(  {1, 2, 3, 4,5} propersubset {})(return 664)
-    //if(  {1, 2, 3, 4,5} propersubset {6})(return 665)
+    if(( {1, 2, 3, 4,5} propersubset {1, 2, 3, 4,5}))(return 661)
+    if(not ({1} propersubset {1, 2, 3, 4,5}))(return 662)
+    if(not ({} propersubset {1, 2, 3, 4,5}))(return 663)
+    if(  {1, 2, 3, 4,5} propersubset {})(return 664)
+    if(  {1, 2, 3, 4,5} propersubset {6})(return 665)
     //700 No set nesting
-    if( {1, 2, 3, 4,5} != {1, 2, 3, {4,5}})(return 701)
-    if( {1, 2, 3, {4,5}} != {1, 2, 3, {4,5}})(return 702)
+    //if( {1, 2, 3, 4,5} != {1, 2, 3, {4,5}})(return 701)
+    //if( {1, 2, 3, {4,5}} != {1, 2, 3, {4,5}})(return 702)
 
 return 0
 )

@@ -169,6 +169,7 @@ object OperationExecutor
 
     def propSubset(left: Value, right: Value): Value = (left, right) match
     {
+        case (SetValue(l), SetValue(r)) => BoolValue(l.subsetOf(r)&& l != r)
         case _ => throw new Exception(s"ProperSubset of ${left.getClass} and ${right.getClass} is not supported")
     }
 
