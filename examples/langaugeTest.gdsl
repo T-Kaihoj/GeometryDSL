@@ -24,8 +24,17 @@ int main()
     S: set := {s in S | 1 < s | s + 2}
     if(S != {4, 5, 6})(return 300)
 
+    // Test object comparison
+    p1: Point := Point(1, 2)
+    p2: Point := Point(1, 2)
+    p3: Point := Point(3, 4)
+    if(!(p1 == p2))(return 310)
+    if(p1 != p2)(return 311)
+    if(p1 == p3)(return 312)
+    if(p1 != 2)(return 313)
+
     // Set construction using select statement and  quantifiers
-    A:set := select(r in {1, 2, 3, 4,5}, r < 3)
+    A: set := select(r in {1, 2, 3, 4,5}, r < 3)
     if(A != {1, 2})(return 400)
     if(!all(t in A, t >0 ))(return 401)
     if(all(t in A, t >1 ))(return 402)

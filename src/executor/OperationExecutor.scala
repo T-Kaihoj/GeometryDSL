@@ -1,7 +1,5 @@
 package executor
 
-import syntaxTree._
-
 object OperationExecutor
 {
     def negation(x: Value): Value = x match
@@ -83,6 +81,7 @@ object OperationExecutor
         case (IntValue(l), IntValue(r)) => BoolValue(l == r)
         case (RealValue(l), RealValue(r)) => BoolValue(l == r)
         case (SetValue(l), SetValue(r)) => BoolValue(l.equals(r))
+        case (ObjectValue(lName, lFields), ObjectValue(rName, rFields)) => BoolValue(lName.equals(rName) && lFields.equals(rFields))
         case _ => throw new Exception(s"Equal of ${left.getClass} and ${right.getClass} is not supported")
     }
 
@@ -92,7 +91,8 @@ object OperationExecutor
         case (IntValue(l), IntValue(r)) => BoolValue(l != r)
         case (RealValue(l), RealValue(r)) => BoolValue(l != r)
         case (SetValue(l), SetValue(r)) => BoolValue(!l.equals(r))
-        case _ => throw new Exception(s"NotEqual of ${left.getClass} and ${right.getClass} is not supported")
+        case (ObjectValue(lName, lFields), ObjectValue(rName, rFields)) => BoolValue(!lName.equals(rName) || !lFields.equals(rFields))
+        case _ => BoolValue(false)
     }
 
     def lessThan(left: Value, right: Value): Value = (left, right) match
