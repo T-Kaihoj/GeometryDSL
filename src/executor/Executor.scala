@@ -204,7 +204,7 @@ class Executor
         case Subset => OperationExecutor.subset(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
         case PropSubset => OperationExecutor.propSubset(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
         case InSet => OperationExecutor.inSet(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case MethodCall(name, arity) => executeMethodCall(name, arity, operands, stack)
+        case MethodCall(name, arity) => executeMethodCall(name, arity, operands, stack).get
     }
 
     def executeForall(element: ElementDefinition, check: Expression, stack: VarStack): BoolValue = executeExpression(element.exp, stack) match
@@ -242,17 +242,16 @@ class Executor
             None
     }
 
-    def executeMethodCall(methodName: String, arity: Int, args: List[Expression], stack: VarStack): Value =
+    def executeMethodCall(methodName: String, arity: Int, args: List[Expression], stack: VarStack): Option[Value] =
     {
-        programMemory.find{
-            case MethodDefinition(name, _, params, _) if name == methodName && params.size == arity => true
-            case TypeDefinition(name, fields, _) if name == methodName && fields.size == arity => true
-            case _ => false
-        }.getOrElse(throw new Exception(s"No method or type called '$methodName' exists'")) match
+        programMemory.collectFirst
         {
-            case MethodDefinition(name, _, params, block) => callMethod(name, params, args, block, stack)
-            case TypeDefinition(name, fields, _) => callConstructor(name, fields, args, stack)
-            case _ => throw new Exception("Should not happen")
+            case MethodDefinition(name, _, params, block) if name == methodName && params.size == arity => callMethod(name, params, args, block, stack)
+            case TypeDefinition(name, fields, invariant) if name == methodName && fields.size == arity => callConstructor(name, fields, invariant, args, stack)
+        } match
+        {
+            case None => logger.Logger.log(logger.Severity.Error, s"No method or type called '$methodName' exists", 0); None
+            case Some(value) => Some(value)
         }
     }
 
@@ -292,28 +291,33 @@ class Executor
 
     def callConstructor(name: String,
                         fields: List[ValueDeclaration],
+                        invariant: Expression,
                         args: List[Expression],
                         stack: VarStack,
-                        objFields: List[Value] = Nil): Value = (fields, args) match
+                        objFields: VarStack = Nil): Value = (fields, args) match
     {
-        case (ValueDeclaration(_, fieldType) :: fieldsTail,
+        case (ValueDeclaration(fieldName, fieldType) :: fieldsTail,
               (arg: Expression) :: argsTail) =>
             val argValue = executeExpression(arg, stack)
             (fieldType, argValue) match
             {
-                case (SetType, SetValue(s)) => callConstructor(name, fieldsTail, argsTail, stack, SetValue(s) :: objFields)
+                case (SetType, SetValue(s)) => callConstructor(name, fieldsTail, invariant, argsTail, stack, Variable(fieldName, SetValue(s)) :: objFields)
                 case (_, SetValue(s)) =>
                     SetValue(s.foldLeft(Set(): Set[Value])((s, e) => s.union(
-                        callConstructor(name, fieldsTail, argsTail, stack, e :: objFields) match
+                        callConstructor(name, fieldsTail, invariant, argsTail, stack, Variable(fieldName, e) :: objFields) match
                         {
                             case SetValue(x) => x
                             case x => Set(x)
                         }
                     )))
-                case (ft, av) if compareType(ft, av) => callConstructor(name, fieldsTail, argsTail, stack, av :: objFields)
+                case (ft, av) if compareType(ft, av) => callConstructor(name, fieldsTail, invariant, argsTail, stack, Variable(fieldName, av) :: objFields)
                 case _ => throw new Exception(s"'$argValue' is not of type '$fieldType'")
             }
-        case (Nil, Nil) => ObjectValue(name, objFields.reverse)
+        case (Nil, Nil) => executeExpression(invariant, objFields.reverse ++ stack) match
+            {
+                case BoolValue(true) => ObjectValue(name, objFields.map(variable => variable.value).reverse)
+                case _ => SetValue(Set())
+            }
         case _ => throw new Exception(s"Wrong number of arguments for constructing '$name'")
     }
 
