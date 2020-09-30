@@ -129,7 +129,7 @@ class Executor
         case ObjectValue(typeName, fields) =>
             val fieldIndex = programMemory.collectFirst
             {
-                case TypeDefinition(name, fieldDefs) if typeName == name => fieldDefs.indexWhere(f => f.name == fieldName)
+                case TypeDefinition(name, fieldDefs, _) if typeName == name => fieldDefs.indexWhere(f => f.name == fieldName)
             }.getOrElse(return None)
 
             fieldIndex match
@@ -246,12 +246,12 @@ class Executor
     {
         programMemory.find{
             case MethodDefinition(name, _, params, _) if name == methodName && params.size == arity => true
-            case TypeDefinition(name, fields) if name == methodName && fields.size == arity => true
+            case TypeDefinition(name, fields, _) if name == methodName && fields.size == arity => true
             case _ => false
         }.getOrElse(throw new Exception(s"No method or type called '$methodName' exists'")) match
         {
             case MethodDefinition(name, _, params, block) => callMethod(name, params, args, block, stack)
-            case TypeDefinition(name, fields) => callConstructor(name, fields, args, stack)
+            case TypeDefinition(name, fields, _) => callConstructor(name, fields, args, stack)
             case _ => throw new Exception("Should not happen")
         }
     }
