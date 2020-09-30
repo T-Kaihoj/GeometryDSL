@@ -1,5 +1,9 @@
 # GeometryDSL
 
+GDSL (Geometric Domain Specific Language) is a programming language designed specifically for geometric programming and algorithms.
+
+Documentation of the language can be found in [documentation/languageDocumentation.md](documentation/languageDocumentation.md).
+
 ## Generating Parser
 1. Setup ANTLR accourding to [The ANTLR Mega Tutorial](https://tomassetti.me/antlr-mega-tutorial).
 2. run command `antlr4 Gdsl.g4 -o ./src/parser/ -package parser -visitor` from project root.
