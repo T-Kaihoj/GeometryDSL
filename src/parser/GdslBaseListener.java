@@ -28,6 +28,18 @@ public class GdslBaseListener implements GdslListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTypeInvariant(GdslParser.TypeInvariantContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTypeInvariant(GdslParser.TypeInvariantContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTypeDefinition(GdslParser.TypeDefinitionContext ctx) { }
 	/**
 	 * {@inheritDoc}

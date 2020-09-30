@@ -17,6 +17,12 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitGdsl(GdslParser.GdslContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link GdslParser#typeInvariant}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTypeInvariant(GdslParser.TypeInvariantContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link GdslParser#typeDefinition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
