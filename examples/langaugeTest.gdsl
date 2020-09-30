@@ -41,7 +41,8 @@ int main()
     //cardinality and Absolute
     if(|{1, 2, 3, 4,5}| != 5 )(return 500)
     if(|{}| != 0 )(return 501)
-    //if(|0-1| != 1 )(return 502)
+    if(|0-1| != 1 )(return 502)
+    if(|1| != 1 )(return 503)
 
     //600 Set operations
     //610 Set difference
@@ -65,6 +66,9 @@ int main()
     if(not ({} subset {1, 2, 3, 4,5}))(return 653)
     if(  {1, 2, 3, 4,5} subset {})(return 654)
     if(  {1, 2, 3, 4,5} subset {6})(return 655)
+    //Check that sets do not care About multiplicity and ordering
+    if(not ( {1, 2, 3, 4,5} subset {5, 2, 3, 4,5,1}))(return 656)
+    if(not ( {1, 2, 3, 4,5} subset {5, 2, 3, 4,1}))(return 656)
     //660 Strict subset / proper subset
     if(( {1, 2, 3, 4,5} propersubset {1, 2, 3, 4,5}))(return 661)
     if(not ({1} propersubset {1, 2, 3, 4,5}))(return 662)

@@ -20,6 +20,8 @@ object OperationExecutor
     def cardinality(x: Value): Value = x match
     {
         case SetValue(s) => IntValue(s.size)
+        case IntValue(value) => IntValue(value.abs)
+        case RealValue(value) => RealValue(value.abs)
         case _ => throw new Exception(s"Cardinality of ${x.getClass} is not supported")
     }
 
