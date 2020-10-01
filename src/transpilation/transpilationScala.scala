@@ -60,7 +60,7 @@ object transpilationScala
             program.programDefinitions.collectFirst(p => p match
             {
                 case MethodDefinition(name, retType, params, block) if methodName == name => params
-                case TypeDefinition(name, fields) if methodName == name => fields
+                case TypeDefinition(name, fields, _) if methodName == name => fields
             })
         }.get.map(f => f.asInstanceOf[ValueDeclaration].typeId.getClass == SetType.getClass)
 
