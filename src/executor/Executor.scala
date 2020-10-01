@@ -47,7 +47,7 @@ class Executor
      * Executes block of GDSL code.
      *
      * Returns either a (potentially) modified variable stack or a single value.
-     * If a single value is returned, the block contained a Return statement.
+     * If a single value is returned, the executor reached a Return statement.
      */
     def executeBlock(block: Block, stack: VarStack): Either[Value, VarStack] = block match
     {
@@ -106,11 +106,26 @@ class Executor
         case BoolLiteral(b) => BoolValue(b)
         case IntLiteral(i) => IntValue(i)
         case RealLiteral(r) => RealValue(r)
-        case SetLiteral(s) => SetValue(s.toSet.map(exp => executeExpression(exp, stack)))
+        case SetLiteral(exps) => executeSetLiteral(exps, stack)
         case Identifier(name) => executeIdentifier(name, stack)
         case MemberAccess(exp, field) => executeMemberAccess(exp, field, stack).get
         case SetComprehension(elem, cond, app) => executeSetComprehension(elem, cond, app, stack)
         case Operation(operator, operands) => executeOperation(operator, operands, stack)
+    }
+
+    /**
+     * Executes set literals and is responsible for flattening nested sets.
+     */
+    def executeSetLiteral(exps: List[Expression], stack: VarStack): SetValue =
+    {
+        var resultingSet: Set[Value] = Set()
+        exps.foreach(exp =>
+            executeExpression(exp, stack) match
+            {
+                case SetValue(innerSet) => innerSet.foreach(elem => resultingSet = resultingSet.union(Set(elem)))
+                case simpleValue: Value => resultingSet = resultingSet.union(Set(simpleValue))
+            })
+        SetValue(resultingSet)
     }
 
     def executeIdentifier(name: String, stack: VarStack): Value =
