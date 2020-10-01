@@ -103,8 +103,8 @@ PROPERSUBSET: 'propersubset';
 SUBSET : 'subset';
 IN: 'in' ;
 
-INTEGER: ([0-9])+ ;
-FLOAT: ([0-9])* '.' ([0-9])+ ;
+INTEGER: ('-')? ([0-9])+ ;
+FLOAT: ('-')? ([0-9])* '.' ([0-9])+ ;
 IDENTIFIER: ([a-z] | [A-Z])+ ([a-zA-Z_0-9])* ;
 
 WS: [ \t\n\r]+ -> skip ;
