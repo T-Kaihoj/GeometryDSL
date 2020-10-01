@@ -1,6 +1,8 @@
 import analyzer.MasterAnalyzer;
 import executor.Executor;
+import executor.ValuePrettifier;
 import logger.Logger;
+import optimizer.MasterOptimizer;
 import syntaxTree.Program;
 import transpilation.Transpilation;
 
@@ -14,30 +16,37 @@ public class Main {
     public static void main(String[] args) throws Exception
     {
         ProgramOptions options = new ProgramOptions(args);
-        
-        CustomGdslParser parser = new CustomGdslParser();
-        InputStream inputStream = null;
 
-        try{
-            inputStream = new FileInputStream(options.fileName);
-        }catch(IOException e){
-            System.out.println("Could not find file: " + options.fileName);
+        if(options.programFileName == null)
+        {
+            System.out.println("No program file specified");
             return;
         }
 
+        InputStream inputStream = null;
+        try{
+            inputStream = new FileInputStream(options.programFileName);
+        }catch(IOException e){
+            System.out.println("Could not find file: " + options.programFileName);
+            return;
+        }
+
+        CustomGdslParser parser = new CustomGdslParser();
         Program program = parser.parse(inputStream);
+
+        if(options.optimize)
+        {
+            program = MasterOptimizer.transform(MasterAnalyzer.transform(program));
+        }
+
         Executor executor = new Executor();
-        if (options.isTranspilation) {
+        if (options.execute){
+            System.out.println(ValuePrettifier.toString(executor.executeProgram(program, options.programMainFunctionName), 0));
+        }
+
+        if (options.transpile) {
             Transpilation transpilation = new Transpilation();
             System.out.println(transpilation.convert(program));
-        }
-
-        if (options.isExecutor){
-            System.out.println(executor.executeProgram(program, options.executorFunctionName));
-        }
-
-        if (options.isRelationChecker) {
-            MasterAnalyzer.transform(program);
         }
 
         Logger logger = Logger.getInstance();
@@ -45,22 +54,39 @@ public class Main {
     }
 
     private static class ProgramOptions {
-        public String fileName;
-        public boolean isRelationChecker;
-        public String executorFunctionName;
-        public boolean isExecutor;
-        public boolean isTranspilation;
+        public String programFileName;
+        public String programMainFunctionName = "main";
+
+        public boolean optimize;
+        public boolean execute;
+        public boolean transpile;
 
         public ProgramOptions(String[] args) {
-            List<String> input = Arrays.asList(args);
-            isExecutor = true;
-            isRelationChecker = input.contains("-r") || input.contains("--relation");
-            isTranspilation = input.contains("-t") || input.contains("--transpilation");
-            input.forEach(s -> {
-                if(!s.startsWith("-"))
-                    fileName = s;
+            List<String> argList = Arrays.asList(args);
+
+            argList.forEach(arg -> {
+                if(!arg.startsWith("-"))
+                {
+                    programFileName = arg;
+                }
+
+                if(arg.startsWith("-f=") || arg.startsWith("--function="))
+                {
+                    programMainFunctionName = arg.substring(arg.indexOf("=") + 1);
+                }
+
+                optimize =
+                    arg.charAt(0) == '-' && arg.contains("o") ||
+                        arg.equals("--optimize");
+
+                execute =
+                    arg.charAt(0) == '-' && arg.contains("e") ||
+                    arg.equals("--execute");
+
+                transpile =
+                    arg.charAt(0) == '-' && arg.contains("t") ||
+                        arg.equals("--transpile");
             });
-            executorFunctionName= "main";
         }
     }
 }
