@@ -39,12 +39,12 @@ expression: '(' expression ')' #parenthesisExp
           | '|' expression '|' #absoluteExp
           | expression '.' IDENTIFIER #dotExp
           | NOT expression #notExp
-          | setL=expression operator=(UNION | DIFFERENCE | INTERSECTION|PROPERSUBSET|SUBSET) setR=expression #setOperatorExp
+          | setL=expression operator=(UNION | DIFFERENCE | INTERSECTION | PROPERSUBSET | SUBSET) setR=expression #setOperatorExp
           | quantifier=QUANTIFIER '(' setElementDefinition ',' expression ')' #setQuantificationExp
           | extractor=EXTRACTOR '(' setElementDefinition ',' expression ')' #setExtractionExp
           | expression POWER expression #powerExp
-          | expression operator=(DIVISION | MULTIPLICATION) expression #divMulExp
-          | expression operator=(ADD | SUB) expression #addSubExp
+          | expression operator=(MULTIPLICATION | DIVISION) expression #mulDivExp
+          | expression operator=(PLUS | MINUS) expression #addSubExp
           | expression operator=COMPARISON expression #comparisonExp
           | expression AND expression #andExp
           | expression OR expression #orExp
@@ -53,6 +53,7 @@ expression: '(' expression ')' #parenthesisExp
           | IDENTIFIER '(' (expression (',' expression)*)? ')' #functionCallExp
           | IDENTIFIER #variableExp
           | bool=BOOL #boolExp
+          | MINUS num=number #negativeNumberExp
           | num=number #numberExp ;
 
 /*
@@ -80,10 +81,10 @@ COMPARISON: '=='
           | '>'
           | '<' ;
 
-ADD: '+' ;
-SUB: '-' ;
-DIVISION: '/' ;
+PLUS: '+' ;
+MINUS: '-' ;
 MULTIPLICATION: '*' ;
+DIVISION: '/' ;
 POWER: '^'
      | '**' ;
 
@@ -103,8 +104,8 @@ PROPERSUBSET: 'propersubset';
 SUBSET : 'subset';
 IN: 'in' ;
 
-INTEGER: ('-')? ([0-9])+ ;
-FLOAT: ('-')? ([0-9])* '.' ([0-9])+ ;
+INTEGER: ([0-9])+ ;
+FLOAT: ([0-9])* '.' ([0-9])+ ;
 IDENTIFIER: ([a-z] | [A-Z])+ ([a-zA-Z_0-9])* ;
 
 WS: [ \t\n\r]+ -> skip ;
