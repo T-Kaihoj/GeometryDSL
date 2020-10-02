@@ -132,6 +132,13 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionCallExp(GdslParser.FunctionCallExpContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code mulDivExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMulDivExp(GdslParser.MulDivExpContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code setExtractionExp}
 	 * labeled alternative in {@link GdslParser#expression}.
 	 * @param ctx the parse tree
@@ -195,13 +202,6 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPowerExp(GdslParser.PowerExpContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code divMulExp}
-	 * labeled alternative in {@link GdslParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDivMulExp(GdslParser.DivMulExpContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code comparisonExp}
 	 * labeled alternative in {@link GdslParser#expression}.
 	 * @param ctx the parse tree
@@ -222,6 +222,13 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitParenthesisExp(GdslParser.ParenthesisExpContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code negativeNumberExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNegativeNumberExp(GdslParser.NegativeNumberExpContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code setOperatorExp}
 	 * labeled alternative in {@link GdslParser#expression}.

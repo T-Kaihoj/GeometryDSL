@@ -113,7 +113,7 @@ public class CustomGdslParser {
 
         // expression operator=(DIVISION | MULTIPLICATION) expression #divMulExp
         @Override
-        public Expression visitDivMulExp(GdslParser.DivMulExpContext ctx) {
+        public Expression visitMulDivExp(GdslParser.MulDivExpContext ctx) {
             return new Operation(ParsingHelper.operatorObject(ctx.operator.getText(),2), ParsingHelper.scalaList(this.visit(ctx.expression(0)), this.visit(ctx.expression(1))));
         }
 
@@ -193,6 +193,17 @@ public class CustomGdslParser {
             if("false".equals(ctx.bool.getText()))
                 return new BoolLiteral(false);
             return super.visitBoolExp(ctx);
+        }
+
+        @Override
+        public Expression visitNegativeNumberExp(GdslParser.NegativeNumberExpContext ctx) {
+            if((ctx.num.start.getType() == GdslLexer.INTEGER)) {
+                return new IntLiteral(- Integer.parseInt(ctx.num.getText()));
+            } else if(ctx.num.start.getType() == GdslLexer.FLOAT) {
+                return new RealLiteral(- Float.parseFloat(ctx.num.getText()));
+            } else {
+                return super.visitNegativeNumberExp(ctx);
+            }
         }
 
         @Override
