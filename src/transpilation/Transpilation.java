@@ -88,12 +88,16 @@ public class Transpilation {
     }
 
     private void convertReturn(Return statement, String s) {
-        python.add("\treturn "+ convertExpression(statement.exp()));
+        python.add(s+"return "+ convertExpression(statement.exp()));
         return;
     }
 
     private void convertConditional(Conditional statement, String s) {
-        python.add( s + "convertConditional");
+        python.add( s +"if "+ convertExpression(statement.condition())+" :");
+        statement.trueBlock().foreach(v1 -> {
+            convertStatement(v1, s+"\t");
+            return null;
+        });
     }
 
 
@@ -135,15 +139,57 @@ public class Transpilation {
             return convertMethodCall((MethodCall)exp.operator(),expressions);
         if (operator.equals("Forall"))
             return convertForall((Forall)exp.operator(),expressions);
+        if (operator.equals("Exists"))
+            return convertExists((Exists)exp.operator(),expressions);
         if (operator.equals("Choose"))
             return convertChoose((Choose) exp.operator(),expressions);
+        if (operator.equals("Subset"))
+            return convertSubset(expressions);
+        if (operator.equals("Difference"))
+            return convertDifference(expressions);
+        if (operator.equals("Intersect"))
+            return convertIntersect(expressions);
+        if (operator.equals("Union"))
+        return convertUnion(expressions);
+        if (operator.equals("PropSubset"))
+            return convertPropSubset(expressions);
+        if (operator.equals("Cardinality"))
+            return convertCardinality(expressions);
 
         if(expressions.size()==2)
             return "("+convertExpression(expressions.get(0)) +" "+transpilationScala.operatorStringScala(  exp.operator()) + " "+ convertExpression( expressions.get(1))+")";
-        return "("+ transpilationScala.operatorStringScala(  exp.operator()) + convertExpression( expressions.get(0))+")";
+        return "("+ transpilationScala.operatorStringScala(  exp.operator()) +" "+ convertExpression( expressions.get(0))+")";
         //return exp.toString();
 
 
+    }
+
+    private String convertPropSubset(List<Expression> expressions) {
+        return "("+convertExpression(expressions.get(0))+".issubset("+convertExpression(expressions.get(1))+") and "+convertExpression(expressions.get(0))+"!="+convertExpression(expressions.get(1))+")";
+    }
+
+    private String convertUnion(List<Expression> expressions) {
+        return convertExpression(expressions.get(0))+".union("+convertExpression(expressions.get(1))+")";
+    }
+
+    private String convertIntersect(List<Expression> expressions) {
+        return convertExpression(expressions.get(0))+".intersection("+convertExpression(expressions.get(1))+")";
+    }
+
+    private String convertDifference(List<Expression> expressions) {
+        return convertExpression(expressions.get(0))+" - "+convertExpression(expressions.get(1));
+    }
+
+    private String convertCardinality(List<Expression> expressions) {
+        return  transpilationScala.expressionisSetScala(expressions.get(0),  block)? "len("+convertExpression(expressions.get(0))+")" : "abs("+convertExpression(expressions.get(0))+") " ;
+    }
+
+    private String convertExists(Exists operator, List<Expression> expressions) {
+        return "exist("+convertExpression(operator.element().exp())+", lambda "+ operator.element().name() +" : " +convertExpression(expressions.get(0))+")";
+    }
+
+    private String convertSubset(List<Expression> expressions) {
+        return convertExpression(expressions.get(0))+".issubset("+convertExpression(expressions.get(1))+")";
     }
 
     private String convertChoose(Choose operator, List<Expression> expressions) {
@@ -177,7 +223,7 @@ public class Transpilation {
     private String setApplication(MethodCall call, List<Expression> expressions, List<Boolean> isSetlist) {
         p = p+1;
         int indent =1 ;
-        String forString = "\t".repeat(indent)+"p"+p +"=[]\n";
+        String forString = "\t".repeat(indent)+"p"+p +"=set({})\n";
         List<String> parameterString = new ArrayList<>();
 
         for (int i = 0; i < isSetlist.size() ; i++) {
@@ -190,7 +236,7 @@ public class Transpilation {
             else
                 parameterString.add(convertExpression(expressions.get(i)));
         }
-        forString = forString.concat("\t".repeat(indent)+"p"+p +".append("+call.name()+"("+String.join(", ",parameterString) +"))");
+        forString = forString.concat("\t".repeat(indent)+"p"+p +".add("+call.name()+"("+String.join(", ",parameterString) +"))");
         python.add(forString);
 
         return "p"+p;
@@ -214,7 +260,8 @@ public class Transpilation {
     }
 
     private String convertExpressionMemberAccess(MemberAccess exp) {
-        return convertExpression(exp.exp())+"."+exp.field() ;
+
+        return  transpilationScala.expressionisSetScala(exp.exp(),  block)? "get("+convertExpression(exp.exp())+",\""+exp.field()+"\")" : convertExpression(exp.exp())+"."+exp.field() ;
     }
 
     private String convertExpressionIdentifier(Identifier exp) {
@@ -224,11 +271,11 @@ public class Transpilation {
     private String convertExpressionSetLiteral(SetLiteral exp) {
         List<String> setLiteral = new ArrayList<>();
         exp.values().foreach(v1 -> setLiteral.add(convertExpression(v1)) );
-        return "["+ String.join(",",setLiteral) +"]";
+        return "set({"+ String.join(",",setLiteral) +"})";
     }
     //todo fix
     private String convertExpressionBoolLiteral(BoolLiteral exp) {
-        return "Expression BoolLiteral";
+        return (exp.value()?"True":"False");
     }
 
     public void convertMethodDefinition(MethodDefinition methodDefinition) {

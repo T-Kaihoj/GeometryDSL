@@ -14,16 +14,16 @@ object transpilationScala
         case Pow => "**"
         case Sub => "-"
         case Equal => "=="
-        case InSet => null
-        case Union => null
-        case Subset => null
-        case Implies => null
-        case Negation => null
+        case InSet => "InSet"
+        case Union => "Union"
+        case Subset => "Subset"
+        case Implies => "Implies"
+        case Negation => "Negation"
         case NotEqual => "!="
-        case Intersect => null
-        case Difference => null
-        case PropSubset => null
-        case Cardinality => null
+        case Intersect => "Intersect"
+        case Difference => "Difference"
+        case PropSubset => "PropSubset"
+        case Cardinality => "Cardinality"
         case GreaterThan => ">"
         case LessThan => "<"
         case LessThanEqual =>"<="

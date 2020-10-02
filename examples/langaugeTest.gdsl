@@ -60,6 +60,7 @@ int main()
     if({1, 2} union { 3, 4,5} != {1, 2, 3, 4,5} )(return 633)
     if({} union {6} != {6} )(return 634)
     if({ } union {} != {} )(return 635)
+
     //650 Subset
     if(not ( {1, 2, 3, 4,5} subset {1, 2, 3, 4,5}))(return 651)
     if(not ({1} subset {1, 2, 3, 4,5}))(return 652)
@@ -75,6 +76,7 @@ int main()
     if(not ({} propersubset {1, 2, 3, 4,5}))(return 663)
     if(  {1, 2, 3, 4,5} propersubset {})(return 664)
     if(  {1, 2, 3, 4,5} propersubset {6})(return 665)
+
     //700 No set nesting
     //if( {1, 2, 3, 4,5} != {1, 2, 3, {4,5}})(return 701)
     //if( {1, 2, 3, {4,5}} != {1, 2, 3, {4,5}})(return 702)
