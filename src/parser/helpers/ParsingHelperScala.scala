@@ -20,6 +20,7 @@ object ParsingHelperScala
         case "*" => syntaxTree.Mul
         case "/" => syntaxTree.Div
         case "Pow" => syntaxTree.Pow
+        case "Neg" => syntaxTree.Negation
         case "==" => syntaxTree.Equal
         case "!=" => syntaxTree.NotEqual
         case "<" => syntaxTree.LessThan
@@ -39,6 +40,8 @@ object ParsingHelperScala
         case "Cardinality"=>syntaxTree.Cardinality
         case x => syntaxTree.MethodCall(x, arity)
     }
+
+    def getNoValueLiteral: syntaxTree.Expression = syntaxTree.NoValueLiteral
 
     def operatorObjectScala(op: Int, arity: Int): syntaxTree.Operator = op match
     {

@@ -160,6 +160,13 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVariableExp(GdslParser.VariableExpContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code noValueExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNoValueExp(GdslParser.NoValueExpContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code orExp}
 	 * labeled alternative in {@link GdslParser#expression}.
 	 * @param ctx the parse tree
@@ -180,6 +187,13 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitAddSubExp(GdslParser.AddSubExpContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code negativeExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNegativeExp(GdslParser.NegativeExpContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code setLiteralExp}
 	 * labeled alternative in {@link GdslParser#expression}.
@@ -222,13 +236,6 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitParenthesisExp(GdslParser.ParenthesisExpContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code negativeNumberExp}
-	 * labeled alternative in {@link GdslParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNegativeNumberExp(GdslParser.NegativeNumberExpContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code setOperatorExp}
 	 * labeled alternative in {@link GdslParser#expression}.

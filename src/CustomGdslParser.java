@@ -196,14 +196,9 @@ public class CustomGdslParser {
         }
 
         @Override
-        public Expression visitNegativeNumberExp(GdslParser.NegativeNumberExpContext ctx) {
-            if((ctx.num.start.getType() == GdslLexer.INTEGER)) {
-                return new IntLiteral(- Integer.parseInt(ctx.num.getText()));
-            } else if(ctx.num.start.getType() == GdslLexer.FLOAT) {
-                return new RealLiteral(- Float.parseFloat(ctx.num.getText()));
-            } else {
-                return super.visitNegativeNumberExp(ctx);
-            }
+        public Expression visitNegativeExp(GdslParser.NegativeExpContext ctx) {
+            ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+            return new Operation(ParsingHelper.operatorObject("Neg", 1), ParsingHelper.scalaList(expressionVisitor.visit(ctx.expression())));
         }
 
         @Override
@@ -215,6 +210,11 @@ public class CustomGdslParser {
             } else {
                 return super.visitNumberExp(ctx);
             }
+        }
+
+        @Override
+        public Expression visitNoValueExp(GdslParser.NoValueExpContext ctx) {
+            return ParsingHelper.getNoValueLiteral();
         }
     }
 

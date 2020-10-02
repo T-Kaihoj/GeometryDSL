@@ -103,6 +103,7 @@ class Executor
 
     def executeExpression(exp: Expression, stack: VarStack): Value = exp match
     {
+        case NoValueLiteral => NoValue
         case BoolLiteral(b) => BoolValue(b)
         case IntLiteral(i) => IntValue(i)
         case RealLiteral(r) => RealValue(r)

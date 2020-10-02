@@ -260,6 +260,18 @@ public interface GdslListener extends ParseTreeListener {
 	 */
 	void exitVariableExp(GdslParser.VariableExpContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code noValueExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterNoValueExp(GdslParser.NoValueExpContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code noValueExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitNoValueExp(GdslParser.NoValueExpContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code orExp}
 	 * labeled alternative in {@link GdslParser#expression}.
 	 * @param ctx the parse tree
@@ -295,6 +307,18 @@ public interface GdslListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAddSubExp(GdslParser.AddSubExpContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code negativeExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterNegativeExp(GdslParser.NegativeExpContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code negativeExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitNegativeExp(GdslParser.NegativeExpContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code setLiteralExp}
 	 * labeled alternative in {@link GdslParser#expression}.
@@ -367,18 +391,6 @@ public interface GdslListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitParenthesisExp(GdslParser.ParenthesisExpContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code negativeNumberExp}
-	 * labeled alternative in {@link GdslParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterNegativeNumberExp(GdslParser.NegativeNumberExpContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code negativeNumberExp}
-	 * labeled alternative in {@link GdslParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitNegativeNumberExp(GdslParser.NegativeNumberExpContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code setOperatorExp}
 	 * labeled alternative in {@link GdslParser#expression}.
