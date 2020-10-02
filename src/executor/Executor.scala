@@ -124,6 +124,7 @@ class Executor
             executeExpression(exp, stack) match
             {
                 case SetValue(innerSet) => innerSet.foreach(elem => resultingSet = resultingSet.union(Set(elem)))
+                case NoValue => // Nothing happens
                 case simpleValue: Value => resultingSet = resultingSet.union(Set(simpleValue))
             })
         SetValue(resultingSet)

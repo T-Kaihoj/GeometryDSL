@@ -55,6 +55,8 @@ int main()
     A:set := choose(r in {1, 2, 3, 4,5}, r < 3)
     if(A == 1 && A == 2  )(return 407)
 
+    if({1, (/)} != {1})(return 410)
+
     //cardinality and Absolute
     if(|{1, 2, 3, 4,5}| != 5 )(return 500)
     if(|{}| != 0 )(return 501)
