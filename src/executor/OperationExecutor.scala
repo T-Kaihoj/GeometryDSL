@@ -1,7 +1,5 @@
 package executor
 
-import syntaxTree._
-
 object OperationExecutor
 {
     def negation(x: Value): Value = x match
@@ -29,6 +27,8 @@ object OperationExecutor
     {
         case (IntValue(l), IntValue(r)) => IntValue(l + r)
         case (RealValue(l), RealValue(r)) => RealValue(l + r)
+        case (IntValue(l), RealValue(r)) => RealValue(l + r)
+        case (RealValue(l), IntValue(r)) => RealValue(l + r)
         case _ => throw new Exception(s"Addition of ${left.getClass} and ${right.getClass} is not supported")
     }
 
@@ -36,6 +36,8 @@ object OperationExecutor
     {
         case (IntValue(l), IntValue(r)) => IntValue(l - r)
         case (RealValue(l), RealValue(r)) => RealValue(l - r)
+        case (IntValue(l), RealValue(r)) => RealValue(l - r)
+        case (RealValue(l), IntValue(r)) => RealValue(l - r)
         case _ => throw new Exception(s"Subtraction of ${left.getClass} and ${right.getClass} is not supported")
     }
 
@@ -43,6 +45,8 @@ object OperationExecutor
     {
         case (IntValue(l), IntValue(r)) => IntValue(l * r)
         case (RealValue(l), RealValue(r)) => RealValue(l * r)
+        case (IntValue(l), RealValue(r)) => RealValue(l * r)
+        case (RealValue(l), IntValue(r)) => RealValue(l * r)
         case _ => throw new Exception(s"Multiplication of ${left.getClass} and ${right.getClass} is not supported")
     }
 
@@ -50,6 +54,8 @@ object OperationExecutor
     {
         case (IntValue(l), IntValue(r)) => IntValue(l / r)
         case (RealValue(l), RealValue(r)) => RealValue(l / r)
+        case (IntValue(l), RealValue(r)) => RealValue(l / r)
+        case (RealValue(l), IntValue(r)) => RealValue(l / r)
         case _ => throw new Exception(s"Division of ${left.getClass} and ${right.getClass} is not supported")
     }
 
@@ -82,7 +88,10 @@ object OperationExecutor
         case (BoolValue(l), BoolValue(r)) => BoolValue(l == r)
         case (IntValue(l), IntValue(r)) => BoolValue(l == r)
         case (RealValue(l), RealValue(r)) => BoolValue(l == r)
+        case (IntValue(l), RealValue(r)) => BoolValue(l == r)
+        case (RealValue(l), IntValue(r)) => BoolValue(l == r)
         case (SetValue(l), SetValue(r)) => BoolValue(l.equals(r))
+        case (ObjectValue(lName, lFields), ObjectValue(rName, rFields)) => BoolValue(lName.equals(rName) && lFields.equals(rFields))
         case _ => throw new Exception(s"Equal of ${left.getClass} and ${right.getClass} is not supported")
     }
 
@@ -91,8 +100,11 @@ object OperationExecutor
         case (BoolValue(l), BoolValue(r)) => BoolValue(l != r)
         case (IntValue(l), IntValue(r)) => BoolValue(l != r)
         case (RealValue(l), RealValue(r)) => BoolValue(l != r)
+        case (IntValue(l), RealValue(r)) => BoolValue(l != r)
+        case (RealValue(l), IntValue(r)) => BoolValue(l != r)
         case (SetValue(l), SetValue(r)) => BoolValue(!l.equals(r))
-        case _ => throw new Exception(s"NotEqual of ${left.getClass} and ${right.getClass} is not supported")
+        case (ObjectValue(lName, lFields), ObjectValue(rName, rFields)) => BoolValue(!lName.equals(rName) || !lFields.equals(rFields))
+        case _ => BoolValue(false)
     }
 
     def lessThan(left: Value, right: Value): Value = (left, right) match
@@ -100,6 +112,8 @@ object OperationExecutor
         case (BoolValue(l), BoolValue(r)) => BoolValue(l < r)
         case (IntValue(l), IntValue(r)) => BoolValue(l < r)
         case (RealValue(l), RealValue(r)) => BoolValue(l < r)
+        case (IntValue(l), RealValue(r)) => BoolValue(l < r)
+        case (RealValue(l), IntValue(r)) => BoolValue(l < r)
         case _ => throw new Exception(s"LessThan of ${left.getClass} and ${right.getClass} is not supported")
     }
 
@@ -108,6 +122,8 @@ object OperationExecutor
         case (BoolValue(l), BoolValue(r)) => BoolValue(l <= r)
         case (IntValue(l), IntValue(r)) => BoolValue(l <= r)
         case (RealValue(l), RealValue(r)) => BoolValue(l <= r)
+        case (IntValue(l), RealValue(r)) => BoolValue(l <= r)
+        case (RealValue(l), IntValue(r)) => BoolValue(l <= r)
         case _ => throw new Exception(s"LessThanEqual of ${left.getClass} and ${right.getClass} is not supported")
     }
 
@@ -116,6 +132,8 @@ object OperationExecutor
         case (BoolValue(l), BoolValue(r)) => BoolValue(l > r)
         case (IntValue(l), IntValue(r)) => BoolValue(l > r)
         case (RealValue(l), RealValue(r)) => BoolValue(l > r)
+        case (IntValue(l), RealValue(r)) => BoolValue(l > r)
+        case (RealValue(l), IntValue(r)) => BoolValue(l > r)
         case _ => throw new Exception(s"GreaterThan of ${left.getClass} and ${right.getClass} is not supported")
     }
 
@@ -124,6 +142,8 @@ object OperationExecutor
         case (BoolValue(l), BoolValue(r)) => BoolValue(l >= r)
         case (IntValue(l), IntValue(r)) => BoolValue(l >= r)
         case (RealValue(l), RealValue(r)) => BoolValue(l >= r)
+        case (IntValue(l), RealValue(r)) => BoolValue(l >= r)
+        case (RealValue(l), IntValue(r)) => BoolValue(l >= r)
         case _ => throw new Exception(s"GreaterThanEqual of ${left.getClass} and ${right.getClass} is not supported")
     }
 

@@ -18,6 +18,16 @@ public interface GdslListener extends ParseTreeListener {
 	 */
 	void exitGdsl(GdslParser.GdslContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link GdslParser#typeInvariant}.
+	 * @param ctx the parse tree
+	 */
+	void enterTypeInvariant(GdslParser.TypeInvariantContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link GdslParser#typeInvariant}.
+	 * @param ctx the parse tree
+	 */
+	void exitTypeInvariant(GdslParser.TypeInvariantContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link GdslParser#typeDefinition}.
 	 * @param ctx the parse tree
 	 */

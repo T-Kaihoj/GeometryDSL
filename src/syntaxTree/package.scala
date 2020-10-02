@@ -26,7 +26,7 @@ package syntaxTree
     sealed case class ValueDeclaration(name: String, typeId: Type)
     sealed case class ElementDefinition(name: String, exp: Expression)
     sealed case class MethodDefinition(name: String, retType: Type, params: List[ValueDeclaration], block: Block) extends ProgramDefinition
-    sealed case class TypeDefinition(name: String, fields: List[ValueDeclaration]) extends ProgramDefinition
+    sealed case class TypeDefinition(name: String, fields: List[ValueDeclaration], invariant: Expression) extends ProgramDefinition
 
     sealed class Statement extends ProgramEntity
     case class ValueDefinition(decl: ValueDeclaration, exp: Expression) extends Statement with ProgramDefinition

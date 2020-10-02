@@ -1,5 +1,25 @@
 # GeometryDSL
 
+GDSL (Geometric Domain Specific Language) is a programming language designed specifically for geometric programming and algorithms.
+
+Documentation of the language can be found in [documentation/languageDocumentation.md](documentation/languageDocumentation.md).
+
+## Program Execution
+Running the program: 
+
+```
+$ java -jar GeometryDSL programFile.gdsl
+```
+
+Porgram options:
+
+| Option                  | Description |
+|:---                     |:---         |
+| `-e` / `--execute`      | Executes the provided program. |
+| `-o` / `--optimize`     | Optimizes the provided program before execution and transpilation. |
+| `-t` / `--transpile`    | Transpiles the program to an equivalent python program. |
+| `-f=*` / `--function=*` | Used to specify the entry function of the program. If non is provided, will `main` be used as standard.|
+
 ## Generating Parser
 1. Setup ANTLR accourding to [The ANTLR Mega Tutorial](https://tomassetti.me/antlr-mega-tutorial).
 2. run command `antlr4 Gdsl.g4 -o ./src/parser/ -package parser -visitor` from project root.

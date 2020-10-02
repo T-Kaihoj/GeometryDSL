@@ -9,6 +9,7 @@ import parser.helpers.ParsingHelperScala;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CustomGdslParser {
@@ -237,9 +238,27 @@ public class CustomGdslParser {
         @Override
         public ProgramDefinition visitTypeDefinition(GdslParser.TypeDefinitionContext ctx) {
             DeclarationVisitor declarationVisitor = new DeclarationVisitor();
-            List<ValueDeclaration> valueDeclarations =new ArrayList<>();
-            ctx.declaration().forEach(declarationContext -> valueDeclarations.add( declarationVisitor.visit(declarationContext)));
-            TypeDefinition typeDef = new TypeDefinition(ctx.id.getText(),ParsingHelper.scalaList(valueDeclarations));
+            ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+
+            List<ValueDeclaration> valueDeclarations = new ArrayList<>();
+            ctx.declaration().forEach(declarationContext -> valueDeclarations.add(declarationVisitor.visit(declarationContext)));
+
+            List<Expression> invariantExps = new ArrayList<>();
+            ctx.typeInvariant().forEach(invExp -> invariantExps.add(expressionVisitor.visit(invExp)));
+
+            Collections.reverse(invariantExps);
+
+            Expression typeInvariant;
+            if(invariantExps.isEmpty()) {
+                typeInvariant = new BoolLiteral(true);
+            } else {
+                typeInvariant = invariantExps.get(0);
+                for(Expression invExp: invariantExps.subList(1, invariantExps.size())) {
+                    typeInvariant = new Operation(ParsingHelper.operatorObject("And",2), ParsingHelper.scalaList(invExp, typeInvariant));
+                }
+            }
+
+            TypeDefinition typeDef = new TypeDefinition(ctx.id.getText(), ParsingHelper.scalaList(valueDeclarations), typeInvariant);
             typeDef.lineNumber_$eq(ctx.start.getLine());
             return typeDef;
         }

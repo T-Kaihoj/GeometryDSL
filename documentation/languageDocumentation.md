@@ -1,30 +1,55 @@
-# Language guide
+# Language Documentation
+The GDSL (Geometric Domain Specific Language) is described here.
 
-## Variables and assignment
-The variables in this language is not constant, this is to allow the manipulation of state from nested scopes e.g. if statements.
-However all variables are copied by value. This ensures that Assigning a new value to variable does not have
- side effects, such as changing sets that included the previous value. 
-#Types
-##bool
-bool is a typical Boolean representation,And can be constructed either using a An expression that yields a Boolean 
-result such as greater than(<) or using bool literals (true and false)
-`b:bool := true`_Example: creating a variable **b** Which is a Boolean and has initial value of true_
-##Integers
-Integers is a recitation of Whole numbers Such as -3 or 10. 
-`i:int := 12` _Example: creating a variable **i** Which is a integer and has initial value of 12_
-##Reels
-A mathematical representation of Real numbers, so the possibility of floating point errors does not exist in any operation.
-`r:reel := 12`_Example: creating a variable **b** Which is a Boolean and has initial value of true_
-
-##Custom types
-It's possible in GDSL to define custom types, these consists of other types previously defined.
-Recursion is not possible in gdsl, so it is not possible to include a custom type As a value in its own definition.
-Custom types must be defined outside any scope, a definition consists of The key word "type" a type name and a comma separated list of names Type members.
-`type <Name of type> (<Local name for variable>:<Type name of variable>)`.
+## Program Definition
 
 
-`type point (x:int,y:int)`
-_example creates a new Type, point consisting of two integers_
+## Variables and Assignment
+The variables in this language are not constant, this is to allow the manipulation of state from nested scopes e.g. if statements.
+However all variables are copied by value.
+This ensures that assigning a new value to variable does not have side effects, such as changing sets that included the previous value.
+
+Example of how to define and assign a value to a variable using the `:=` symbol:
+```
+<varName>: <varType> := <value>
+```
+
+# Build-in Types
+## Booleans
+A boolean value is specified using the `bool` keyword and can take one of the two values `true` or `false`.
+
+Example: `b: bool := true`
+
+## Integers
+A whole number, specified with the `int` keyword.
+
+Example: `i: int := 3`
+
+## Reals
+A mathematical representation of real numbers, so the possibility of floating point errors does not exist in any operation.
+Specified with the `real` keyword.
+
+Example: `r: real := 12.32`
+
+# User Defined Types
+User defined consists of one or more name, public fields of previously defined types.
+Recursively defined types are not possible.
+They must be defined in the program definition and cannot be defined inside methods or other code blocks.
+
+An example of a Point type can be seen here:
+```
+type Point(x: int, y: int)
+```
+
+#### Invariant
+Invariants can be defined for types using the `inv` keyword.
+If an object of a given type is constructed with values which does not adhere to the invariant, is an empty set returned instead.
+
+An example of an invariant for circles, specifing that its radius must be larger than zero, can be seen here:
+```
+type Circle(x: int, y: int, r: int)
+inv r < 0
+```
 
 ## Set 
 #### Set construction
@@ -55,7 +80,7 @@ Functions is the same way as the said quantification described below Keyword sel
 These comparison operators all take two numbers and returns a boolean 
 the functionality is described below:
 
-| name | notation | description |
+| Name | Notation | Description |
 |---|---------|---------|
 |Comparison	| '==' 	|Compares two numbers and returns true they are the same there might be floating-point eras  	|
 |Not comparison  	| '!=' 	|  	Compares two numbers and returns false  they are the same there might be floating-point eras|
@@ -65,13 +90,13 @@ the functionality is described below:
 | Less than 	| '<' 	|  This operation returns true if the first number is less then the second number. 	|
 
 ## Mathematical operations
-| name | notation | description |
+| Name | Notation | Description |
 |---|---------|---------|
 | Addition 	| + 	|  	|
 | Subtraction 	|  - 	|  	|
 | Division 	|  / 	|  	|
 |  Multiplication	| * 	|  	|
-| Exponent 	|  '^' 	|  	|
+| Exponent 	|  ^ 	|  	|
 
 ##Boolean connectors
 

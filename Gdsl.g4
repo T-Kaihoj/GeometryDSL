@@ -5,7 +5,9 @@ grammar Gdsl;
 // Types and variables must be defined before first use
 gdsl: (typeDefinition | functionDefinition | variableDefinition)* ;
 
-typeDefinition: TYPE id=IDENTIFIER '(' declaration (',' declaration)* ')' ;
+typeInvariant: INV condition=expression ;
+
+typeDefinition: TYPE id=IDENTIFIER '(' declaration (',' declaration)* ')' typeInvariant* ;
 
 functionDefinition: retType=IDENTIFIER functionId=IDENTIFIER '(' (declaration (',' declaration)* )? ')' scope ;
 
@@ -56,6 +58,7 @@ expression: '(' expression ')' #parenthesisExp
 /*
  * Lexer Rules
  */
+INV: 'inv' ;
 TYPE: 'type' ;
 
 BOOL: 'true'
@@ -100,8 +103,8 @@ PROPERSUBSET: 'propersubset';
 SUBSET : 'subset';
 IN: 'in' ;
 
-INTEGER: ([0-9])+ ;
-FLOAT: ([0-9])* '.' ([0-9])+ ;
+INTEGER: ('-')? ([0-9])+ ;
+FLOAT: ('-')? ([0-9])* '.' ([0-9])+ ;
 IDENTIFIER: ([a-z] | [A-Z])+ ([a-zA-Z_0-9])* ;
 
 WS: [ \t\n\r]+ -> skip ;

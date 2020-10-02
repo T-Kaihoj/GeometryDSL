@@ -24,6 +24,13 @@ public class GdslBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements G
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitTypeInvariant(GdslParser.TypeInvariantContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitTypeDefinition(GdslParser.TypeDefinitionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
