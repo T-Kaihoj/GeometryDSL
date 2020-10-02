@@ -332,7 +332,7 @@ class Executor
         case (Nil, Nil) => executeExpression(invariant, objFields.reverse ++ stack) match
             {
                 case BoolValue(true) => ObjectValue(name, objFields.map(variable => variable.value).reverse)
-                case _ => SetValue(Set())
+                case BoolValue(false) => NoValue
             }
         case _ => throw new Exception(s"Wrong number of arguments for constructing '$name'")
     }

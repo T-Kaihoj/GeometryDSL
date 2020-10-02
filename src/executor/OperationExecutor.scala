@@ -85,6 +85,7 @@ object OperationExecutor
 
     def equal(left: Value, right: Value): Value = (left, right) match
     {
+        case (NoValue, NoValue) => BoolValue(true)
         case (BoolValue(l), BoolValue(r)) => BoolValue(l == r)
         case (IntValue(l), IntValue(r)) => BoolValue(l == r)
         case (RealValue(l), RealValue(r)) => BoolValue(l == r)
@@ -97,6 +98,7 @@ object OperationExecutor
 
     def notEqual(left: Value, right: Value): Value = (left, right) match
     {
+        case (NoValue, NoValue) => BoolValue(false)
         case (BoolValue(l), BoolValue(r)) => BoolValue(l != r)
         case (IntValue(l), IntValue(r)) => BoolValue(l != r)
         case (RealValue(l), RealValue(r)) => BoolValue(l != r)
@@ -104,7 +106,7 @@ object OperationExecutor
         case (RealValue(l), IntValue(r)) => BoolValue(l != r)
         case (SetValue(l), SetValue(r)) => BoolValue(!l.equals(r))
         case (ObjectValue(lName, lFields), ObjectValue(rName, rFields)) => BoolValue(!lName.equals(rName) || !lFields.equals(rFields))
-        case _ => BoolValue(false)
+        case _ => throw new Exception(s"Equal of ${left.getClass} and ${right.getClass} is not supported")
     }
 
     def lessThan(left: Value, right: Value): Value = (left, right) match
