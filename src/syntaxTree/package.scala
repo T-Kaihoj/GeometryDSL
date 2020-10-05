@@ -3,6 +3,15 @@ package object syntaxTree
     type Block = List[Statement]
 
     type ProgramContext = List[ProgramDefinition]
+
+    def typeToString(typeId: Type): String = typeId match
+    {
+        case BoolType => "bool"
+        case IntType => "int"
+        case RealType => "real"
+        case SetType => "set"
+        case ObjectType(typeName) => typeName
+    }
 }
 
 package syntaxTree

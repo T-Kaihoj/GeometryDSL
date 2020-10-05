@@ -1,0 +1,18 @@
+
+type Point(x: real, y: real)
+inv x + y
+
+bool function()
+(
+    return {}
+)
+
+x: int := true
+y: int := function()
+
+int main()
+(
+    if(4) ()
+
+    return 1
+)

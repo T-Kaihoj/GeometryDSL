@@ -1,85 +1,191 @@
 package syntaxTree
 
+import logger.{Logger, Severity}
+
 object TypeChecker
 {
-    sealed trait TypeReturned[+A]
+    def check(program: Program): Unit =
     {
-        import TypeReturned._
+        program.programDefinitions.foreach(pd => check(pd))
+    }
 
-        def map[B](f: A => B): TypeReturned[B] = this match
+    def check(programDefinition: ProgramDefinition): Unit = programDefinition match
+    {
+        case typeDef: TypeDefinition => check(typeDef)
+        case methodDef: MethodDefinition => check(methodDef)
+        case valueDef: ValueDefinition => check(valueDef)
+    }
+
+    def check(typeDefinition: TypeDefinition): Unit = typeDefinition match
+    {
+        case TypeDefinition(typeName, _, invariant) =>
+            resultsInValueOfType(invariant) match
+            {
+                case None =>
+                    Logger.log(
+                        Severity.Info,
+                        s"Could not determine resulting type of invariant for '${typeToString(ObjectType(typeName))}' type",
+                        typeDefinition.lineNumber)
+                case Some(resType) if resType != BoolType =>
+                    Logger.log(
+                        Severity.Error,
+                        s"Invariant for type * $typeName' does not result in value of type '${typeToString(BoolType)}' but instead results in value of type '${typeToString(resType)}'",
+                        typeDefinition.lineNumber)
+            }
+    }
+
+    def check(methodDefinition: MethodDefinition): Unit = methodDefinition match
+    {
+        case MethodDefinition(name, retType, _, block) => block.last match
         {
-            case SomeType(a) => SomeType(f(a))
-            case UnknownType => UnknownType
+            case Return(exp) =>
+                val expResType = resultsInValueOfType(exp).getOrElse(return)
+                if(expResType != retType)
+                {
+                    Logger.log(Severity.Error, s"Method '$name' does not return a value of type '${typeToString(retType)}' but instead returns '${typeToString(expResType)}'", methodDefinition.lineNumber)
+                }
+                check(block)
         }
     }
 
-    object TypeReturned
+    def check(valueDefinition: ValueDefinition): Unit = valueDefinition match
     {
-        case class SomeType[+A](a: A) extends TypeReturned[A]
-        case object UnknownType extends TypeReturned[Nothing]
+        case ValueDefinition(ValueDeclaration(name, typeId), exp) =>
+            val expResType = resultsInValueOfType(exp).getOrElse(return)
+            if(expResType != typeId)
+            {
+                Logger.log(Severity.Error, s"Value '$name' is not assigned a value of type '${typeToString(typeId)}' but is instead assigned a value of type '${typeToString(expResType)}'", valueDefinition.lineNumber)
+            }
     }
 
-    def check(program: Program): Boolean = {
-        program.programDefinitions.forall(pd => check(pd))
+    def check(block: Block): Unit = block match
+    {
+        case head :: tail => check(head); check(tail)
+        case Nil =>
     }
 
-    def check(programDefinition: ProgramDefinition): Boolean = programDefinition match
+    def check(statement: Statement): Unit = statement match
     {
-        case TypeDefinition(name, fields, invariant) => false
-        case MethodDefinition(name, retType, params, block) => false
-        case ValueDefinition(decl, exp) => false
+        case valueDefinition: ValueDefinition => check(valueDefinition)
+        case conditional: Conditional => check(conditional)
+        case Return(exp) => check(exp, statement.lineNumber)
+        case _ =>
     }
 
-    def check(typeDefinition: TypeDefinition): Boolean = typeDefinition match
+    def check(conditional: Conditional): Unit = conditional match
     {
-        case TypeDefinition(_, _, invariant) => resultsInValueOfType(invariant).getOrElse(true) == BoolType
+        case Conditional(condition, _, _) =>
+            resultsInValueOfType(condition) match
+            {
+                case None => Logger.log(
+                    Severity.Info,
+                    s"Could not determine resulting type of conditional",
+                    conditional.lineNumber
+                )
+                case Some(condType) if condType != BoolType => Logger.log(
+                    Severity.Error,
+                    s"Condition does not result in a '${typeToString(BoolType)}' but instead a '${typeToString(condType)}'",
+                    conditional.lineNumber
+                )
+
+                    check(condition, conditional.lineNumber)
+            }
     }
 
-    def check(methodDefinition: MethodDefinition): Boolean = methodDefinition match
+    def check(expression: Expression, lineNumber: Int): Unit = expression match
     {
-        case MethodDefinition(_, retType, _, block) => block.last match {
-            case Return(exp) => resultsInValueOfType(exp).getOrElse(true) == retType
-        }
+        case NoValueLiteral() =>
+        case BoolLiteral(_) =>
+        case IntLiteral(_) =>
+        case RealLiteral(_) =>
+        case SetLiteral(_) =>
+        case Identifier(_) =>
+        case memberAccess: MemberAccess => check(memberAccess, lineNumber)
+        case setComprehension: SetComprehension => check(setComprehension, lineNumber)
+        case Operation(_, _) =>
     }
 
-    def resultsInValueOfType(expression: Expression): TypeReturned[Type] = expression match
+    def check(memberAccess: MemberAccess, lineNumber: Int): Unit = memberAccess match
     {
-        case BoolLiteral(_) => TypeReturned(BoolType)
-        case IntLiteral(_) => TypeReturned(IntType)
-        case RealLiteral(_) => TypeReturned(RealType)
-        case SetLiteral(_) => TypeReturned(SetType)
-        case Identifier(_) => UnknownType
-        case MemberAccess(_, _) => UnknownType
-        case SetComprehension(_, _, _) => TypeReturned(SetType)
+        case MemberAccess(exp, _) =>
+            resultsInValueOfType(exp) match
+            {
+                case None => Logger.log(
+                    Severity.Info,
+                    s"Could not determine resulting type of member access expression",
+                    lineNumber)
+                case Some(ObjectType(_)) => // Check whether the specified type has a field with the correct name.
+                case Some(typeId) => Logger.log(
+                    Severity.Error,
+                    s"Member access expression does not result in a value of the correct type but instead '${typeToString(typeId)}'",
+                    lineNumber)
+            }
+            check(exp, lineNumber)
+    }
+
+    def check(setComprehension: SetComprehension, lineNumber: Int): Unit = setComprehension match
+    {
+        case SetComprehension(ElementDefinition(_, exp), condition, _) =>
+            resultsInValueOfType(exp) match
+            {
+                case None =>
+                case Some(resType) if resType != SetType =>
+            }
+
+            resultsInValueOfType(condition) match
+            {
+                case None => Logger.log(
+                    Severity.Info,
+                    s"Could not determine resulting type of conditional",
+                    lineNumber
+                )
+                case Some(condType) if condType != BoolType => Logger.log(
+                    Severity.Error,
+                    s"Condition does not result in a '${typeToString(BoolType)}' but instead a '${typeToString(condType)}'",
+                    lineNumber
+                )
+            }
+    }
+
+    def resultsInValueOfType(expression: Expression): Option[Type] = expression match
+    {
+        case NoValueLiteral() => None
+        case BoolLiteral(_) => Some(BoolType)
+        case IntLiteral(_) => Some(IntType)
+        case RealLiteral(_) => Some(RealType)
+        case SetLiteral(_) => Some(SetType)
+        case Identifier(_) => None
+        case MemberAccess(_, _) => None
+        case SetComprehension(_, _, _) => Some(SetType)
         case Operation(operator, operands) => (operator, operands) match
         {
-            case (Negation, List(_)) => UnknownType
-            case (Not, List(_)) => TypeReturned(BoolType)
-            case (Cardinality, List(_)) => TypeReturned(IntType)
-            case (Forall(_), List(_)) => TypeReturned(BoolType)
-            case (Exists(_), List(_)) => TypeReturned(BoolType)
-            case (Choose(_), List(_)) => UnknownType
-            case (Add, List(_, _)) => UnknownType
-            case (Sub, List(_, _)) => UnknownType
-            case (Mul, List(_, _)) => UnknownType
-            case (Div, List(_, _)) => UnknownType
-            case (Pow, List(_, _)) => UnknownType
-            case (Equal, List(_, _)) => TypeReturned(BoolType)
-            case (NotEqual, List(_, _)) => TypeReturned(BoolType)
-            case (LessThan, List(_, _)) => TypeReturned(BoolType)
-            case (LessThanEqual, List(_, _)) => TypeReturned(BoolType)
-            case (GreaterThan, List(_, _)) => TypeReturned(BoolType)
-            case (GreaterThanEqual, List(_, _)) => TypeReturned(BoolType)
-            case (And, List(_, _)) => TypeReturned(BoolType)
-            case (Or, List(_, _)) => TypeReturned(BoolType)
-            case (Implies, List(_, _)) => TypeReturned(BoolType)
-            case (Union, List(_, _)) => TypeReturned(SetType)
-            case (Intersect, List(_, _)) => TypeReturned(SetType)
-            case (Difference, List(_, _)) => TypeReturned(SetType)
-            case (Subset, List(_, _)) => TypeReturned(BoolType)
-            case (PropSubset, List(_, _)) => TypeReturned(BoolType)
-            case (InSet, List(_, _)) => TypeReturned(BoolType)
-            case (MethodCall(_, _), _) => UnknownType
+            case (Negation, List(_)) => None
+            case (Not, List(_)) => Some(BoolType)
+            case (Cardinality, List(_)) => Some(IntType)
+            case (Forall(_), List(_)) => Some(BoolType)
+            case (Exists(_), List(_)) => Some(BoolType)
+            case (Choose(_), List(_)) => None
+            case (Add, List(_, _)) => None
+            case (Sub, List(_, _)) => None
+            case (Mul, List(_, _)) => None
+            case (Div, List(_, _)) => None
+            case (Pow, List(_, _)) => None
+            case (Equal, List(_, _)) => Some(BoolType)
+            case (NotEqual, List(_, _)) => Some(BoolType)
+            case (LessThan, List(_, _)) => Some(BoolType)
+            case (LessThanEqual, List(_, _)) => Some(BoolType)
+            case (GreaterThan, List(_, _)) => Some(BoolType)
+            case (GreaterThanEqual, List(_, _)) => Some(BoolType)
+            case (And, List(_, _)) => Some(BoolType)
+            case (Or, List(_, _)) => Some(BoolType)
+            case (Implies, List(_, _)) => Some(BoolType)
+            case (Union, List(_, _)) => Some(SetType)
+            case (Intersect, List(_, _)) => Some(SetType)
+            case (Difference, List(_, _)) => Some(SetType)
+            case (Subset, List(_, _)) => Some(BoolType)
+            case (PropSubset, List(_, _)) => Some(BoolType)
+            case (InSet, List(_, _)) => Some(BoolType)
+            case (MethodCall(_, _), _) => None
         }
     }
 }
