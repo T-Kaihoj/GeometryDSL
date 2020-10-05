@@ -5,6 +5,9 @@ type TwoDifferentInts(a: int, b: int)
 inv a != b
 inv a != b
 
+type NotFour(x: int)
+inv x != 4
+
 int should_return_five()(
     if(true)( return 5 )
     return 8
@@ -57,6 +60,8 @@ int main()
     if(A == 1 && A == 2  )(return 407)
 
     if({1, (/)} != {1})(return 410)
+    A: set := {n in {1, 2, 3, 4} | true | NotFour(n)}
+    if(A != {NotFour(1), NotFour(2), NotFour(3)})(return 411)
 
     //cardinality and Absolute
     if(|{1, 2, 3, 4,5}| != 5 )(return 500)
