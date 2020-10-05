@@ -292,6 +292,18 @@ public class GdslBaseListener implements GdslListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterNoValueExp(GdslParser.NoValueExpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNoValueExp(GdslParser.NoValueExpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterOrExp(GdslParser.OrExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -323,6 +335,18 @@ public class GdslBaseListener implements GdslListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAddSubExp(GdslParser.AddSubExpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNegativeExp(GdslParser.NegativeExpContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNegativeExp(GdslParser.NegativeExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -395,18 +419,6 @@ public class GdslBaseListener implements GdslListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitParenthesisExp(GdslParser.ParenthesisExpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterNegativeNumberExp(GdslParser.NegativeNumberExpContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNegativeNumberExp(GdslParser.NegativeNumberExpContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

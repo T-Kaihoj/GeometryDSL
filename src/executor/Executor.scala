@@ -103,6 +103,7 @@ class Executor
 
     def executeExpression(exp: Expression, stack: VarStack): Value = exp match
     {
+        case NoValueLiteral() => NoValue
         case BoolLiteral(b) => BoolValue(b)
         case IntLiteral(i) => IntValue(i)
         case RealLiteral(r) => RealValue(r)
@@ -123,6 +124,7 @@ class Executor
             executeExpression(exp, stack) match
             {
                 case SetValue(innerSet) => innerSet.foreach(elem => resultingSet = resultingSet.union(Set(elem)))
+                case NoValue => // Nothing happens
                 case simpleValue: Value => resultingSet = resultingSet.union(Set(simpleValue))
             })
         SetValue(resultingSet)
@@ -331,7 +333,7 @@ class Executor
         case (Nil, Nil) => executeExpression(invariant, objFields.reverse ++ stack) match
             {
                 case BoolValue(true) => ObjectValue(name, objFields.map(variable => variable.value).reverse)
-                case _ => SetValue(Set())
+                case BoolValue(false) => NoValue
             }
         case _ => throw new Exception(s"Wrong number of arguments for constructing '$name'")
     }

@@ -1,5 +1,6 @@
 package parser.helpers
 
+import analyzer.SyntaxTreeToZ3Converter
 import parser.GdslLexer
 
 object ParsingHelperScala
@@ -20,6 +21,7 @@ object ParsingHelperScala
         case "*" => syntaxTree.Mul
         case "/" => syntaxTree.Div
         case "Pow" => syntaxTree.Pow
+        case "Neg" => syntaxTree.Negation
         case "==" => syntaxTree.Equal
         case "!=" => syntaxTree.NotEqual
         case "<" => syntaxTree.LessThan
@@ -30,9 +32,9 @@ object ParsingHelperScala
         case "Or" => syntaxTree.Or
         case "Not" => syntaxTree.Not
         case "Implies" => syntaxTree.Implies
-        case "union" => syntaxTree.Union
-        case "inter" => syntaxTree.Intersect
-        case "diff" => syntaxTree.Difference
+        case "Union" => syntaxTree.Union
+        case "Intersect" => syntaxTree.Intersect
+        case "Difference" => syntaxTree.Difference
         case "Subset" => syntaxTree.Subset
         case "PropSubset" => syntaxTree.PropSubset
         case "InSet" => syntaxTree.InSet
@@ -40,35 +42,11 @@ object ParsingHelperScala
         case x => syntaxTree.MethodCall(x, arity)
     }
 
-    def operatorObjectScala(op: Int, arity: Int): syntaxTree.Operator = op match
-    {
-            /*
-        case GdslLexer.ADD => syntaxTree.Add
-        case -1 => syntaxTree.Sub
-        case -1 => syntaxTree.Mul
-        case -1 => syntaxTree.Div
-        case -1 => syntaxTree.Pow
-        case -1 => syntaxTree.Equal
-        case -1 => syntaxTree.NotEqual
-        case -1 => syntaxTree.LessThan
-        case -1 => syntaxTree.LessThanEqual
-        case ">" => syntaxTree.GreaterThan
-        case ">=" => syntaxTree.GreaterThanEqual
-        case "And" => syntaxTree.And
-        case "Or" => syntaxTree.Or
-        case "Not" => syntaxTree.Not
-             */
+    def getNoValueLiteral: syntaxTree.Expression = syntaxTree.NoValueLiteral()
 
-        case GdslLexer.UNION => syntaxTree.Union
-        case GdslLexer.INTERSECTION => syntaxTree.Intersect
-        case GdslLexer.DIFFERENCE => syntaxTree.Difference
-        case GdslLexer.SUBSET => syntaxTree.Subset
-        case GdslLexer.PROPERSUBSET => syntaxTree.PropSubset
-        //case GdslLexer.IN => syntaxTree.InSet
-    }
 
     def print(entity: syntaxTree.ProgramDefinition): Unit =
     {
-        println(entity);
+        println(entity)
     }
 }

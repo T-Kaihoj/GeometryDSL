@@ -67,7 +67,25 @@ public class CustomGdslParser {
         //   | setL=expression operator=(UNION | DIFFERENCE| INTERSECTION) setR=expression #setOperatorExp
         @Override
         public Expression visitSetOperatorExp(GdslParser.SetOperatorExpContext ctx) {
-            return new Operation(ParsingHelperScala.operatorObjectScala(ctx.operator.getType(),2), ParsingHelper.scalaList(this.visit(ctx.expression(0)), this.visit(ctx.expression(1))));
+            Operator operator;
+
+            switch (ctx.operator.getType())
+            {
+                case GdslParser.UNION: operator = ParsingHelper.operatorObject("Union", 2);
+                    break;
+                case GdslParser.DIFFERENCE: operator = ParsingHelper.operatorObject("Difference", 2);
+                    break;
+                case GdslParser.INTERSECTION: operator = ParsingHelper.operatorObject("Intersect", 2);
+                    break;
+                case GdslParser.PROPERSUBSET: operator = ParsingHelper.operatorObject("PropSubset", 2);
+                    break;
+                case GdslParser.SUBSET: operator = ParsingHelper.operatorObject("Subset", 2);
+                    break;
+                default: operator = ParsingHelper.operatorObject("Union", 2);
+                    break;
+            }
+
+            return new Operation(operator, ParsingHelper.scalaList(this.visit(ctx.expression(0)), this.visit(ctx.expression(1))));
         }
 
         // quantifier=QUANTIFIER '(' setElementDefinition ','  expression ')' #setQuantificationCallExp
@@ -196,14 +214,9 @@ public class CustomGdslParser {
         }
 
         @Override
-        public Expression visitNegativeNumberExp(GdslParser.NegativeNumberExpContext ctx) {
-            if((ctx.num.start.getType() == GdslLexer.INTEGER)) {
-                return new IntLiteral(- Integer.parseInt(ctx.num.getText()));
-            } else if(ctx.num.start.getType() == GdslLexer.FLOAT) {
-                return new RealLiteral(- Float.parseFloat(ctx.num.getText()));
-            } else {
-                return super.visitNegativeNumberExp(ctx);
-            }
+        public Expression visitNegativeExp(GdslParser.NegativeExpContext ctx) {
+            ExpressionVisitor expressionVisitor = new ExpressionVisitor();
+            return new Operation(ParsingHelper.operatorObject("Neg", 1), ParsingHelper.scalaList(expressionVisitor.visit(ctx.expression())));
         }
 
         @Override
@@ -215,6 +228,11 @@ public class CustomGdslParser {
             } else {
                 return super.visitNumberExp(ctx);
             }
+        }
+
+        @Override
+        public Expression visitNoValueExp(GdslParser.NoValueExpContext ctx) {
+            return ParsingHelper.getNoValueLiteral();
         }
     }
 

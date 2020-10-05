@@ -35,13 +35,12 @@ int main()
     if(!(p1 == p2))(return 310)
     if(p1 != p2)(return 311)
     if(p1 == p3)(return 312)
-    //if(p1 != 2)(return 313)
 
     // Tests type invariance
     twoInts: TwoDifferentInts := TwoDifferentInts(1, 2)
     if(twoInts.a == twoInts.b)(return 320)
     if(TwoDifferentInts(1, 2) != TwoDifferentInts(1, 2))(return 321)
-    //if(TwoDifferentInts(1, 1) != (/))(return 322)
+    if(TwoDifferentInts(1, 1) != (/))(return 322)
 
     // Set construction using select statement and  quantifiers
     A: set := select(r in {1, 2, 3, 4,5}, r < 3)
@@ -56,6 +55,8 @@ int main()
     if(A != 1 && A != 2)(return 406)
     A:set := choose(r in {1, 2, 3, 4,5}, r < 3)
     if(A == 1 && A == 2  )(return 407)
+
+    if({1, (/)} != {1})(return 410)
 
     //cardinality and Absolute
     if(|{1, 2, 3, 4,5}| != 5 )(return 500)

@@ -2,6 +2,7 @@ package transpilation;
 
 
 import com.microsoft.z3.Lambda;
+import executor.NoValue;
 import syntaxTree.*;
 
 import java.util.ArrayList;
@@ -129,8 +130,13 @@ public class Transpilation {
                 return convertExpressionSetComprehension((SetComprehension) exp,"\t");
             case Operation:
                 return convertExpressionOperation((Operation) exp);
+            case NoValueLiteral:
+                return convertExpressionNoValueLiteral((NoValueLiteral) exp);
         }
         return null;
+    }
+    private String convertExpressionNoValueLiteral(NoValueLiteral exp) {
+        return  "None";
     }
 
     private String convertExpressionIntLiteral(IntLiteral exp) {
@@ -306,6 +312,7 @@ public class Transpilation {
 
 
     enum ClassNames {
+        NoValueLiteral(NoValueLiteral.class,NoValueLiteral.class.getSimpleName()),
         TypeDefinition(TypeDefinition.class, TypeDefinition.class.getSimpleName()),
         ValueDefinition(ValueDefinition.class, ValueDefinition.class.getSimpleName()),
         MethodDefinition(MethodDefinition.class, MethodDefinition.class.getSimpleName()),

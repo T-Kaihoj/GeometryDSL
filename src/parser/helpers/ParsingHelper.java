@@ -30,4 +30,6 @@ public class ParsingHelper
     public static syntaxTree.Type typeObject(String t) { return ParsingHelperScala.typeObjectScala(t); }
 
     public static syntaxTree.Operator operatorObject(String op, int arity) { return ParsingHelperScala.operatorObjectScala(op, arity); }
+
+    public static syntaxTree.Expression getNoValueLiteral() {return ParsingHelperScala.getNoValueLiteral(); }
 }

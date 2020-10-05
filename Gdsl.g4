@@ -53,8 +53,9 @@ expression: '(' expression ')' #parenthesisExp
           | IDENTIFIER '(' (expression (',' expression)*)? ')' #functionCallExp
           | IDENTIFIER #variableExp
           | bool=BOOL #boolExp
-          | MINUS num=number #negativeNumberExp
-          | num=number #numberExp ;
+          | MINUS expression #negativeExp
+          | num=number #numberExp
+          | NOVALUE #noValueExp ;
 
 /*
  * Lexer Rules
@@ -62,8 +63,6 @@ expression: '(' expression ')' #parenthesisExp
 INV: 'inv' ;
 TYPE: 'type' ;
 
-BOOL: 'true'
-    | 'false';
 QUANTIFIER: 'exist'
           | 'all';
 EXTRACTOR: 'select'
@@ -104,6 +103,9 @@ PROPERSUBSET: 'propersubset';
 SUBSET : 'subset';
 IN: 'in' ;
 
+NOVALUE: '(/)' ;
+BOOL: 'true'
+    | 'false';
 INTEGER: ([0-9])+ ;
 FLOAT: ([0-9])* '.' ([0-9])+ ;
 IDENTIFIER: ([a-z] | [A-Z])+ ([a-zA-Z_0-9])* ;

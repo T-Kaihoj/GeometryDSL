@@ -34,6 +34,7 @@ package syntaxTree
     case class Return(exp: Expression) extends Statement
 
     sealed trait Expression
+    case class NoValueLiteral() extends Expression
     case class BoolLiteral(value: Boolean) extends Expression
     case class IntLiteral(value: Long) extends Expression
     case class RealLiteral(value: Double) extends Expression
