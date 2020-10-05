@@ -43,6 +43,13 @@ object transpilationScala
         }
     }
 
+    def isConstructor(methodName:String, program:List[ProgramDefinition]): Boolean = program match
+    {
+    case MethodDefinition(name, retType, params, block):: _  if methodName == name => false
+    case TypeDefinition(name, fields, _):: _ if methodName == name => true
+    case _ :: rest  => isConstructor(methodName,rest)
+    }
+
     def expressionisSetScala(o: syntaxTree.Expression, block:Block): Boolean = o match
     {
         case BoolLiteral(value) => false

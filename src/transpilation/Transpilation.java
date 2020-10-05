@@ -47,10 +47,20 @@ public class Transpilation {
         List<String> name = new ArrayList<>();
         typeDefinition.fields().foreach(v1 -> name.add(v1.name()));
         typeDefinition.fields().foreach(v1 -> ValueDeclaration.add("\t\t self." + v1.name() + "=" + v1.name()));
-           python.add(  "class " + typeDefinition.name() + ":\n" +
-                "\tdef __init__(self," + String.join(",", name) + "):\n" +
-                String.join("\n", ValueDeclaration)+"\n" +
-                   "\tdef __repr__(self):\n" + "\t\treturn  \" "+ String.join("  ", map( name ,s ->  s + ":(% s)" ))  +"\" % ("+String.join(", ", map( name ,(s ->  "str(self."+s+ " )")))+")" );
+        //String invariant = "\t@staticmethod\n" + "\tdef Invariant("+String.join(",", name)+"):\n\t\treturn "+ convertExpression( typeDefinition.invariant());
+        String equal =  "\tdef __eq__(self, other):\n\t\treturn "+ String.join(" and ", map( name ,(s ->  "self."+s+"=="+ "other."+s )));
+        String notEqual =  "\tdef __ne__(self, other):\n\t\treturn  not("+ String.join(" or ", map( name ,(s ->  "self."+s+"=="+ "other."+s )))+")";
+        String hash =  "\tdef __hash__(self):\n\t\treturn  hash(self.__repr__)";
+        String Constructor =   "\t@staticmethod\n" + "\tdef Constructor("+String.join(",", name)+"):\n\t\tif "+convertExpression( typeDefinition.invariant()) +":\n" + "\t\t\treturn "+ typeDefinition.name()+"("+String.join(",", name)+")";
+        python.add(  "class " + typeDefinition.name() + ":\n" +
+            "\tdef __init__(self," + String.join(",", name) + "):\n" +
+            String.join("\n", ValueDeclaration)+"\n" +
+            "\tdef __repr__(self):\n" + "\t\treturn  \" "+ String.join("  ", map( name ,s ->  s + ":(% s)" ))  +"\" % ("+String.join(", ", map( name ,(s ->  "str(self."+s+ " )")))+")" );
+        //python.add(invariant);
+        python.add(equal);
+        python.add(notEqual);
+        python.add(hash);
+        python.add(Constructor);
         return;
     }
     interface MapOperation {
@@ -160,8 +170,6 @@ public class Transpilation {
             return "("+convertExpression(expressions.get(0)) +" "+transpilationScala.operatorStringScala(  exp.operator()) + " "+ convertExpression( expressions.get(1))+")";
         return "("+ transpilationScala.operatorStringScala(  exp.operator()) +" "+ convertExpression( expressions.get(0))+")";
         //return exp.toString();
-
-
     }
 
     private String convertPropSubset(List<Expression> expressions) {
@@ -216,7 +224,10 @@ public class Transpilation {
         if (isSetlist.contains(true)){
             return setApplication(call, expressions, isSetlist);
         }
-        return call.name()+"(" +  String.join(",",strings)+ ")";
+        if (transpilationScala.isConstructor(call.name(),program.programDefinitions()))
+            return call.name()+".Constructor(" +  String.join(",",strings)+ ")";
+
+            return call.name()+"(" +  String.join(",",strings)+ ")";
     }
     int z =0;
     int p =0;
@@ -271,7 +282,7 @@ public class Transpilation {
     private String convertExpressionSetLiteral(SetLiteral exp) {
         List<String> setLiteral = new ArrayList<>();
         exp.values().foreach(v1 -> setLiteral.add(convertExpression(v1)) );
-        return "set({"+ String.join(",",setLiteral) +"})";
+        return "setGDSL({"+ String.join(",",setLiteral) +"})";
     }
     //todo fix
     private String convertExpressionBoolLiteral(BoolLiteral exp) {

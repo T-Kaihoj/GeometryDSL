@@ -3,6 +3,7 @@ type Circle(x: int, y: int, r: int)
 
 type TwoDifferentInts(a: int, b: int)
 inv a != b
+inv a != b
 
 int should_return_five()(
     if(true)( return 5 )
@@ -34,13 +35,13 @@ int main()
     if(!(p1 == p2))(return 310)
     if(p1 != p2)(return 311)
     if(p1 == p3)(return 312)
-    if(p1 != 2)(return 313)
+    //if(p1 != 2)(return 313)
 
     // Tests type invariance
     twoInts: TwoDifferentInts := TwoDifferentInts(1, 2)
     if(twoInts.a == twoInts.b)(return 320)
     if(TwoDifferentInts(1, 2) != TwoDifferentInts(1, 2))(return 321)
-    if(TwoDifferentInts(1, 1) != {})(return 322)
+    //if(TwoDifferentInts(1, 1) != (/))(return 322)
 
     // Set construction using select statement and  quantifiers
     A: set := select(r in {1, 2, 3, 4,5}, r < 3)
@@ -94,7 +95,9 @@ int main()
     if(not ({} propersubset {1, 2, 3, 4,5}))(return 663)
     if(  {1, 2, 3, 4,5} propersubset {})(return 664)
     if(  {1, 2, 3, 4,5} propersubset {6})(return 665)
-
+    //670 Equality set
+    A:set := {TwoDifferentInts(1, 1)}
+    if(|A|!= 0)(return 670)
     //700 No set nesting
     //if( {1, 2, 3, 4,5} != {1, 2, 3, {4,5}})(return 701)
     //if( {1, 2, 3, {4,5}} != {1, 2, 3, {4,5}})(return 702)
