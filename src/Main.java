@@ -37,6 +37,7 @@ public class Main {
 
         if(options.optimize)
         {
+            System.out.println("HGello");
             program = MasterOptimizer.transform(MasterAnalyzer.transform(program));
         }
 
@@ -72,7 +73,7 @@ public class Main {
                     programFileName = arg;
                 }
 
-                if(arg.startsWith("-f=") || arg.startsWith("--function="))
+                if(arg.startsWith("--function="))
                 {
                     programMainFunctionName = arg.substring(arg.indexOf("=") + 1);
                 }
@@ -95,7 +96,7 @@ public class Main {
                     transpile = true;
                 }
 
-                if(arg.startsWith("-i=") || arg.startsWith("--infolevel="))
+                if(arg.startsWith("--infolevel="))
                 {
                     String level = arg.substring(arg.indexOf("=") + 1);
                     if(level.equals("error")) {
