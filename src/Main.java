@@ -75,16 +75,21 @@ public class Main {
                     programMainFunctionName = arg.substring(arg.indexOf("=") + 1);
                 }
 
-                if(arg.equals("-o") || arg.equals("--optimize"))
+                if(arg.startsWith("-") && !arg.substring(1).startsWith("-") && arg.substring(1).contains("o") ||
+                    arg.equals("--optimize"))
                 {
                     optimize = true;
                 }
-                if(arg.equals("-e") || arg.equals("--execute"))
+
+                if(arg.startsWith("-") && !arg.substring(1).startsWith("-") && arg.substring(1).contains("e") ||
+                    arg.equals("--execute"))
                 {
                     execute = true;
                 }
 
-                if(arg.equals("-t") || arg.equals("--transpile"))
+
+                if(arg.startsWith("-") && !arg.substring(1).startsWith("-") && arg.substring(1).contains("t") ||
+                    arg.equals("--transpile"))
                 {
                     transpile = true;
                 }
