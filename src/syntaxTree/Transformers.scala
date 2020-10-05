@@ -105,6 +105,7 @@ trait OperationTransformer extends ExpressionTransformer
 
     override def transform(expression: Expression, context: ProgramContext): Expression = expression match
     {
+        case NoValueLiteral() => NoValueLiteral()
         case BoolLiteral(value) => BoolLiteral(value)
         case IntLiteral(value) => IntLiteral(value)
         case RealLiteral(value) => RealLiteral(value)
