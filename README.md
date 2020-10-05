@@ -13,12 +13,13 @@ $ java -jar GeometryDSL programFile.gdsl
 
 Porgram options:
 
-| Option                  | Description |
-|:---                     |:---         |
-| `-e` / `--execute`      | Executes the provided program. |
-| `-o` / `--optimize`     | Optimizes the provided program before execution and transpilation. |
-| `-t` / `--transpile`    | Transpiles the program to an equivalent python program. |
-| `-f=*` / `--function=*` | Used to specify the entry function of the program. If non is provided, will `main` be used as standard.|
+| Option                   | Description |
+|:---                      |:---         |
+| `-e` / `--execute`       | Executes the provided program. |
+| `-o` / `--optimize`      | Optimizes the provided program before execution and transpilation. |
+| `-t` / `--transpile`     | Transpiles the program to an equivalent python program. |
+| `-f=*` / `--function=*`  | Used to specify the entry function of the program. If non is provided, will `main` be used as standard. |
+| `-i=*` / `--infolevel=*` | Specifies which level of logged messages should be displayed. `error`, `warning`, and `info` are the possible levels. If non is provided, is `warning` used as standard. |
 
 ## Generating Parser
 1. Setup ANTLR accourding to [The ANTLR Mega Tutorial](https://tomassetti.me/antlr-mega-tutorial).

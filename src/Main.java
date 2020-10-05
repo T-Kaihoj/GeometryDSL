@@ -2,6 +2,7 @@ import analyzer.MasterAnalyzer;
 import executor.Executor;
 import executor.ValuePrettifier;
 import logger.Logger;
+import logger.Severity;
 import optimizer.MasterOptimizer;
 import syntaxTree.Program;
 import transpilation.Transpilation;
@@ -50,7 +51,7 @@ public class Main {
         }
 
         Logger logger = Logger.getInstance();
-        System.out.print(logger.toString());
+        System.out.print(logger.toString(options.infoLevel));
     }
 
     private static class ProgramOptions {
@@ -60,6 +61,7 @@ public class Main {
         public boolean optimize;
         public boolean execute;
         public boolean transpile;
+        public logger.Severity infoLevel;
 
         public ProgramOptions(String[] args) {
             List<String> argList = Arrays.asList(args);
@@ -87,11 +89,24 @@ public class Main {
                     execute = true;
                 }
 
-
                 if(arg.startsWith("-") && !arg.substring(1).startsWith("-") && arg.substring(1).contains("t") ||
                     arg.equals("--transpile"))
                 {
                     transpile = true;
+                }
+
+                if(arg.startsWith("-i=") || arg.startsWith("--infolevel="))
+                {
+                    String level = arg.substring(arg.indexOf("=") + 1);
+                    if(level.equals("error")) {
+                        infoLevel = Severity.Error;
+                    } else if(level.equals("warning")) {
+                        infoLevel = Severity.Warning;
+                    } else if(level.equals("info")) {
+                        infoLevel = Severity.Info;
+                    }
+                } else {
+                    infoLevel = Severity.Warning;
                 }
             });
         }
