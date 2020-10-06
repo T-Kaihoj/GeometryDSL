@@ -179,18 +179,20 @@ class Executor
 
     def executeSetComprehension(elem: ElementDefinition, cond: Expression, app: Expression, stack: VarStack): SetValue =
     {
-        executeExpression(elem.exp, stack) match
+        val setValues: Set[Value] = executeExpression(elem.exp, stack) match
         {
-            case SetValue(set) => SetValue(set.foldLeft(Set(): Set[Value])((s, elemVal) => s.union(
-                executeExpression(cond, Variable(elem.name, elemVal) :: stack) match
-                {
-                    case BoolValue(true) => Set(executeExpression(app, Variable(elem.name, elemVal) :: stack))
-                    case BoolValue(false) => Set()
-                    case _ => throw new Exception("Condition of set comprehension does not result in a boolean value")
-                }
-            )))
+            case SetValue(elements) => elements
             case _ => throw new Exception("Element is not in a set")
         }
+
+        SetValue(setValues.foldLeft(Set(): Set[Value])((s, elemVal) => s.union(
+            executeExpression(cond, Variable(elem.name, elemVal) :: stack) match
+            {
+                case BoolValue(true) => createSet(executeExpression(app, Variable(elem.name, elemVal) :: stack))
+                case BoolValue(false) => Set()
+                case _ => throw new Exception("Condition of set comprehension does not result in a boolean value")
+            }
+        )))
     }
 
     def executeOperation(operator: Operator, operands: List[Expression], stack: VarStack): Value = operator match
@@ -291,7 +293,7 @@ class Executor
                         callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, e) :: newStack) match
                         {
                             case SetValue(x) => x
-                            case x => Set(x)
+                            case x => createSet(x)
                         }
                     )))
                 case (paramType, argValue) if compareType(paramType, argValue) =>
@@ -344,5 +346,12 @@ class Executor
         case ValueDefinition(ValueDeclaration(name, IntType), exp) => Variable(name, executeExpression(exp, stack))
         case ValueDefinition(ValueDeclaration(name, RealType), exp) => Variable(name, executeExpression(exp, stack))
         case ValueDefinition(ValueDeclaration(name, SetType), exp) => Variable(name, executeExpression(exp, stack))
+    }
+
+    def createSet(value: Value): Set[Value] = value match
+    {
+        case NoValue => Set()
+        case SetValue(set) => set
+        case x => Set(x)
     }
 }

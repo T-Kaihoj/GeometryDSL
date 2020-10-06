@@ -40,7 +40,6 @@ public class Main {
 
         if(options.optimize)
         {
-            System.out.println("HGello");
             program = MasterOptimizer.transform(MasterAnalyzer.transform(program));
         }
 
