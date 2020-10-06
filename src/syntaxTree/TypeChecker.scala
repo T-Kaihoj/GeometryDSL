@@ -26,6 +26,7 @@ object TypeChecker
                         Severity.Info,
                         s"Could not determine resulting type of invariant for '${typeToString(ObjectType(typeName))}' type",
                         typeDefinition.lineNumber)
+                case Some(BoolType) =>  // Nothing
                 case Some(resType) if resType != BoolType =>
                     Logger.log(
                         Severity.Error,
@@ -82,6 +83,7 @@ object TypeChecker
                     s"Could not determine resulting type of conditional",
                     conditional.lineNumber
                 )
+                case Some(BoolType) => // Nothing
                 case Some(condType) if condType != BoolType => Logger.log(
                     Severity.Error,
                     s"Condition does not result in a '${typeToString(BoolType)}' but instead a '${typeToString(condType)}'",
@@ -139,6 +141,7 @@ object TypeChecker
                     s"Could not determine resulting type of conditional",
                     lineNumber
                 )
+                case Some(BoolType) => // Nothing
                 case Some(condType) if condType != BoolType => Logger.log(
                     Severity.Error,
                     s"Condition does not result in a '${typeToString(BoolType)}' but instead a '${typeToString(condType)}'",
