@@ -13,16 +13,22 @@ package object executor
         case (ObjectType(typeName), ObjectValue(valName, _)) if typeName == valName => true
         case _ => false
     }
+
+    def valueToSet(value: Value = NoValue): Set[Value] = value match
+    {
+        case NoValue => Set()
+        case SetValue(innerSet) => innerSet
+        case x => Set(x)
+    }
 }
 
 package executor
 {
-    sealed trait Value
+    trait Value
     case object NoValue extends Value
     case class BoolValue(value: Boolean) extends Value
     case class IntValue(value: Long) extends Value
     case class RealValue(value: Double) extends Value
-    case class SetValue(set: Set[Value]) extends Value
     case class ObjectValue(typeName: String, fields: List[Value]) extends Value
 
     sealed case class Variable(name: String, value: Value)

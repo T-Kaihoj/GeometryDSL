@@ -119,15 +119,7 @@ class Executor
      */
     def executeSetLiteral(exps: List[Expression], stack: VarStack): SetValue =
     {
-        var resultingSet: Set[Value] = Set()
-        exps.foreach(exp =>
-            executeExpression(exp, stack) match
-            {
-                case SetValue(innerSet) => innerSet.foreach(elem => resultingSet = resultingSet.union(Set(elem)))
-                case NoValue => // Nothing happens
-                case simpleValue: Value => resultingSet = resultingSet.union(Set(simpleValue))
-            })
-        SetValue(resultingSet)
+        exps.foldLeft(SetValue())((a, b) => a.union(executeExpression(b, stack)))
     }
 
     def executeIdentifier(name: String, stack: VarStack): Value =
@@ -166,11 +158,11 @@ class Executor
     {
         case objVal: ObjectValue => getFieldValue(objVal, fieldName)
         case SetValue(set) =>
-            Some(SetValue(set.foldLeft(Set(): Set[Value])((s, elemVal) =>
+            Some(SetValue(set.foldLeft(valueToSet())((s, elemVal) =>
             {
                 getFieldValue(elemVal, fieldName) match
                 {
-                    case Some(fieldVal) => s.union(Set(fieldVal))
+                    case Some(fieldVal) => s.union(valueToSet(fieldVal))
                     case None => s
                 }
             })))
@@ -185,11 +177,11 @@ class Executor
             case _ => throw new Exception("Element is not in a set")
         }
 
-        SetValue(setValues.foldLeft(Set(): Set[Value])((s, elemVal) => s.union(
+        SetValue(setValues.foldLeft(valueToSet())((s, elemVal) => s.union(
             executeExpression(cond, Variable(elem.name, elemVal) :: stack) match
             {
-                case BoolValue(true) => createSet(executeExpression(app, Variable(elem.name, elemVal) :: stack))
-                case BoolValue(false) => Set()
+                case BoolValue(true) => valueToSet(executeExpression(app, Variable(elem.name, elemVal) :: stack))
+                case BoolValue(false) => valueToSet()
                 case _ => throw new Exception("Condition of set comprehension does not result in a boolean value")
             }
         )))
@@ -289,11 +281,11 @@ class Executor
                 case (SetType, SetValue(_)) =>
                     callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, argValue) :: newStack)
                 case (_, SetValue(s)) =>
-                    SetValue(s.foldLeft(Set(): Set[Value])((s, e) => s.union(
+                    SetValue(s.foldLeft(valueToSet())((s, e) => s.union(
                         callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, e) :: newStack) match
                         {
                             case SetValue(x) => x
-                            case x => createSet(x)
+                            case x => valueToSet(x)
                         }
                     )))
                 case (paramType, argValue) if compareType(paramType, argValue) =>
@@ -322,21 +314,21 @@ class Executor
             {
                 case (SetType, SetValue(s)) => callConstructor(name, fieldsTail, invariant, argsTail, stack, Variable(fieldName, SetValue(s)) :: objFields)
                 case (_, SetValue(s)) =>
-                    SetValue(s.foldLeft(Set(): Set[Value])((s, e) => s.union(
+                    SetValue(s.foldLeft(valueToSet())((s, e) => s.union(
                         callConstructor(name, fieldsTail, invariant, argsTail, stack, Variable(fieldName, e) :: objFields) match
                         {
                             case SetValue(x) => x
-                            case x => Set(x)
+                            case x => valueToSet(x)
                         }
                     )))
                 case (ft, av) if compareType(ft, av) => callConstructor(name, fieldsTail, invariant, argsTail, stack, Variable(fieldName, av) :: objFields)
                 case _ => throw new Exception(s"'$argValue' is not of type '$fieldType'")
             }
         case (Nil, Nil) => executeExpression(invariant, objFields.reverse ++ stack) match
-            {
-                case BoolValue(true) => ObjectValue(name, objFields.map(variable => variable.value).reverse)
-                case BoolValue(false) => NoValue
-            }
+        {
+            case BoolValue(true) => ObjectValue(name, objFields.map(variable => variable.value).reverse)
+            case BoolValue(false) => NoValue
+        }
         case _ => throw new Exception(s"Wrong number of arguments for constructing '$name'")
     }
 
@@ -346,12 +338,5 @@ class Executor
         case ValueDefinition(ValueDeclaration(name, IntType), exp) => Variable(name, executeExpression(exp, stack))
         case ValueDefinition(ValueDeclaration(name, RealType), exp) => Variable(name, executeExpression(exp, stack))
         case ValueDefinition(ValueDeclaration(name, SetType), exp) => Variable(name, executeExpression(exp, stack))
-    }
-
-    def createSet(value: Value): Set[Value] = value match
-    {
-        case NoValue => Set()
-        case SetValue(set) => set
-        case x => Set(x)
     }
 }
