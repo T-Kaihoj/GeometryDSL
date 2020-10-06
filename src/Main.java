@@ -40,7 +40,12 @@ public class Main {
 
         if(options.optimize)
         {
-            program = MasterOptimizer.transform(MasterAnalyzer.transform(program));
+            try {
+                program = MasterOptimizer.transform(MasterAnalyzer.transform(program));
+            } catch (Exception err) {
+                System.out.println("Optimization of '" + options.programFileName + "' resulted in an exception.");
+                System.out.println("No optimization has therefore been applied.");
+            }
         }
 
         Executor executor = new Executor();
