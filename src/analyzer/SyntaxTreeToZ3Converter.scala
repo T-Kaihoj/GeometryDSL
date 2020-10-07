@@ -11,7 +11,7 @@ class SyntaxTreeToZ3Converter(ctx: z3.Context, program: syntaxTree.Program)
 
     val sorts: List[z3.DatatypeSort] = typeDefinitions.map(
     {
-        case syntaxTree.TypeDefinition(name, fields) =>
+        case syntaxTree.TypeDefinition(name, fields, _) =>
             val constructor = ctx.mkConstructor(
                 name,
                 "mk" + name,
@@ -128,7 +128,7 @@ class SyntaxTreeToZ3Converter(ctx: z3.Context, program: syntaxTree.Program)
             val objectSort: z3.DatatypeSort = sorts.find(s => s.getName.toString == typeDef.name).getOrElse(return None)
             val fieldIndex: Int = typeDef match
             {
-                case syntaxTree.TypeDefinition(_, fields) => fields.indexWhere(p => p.name == fieldName)
+                case syntaxTree.TypeDefinition(_, fields, _) => fields.indexWhere(p => p.name == fieldName)
             }
             val accessor: z3.FuncDecl = objectSort.getAccessors()(0)(fieldIndex)
             val targetObject: z3.Expr = ctx.mkConst(objectName, objectSort)
