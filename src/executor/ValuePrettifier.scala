@@ -4,7 +4,6 @@ object ValuePrettifier
 {
     val indent = "    "
 
-
     /**
      * Will generate a prettified string of a value.
      */
@@ -16,7 +15,17 @@ object ValuePrettifier
         case RealValue(value) => value.toString
         case SetValue(set) =>
             val list = set.toList
-            if(4 < list.size)
+            if(list.isEmpty)
+            {
+                "{}"
+            }
+            else if(list.size <= 4)
+            {
+                "{" + list.tail
+                    .map(v => toString(v, indentLvl))
+                    .foldLeft(toString(list.head, indentLvl))((a, b: String) => a + ", " + b) + "}"
+            }
+            else if(4 < list.size)
             {
                 "\n" + indent.repeat(indentLvl) + "{\n" +
                     list.tail.map(v => toString(v, indentLvl + 1))
@@ -25,9 +34,7 @@ object ValuePrettifier
             }
             else
             {
-                "{" + list.tail
-                        .map(v => toString(v, indentLvl))
-                        .foldLeft(toString(list.head, indentLvl))((a, b: String) => a + ", " + b) + "}"
+                ""
             }
         case ObjectValue(typeName, fields) => typeName + "(" +
             fields.tail
