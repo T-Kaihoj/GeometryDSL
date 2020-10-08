@@ -112,6 +112,7 @@ trait OperationTransformer extends ExpressionTransformer
         case SetLiteral(values) => SetLiteral(values)
         case Identifier(name) => Identifier(name)
         case MemberAccess(exp, field) => MemberAccess(transform(exp, context), field)
+        case TypeCheck(exp, typeId) => TypeCheck(transform(exp, context), typeId)
         case SetComprehension(ElementDefinition(name, exp), condition, application) =>
             SetComprehension(ElementDefinition(name, transform(exp, context)), transform(condition, context), transform(application, context))
         case Operation(operator, operands) => transform(Operation(operator, operands.map(op => transform(op, context))), context)

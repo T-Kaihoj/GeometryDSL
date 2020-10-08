@@ -52,14 +52,15 @@ object transpilationScala
 
     def expressionisSetScala(o: syntaxTree.Expression, block:Block): Boolean = o match
     {
-        case BoolLiteral(value) => false
-        case IntLiteral(value) =>false
-        case RealLiteral(value) =>false
-        case SetLiteral(values) =>true
-        case Identifier(name) =>isIdentifierSet(name,block)
-        case MemberAccess(exp, field) => expressionisSetScala(exp,block)
-        case SetComprehension(element, condition, application) => true
-        case Operation(operator, operands) =>operationisSetScala(operator )
+        case BoolLiteral(_) => false
+        case IntLiteral(_) => false
+        case RealLiteral(_) => false
+        case SetLiteral(_) => true
+        case Identifier(name) => isIdentifierSet(name, block)
+        case MemberAccess(exp, _) => expressionisSetScala(exp, block)
+        case TypeCheck(exp, _) => expressionisSetScala(exp, block)
+        case SetComprehension(_, _, _) => true
+        case Operation(operator, _) => operationisSetScala(operator)
     }
 
     def methodCallisSetScala(methodName:String, program:Program):List[Boolean] =
@@ -101,4 +102,12 @@ object transpilationScala
         case MethodCall(name, argumentCount) => false
     }
 
+    def typeToString(typeId: Type): String = typeId match
+    {
+        case BoolType => "bool"
+        case IntType => "int"
+        case RealType => "RealNumbers"
+        case SetType => "Set"
+        case ObjectType(typeName) => typeName
+    }
 }

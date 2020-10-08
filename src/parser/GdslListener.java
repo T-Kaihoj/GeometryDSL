@@ -152,6 +152,18 @@ public interface GdslListener extends ParseTreeListener {
 	 */
 	void exitSetElementDefinition(GdslParser.SetElementDefinitionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code typeCheckExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterTypeCheckExp(GdslParser.TypeCheckExpContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code typeCheckExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitTypeCheckExp(GdslParser.TypeCheckExpContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code dotExp}
 	 * labeled alternative in {@link GdslParser#expression}.
 	 * @param ctx the parse tree

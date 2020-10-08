@@ -103,6 +103,7 @@ object TypeChecker
         case SetLiteral(_) =>
         case Identifier(_) =>
         case memberAccess: MemberAccess => check(memberAccess, lineNumber)
+        case typeCheck: TypeCheck =>
         case setComprehension: SetComprehension => check(setComprehension, lineNumber)
         case Operation(_, _) =>
     }
@@ -123,6 +124,11 @@ object TypeChecker
                     lineNumber)
             }
             check(exp, lineNumber)
+    }
+
+    def check(typeCheck: TypeCheck, lineNumber: Int): Unit = typeCheck match
+    {
+        case TypeCheck(exp, _) => check(exp, lineNumber)
     }
 
     def check(setComprehension: SetComprehension, lineNumber: Int): Unit = setComprehension match
@@ -159,6 +165,7 @@ object TypeChecker
         case SetLiteral(_) => Some(SetType)
         case Identifier(_) => None
         case MemberAccess(_, _) => None
+        case TypeCheck(_, _) => Some(BoolType)
         case SetComprehension(_, _, _) => Some(SetType)
         case Operation(operator, operands) => (operator, operands) match
         {

@@ -110,6 +110,7 @@ class Executor
         case SetLiteral(exps) => executeSetLiteral(exps, stack)
         case Identifier(name) => executeIdentifier(name, stack)
         case MemberAccess(exp, field) => executeMemberAccess(exp, field, stack).get
+        case TypeCheck(exp, typeId) => executeTypeCheck(exp, typeId, stack).get
         case SetComprehension(elem, cond, app) => executeSetComprehension(elem, cond, app, stack)
         case Operation(operator, operands) => executeOperation(operator, operands, stack)
     }
@@ -164,6 +165,14 @@ class Executor
                 case None => NoValue
             }))
         case value => logger.Logger.log(logger.Severity.Error, s"'$value' is not an object", 0); None
+    }
+
+    /**
+     * Executes type check of the resulting value of the expression.
+     */
+    def executeTypeCheck(exp: Expression, typeId: Type, stack: VarStack): Option[Value] =
+    {
+        Some(BoolValue(compareType(typeId, executeExpression(exp, stack))))
     }
 
     def executeSetComprehension(elementDef: ElementDefinition, cond: Expression, app: Expression, stack: VarStack): SetValue =

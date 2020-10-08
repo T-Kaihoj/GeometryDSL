@@ -43,6 +43,7 @@ class SyntaxTreeToZ3Converter(ctx: z3.Context, program: syntaxTree.Program)
         case syntaxTree.SetLiteral(_) => throw new Exception("SetLiteral to Z3-Expr not supported")
         case syntaxTree.Identifier(name) => ctx.mkConst(name, convertType(values.find(v => v.name == name).get.typeId).get)
         case syntaxTree.MemberAccess(exp, field) => convertMemberAccess(exp, field, values).get
+        case syntaxTree.TypeCheck(_, _) => throw new Exception("TypeCheck to Z3-Expr not supported")
         case syntaxTree.SetComprehension(_, _, _) => throw new Exception("SetComprehension to Z3-Expr not supported")
         case syntaxTree.Operation(operator, operands) => operator match
         {

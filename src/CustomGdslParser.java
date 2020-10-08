@@ -191,10 +191,14 @@ public class CustomGdslParser {
             return new Operation(new MethodCall(ctx.IDENTIFIER().getText(), ctx.expression().size()), ParsingHelper.scalaList(expressions));
         }
 
+        @Override
+        public Expression visitTypeCheckExp(GdslParser.TypeCheckExpContext ctx) {
+            return new TypeCheck(this.visit(ctx.expression()), ParsingHelper.typeObject(ctx.typeName.getText()));
+        }
+
         // expression ('.' IDENTIFIER)+ #dotExp
         @Override
         public Expression visitDotExp(GdslParser.DotExpContext ctx) {
-
             return new MemberAccess(this.visit(ctx.expression()),ctx.IDENTIFIER().getText());
         }
 
@@ -215,8 +219,7 @@ public class CustomGdslParser {
 
         @Override
         public Expression visitNegativeExp(GdslParser.NegativeExpContext ctx) {
-            ExpressionVisitor expressionVisitor = new ExpressionVisitor();
-            return new Operation(ParsingHelper.operatorObject("Neg", 1), ParsingHelper.scalaList(expressionVisitor.visit(ctx.expression())));
+            return new Operation(ParsingHelper.operatorObject("Neg", 1), ParsingHelper.scalaList(this.visit(ctx.expression())));
         }
 
         @Override

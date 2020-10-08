@@ -14,7 +14,7 @@ Example of how to define and assign a value to a variable using the `:=` symbol:
 <varName>: <varType> := <value>
 ```
 
-# Build-in Types
+# Types
 ## Booleans
 A boolean value is specified using the `bool` keyword and can take one of the two values `true` or `false`.
 
@@ -31,7 +31,46 @@ Specified with the `real` keyword.
 
 Example: `r: real := 12.32`
 
-# User Defined Types
+## Sets
+Sets are unsorted collections of values of other types.
+The `set` keyword is used to specify the set type.
+Each element in a set is unique, that is, it cannot contain identical values.
+Sets in GDSL cannot contain other sets, so specifying the set `{1, {2}}` will be flattened to `{1, 2}`.
+
+There are 3 different ways of constructing sets in GDSL.
+
+##### Set construction using Set Literals
+Set literals are a comma separated list of value contained withing `{ }`. 
+
+Example: `A: set := {2, 4, 6}`
+
+##### Set construction using Select expressions
+Select expressions are used to construct a new set from already an existing set.
+Given a set of values, it will collect all the elements of the set complying with a condition.
+
+The general form of select expressions look like this: `select( <element> in <set> , <condition> )`.
+
+Example:
+```
+nums: set := {1, 2, 3, 4, 5}
+largeNums: set := select(n in nums, n > 2)
+largeNums == {3, 4, 5}
+```
+
+##### Set construction using Set Comprehensions
+Set Comprehensions do the same as select statements, but with the addition of being able to do use the selected element to construct the new set.
+The syntax of a set comprehension looks like this: `{ <element> in <set> | <condition> | <manipulation> }`.
+- The `element` is a local variable used as a placeholder for the elements of in the `set`.
+- The `condition` is an expression which should result in a `true` or `false` value, indicating whether the element should be used to construct the new set.
+- The `manipulation` is an expression with uses the `element` variable to construct elements for the new set.
+
+Example:
+```
+x: set := {n in {1, 2, 3, 4} | 1 < n | n * n}
+x == {4, 9, 16}
+```
+
+## User Defined Types
 User defined consists of one or more name, public fields of previously defined types.
 Recursively defined types are not possible.
 They must be defined in the program definition and cannot be defined inside methods or other code blocks.
@@ -45,32 +84,23 @@ type Point(x: int, y: int)
 Invariants can be defined for types using the `inv` keyword.
 If an object of a given type is constructed with values which does not adhere to the invariant, is an empty set returned instead.
 
-An example of an invariant for circles, specifing that its radius must be larger than zero, can be seen here:
+An example of an invariant for circles, specifying that its radius must be larger than zero, can be seen here:
 ```
 type Circle(x: int, y: int, r: int)
 inv r < 0
 ```
 
-## Set 
-#### Set construction
-There are 3 different ways of constructing sets in GDSL.
-##### set  construction using Literal
-Set Literal is the easiest way to construct a set it's simply a comma separated lists of of values to be included in the new set all contained within `{ }`.
-Note if a Set is included as one of the values its constituent members become members of the new set this is due to set nesting not being possible in GDSL.
-`{12,10,2,{15,2,15} }`
-##### set  construction using Comprehension
-Is ways to construct from a existing set, Set Comprehension is able to can both Select
- The members of Original set that is required to be copied and to manipulate the to selected elements. Set comprehension consists of three parts 
-`{ <elements part> | <Testing part>| <Manipulation part> }`
-The **elements part** Is of the form `b in B ` Where B Is the name of asset available and current scope And b visa local name to be used in this statement and nested statements
-The **test part**  contains an expression that will be evaluated For each element in the set and if true the element will be included in the new set after being modified. the test part is optional And if left out all elements of the original set will be copied. 
-The **Manipulation part** contains expression that may manipulate the local Variable from the entity part.
+## Type Checking
+It is possible to check the type of variables at runtime using the `is` operator.
+For example will `4 is int` return `true` while `5.4 is bool` will return `false`.
+Type checking also works for user defined types.
 
-`{ a in A | a > 15| a - 15 }`
-
-##### Set construction using select
-Functions is the same way as the said quantification described below Keyword selectWhich returns a set,
-  all elements for which the  test part is true are included in a this set. |
+Type checking can be used to select all the elements of a particular type from a set:
+```
+nums: set := {1, 2.2, 6, 7.4}
+reals: set := select(n in nums, n is real)
+reals == {2.2, 7.4}
+```
 
 #Functions
 ##set functions

@@ -97,6 +97,13 @@ public interface GdslVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSetElementDefinition(GdslParser.SetElementDefinitionContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code typeCheckExp}
+	 * labeled alternative in {@link GdslParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTypeCheckExp(GdslParser.TypeCheckExpContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code dotExp}
 	 * labeled alternative in {@link GdslParser#expression}.
 	 * @param ctx the parse tree
