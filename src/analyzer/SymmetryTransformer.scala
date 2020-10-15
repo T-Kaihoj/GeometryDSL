@@ -41,19 +41,22 @@ object SymmetryTransformer extends ProgramDefinitionTransformer
 
             val sort: z3.Sort = converter.sorts.find(s => s.getName.toString == typeName).get
 
-            val ab = methodExp
-                .substitute(ctx.mkConst(left.name, sort), ctx.mkConst("a", sort))
-                .substitute(ctx.mkConst(left.name, sort), ctx.mkConst("b", sort)).asInstanceOf[z3.BoolExpr]
-            val ba = methodExp
-                .substitute(ctx.mkConst(left.name, sort), ctx.mkConst("b", sort))
-                .substitute(ctx.mkConst(left.name, sort), ctx.mkConst("a", sort)).asInstanceOf[z3.BoolExpr]
+            val leftSub = ctx.mkSymbol("left")
+            val rightSub = ctx.mkSymbol("right")
+
+            val methodExpLeftRight = methodExp
+                .substitute(ctx.mkConst(left.name, sort), ctx.mkConst(leftSub, sort))
+                .substitute(ctx.mkConst(right.name, sort), ctx.mkConst(rightSub, sort)).asInstanceOf[z3.BoolExpr]
+            val methodExpRightLeft = methodExp
+                .substitute(ctx.mkConst(left.name, sort), ctx.mkConst(rightSub, sort))
+                .substitute(ctx.mkConst(right.name, sort), ctx.mkConst(leftSub, sort)).asInstanceOf[z3.BoolExpr]
 
             val check: z3.BoolExpr = ctx.mkForall(
                 Array(sort, sort),
-                Array(ctx.mkSymbol("a"), ctx.mkSymbol("b")),
+                Array(leftSub, rightSub),
                 ctx.mkAnd(
-                    ctx.mkImplies(ab, ba),
-                    ctx.mkImplies(ba, ab)),
+                    ctx.mkImplies(methodExpLeftRight, methodExpRightLeft),
+                    ctx.mkImplies(methodExpRightLeft, methodExpLeftRight)),
                 1,
                 null, null, null, null)
 

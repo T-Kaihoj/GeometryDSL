@@ -2,9 +2,7 @@ type Circle(x: int, y: int, r: int)
 
 bool intersects(a: Circle, b: Circle)
 (
-    return !(((a.x - b.x) * (a.x - b.x)) +
-            ((a.y - b.y) * (a.y - b.y)) >
-            ((a.r + a.r) * (b.r + b.r)))
+    return (a.x - b.x)^2 + (a.y - b.y)^2 <= (a.r + b.r)^2
 )
 
 bool main()
