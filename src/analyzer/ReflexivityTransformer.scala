@@ -2,28 +2,12 @@ package analyzer
 
 import syntaxTree._
 import com.microsoft.z3
-import logger.{Logger, Severity}
 
-object ReflexivityTransformer extends ProgramDefinitionTransformer
+object ReflexivityTransformer extends RelationPropertyAnalyzer
 {
-    override def transform(programDefinition: ProgramDefinition, context: ProgramContext): ProgramDefinition = programDefinition match
-    {
-        case methodDef: MethodDefinition =>
-            checkReflexivity(methodDef, context) match
-            {
-                case Some(true) =>
-                    methodDef.tags = "prop:reflexive" :: methodDef.tags
-                    Logger.log(Severity.Info, s"Method '${methodDef.name}' is reflexive", methodDef.lineNumber)
-                case Some(false) =>
-                    Logger.log(Severity.Info, s"Method '${methodDef.name}' is NOT reflexive", methodDef.lineNumber)
-                case None =>
-                    Logger.log(Severity.Info, s"Was not able determine whether '${methodDef.name}' is reflexive", methodDef.lineNumber)
-            }
-            methodDef
-        case _ => programDefinition
-    }
+    def relation: String = "reflexive"
 
-    def checkReflexivity(methodDef: MethodDefinition, context: ProgramContext): Option[Boolean] = methodDef match
+    def checkRelation(methodDef: MethodDefinition, context: ProgramContext): Option[Boolean] = methodDef match
     {
         case MethodDefinition(_, BoolType, List(leftOp, rightOp), Return(retExp) :: Nil) if leftOp.typeId == rightOp.typeId =>
             val ctx = new z3.Context()
