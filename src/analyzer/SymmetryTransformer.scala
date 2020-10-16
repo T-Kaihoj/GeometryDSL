@@ -13,25 +13,36 @@ object SymmetryTransformer extends ProgramDefinitionTransformer
 
     def transform(methodDef: MethodDefinition, context: ProgramContext): MethodDefinition =
     {
-        if(checkSymmetry(Program(context), methodDef))
+        checkSymmetry(Program(context), methodDef) match
         {
-            logger.Logger.log(logger.Severity.Info, s"Method '${methodDef.name}' is symmetric", methodDef.lineNumber)
-            methodDef.tags=  "prop:symmetric" :: methodDef.tags
-        }
-        else
-        {
-            logger.Logger.log(logger.Severity.Info,s"Method '${methodDef.name}' is NOT symmetric", methodDef.lineNumber)
+            case Some(true) =>
+                logger.Logger.log(logger.Severity.Info, s"Method '${methodDef.name}' is symmetric", methodDef.lineNumber)
+                methodDef.tags=  "prop:symmetric" :: methodDef.tags
+            case Some(false) =>
+                logger.Logger.log(logger.Severity.Info,s"Method '${methodDef.name}' is NOT symmetric", methodDef.lineNumber)
+            case None =>
+                logger.Logger.log(logger.Severity.Info,s"Was not able determine whether '${methodDef.name}' is symmetric", methodDef.lineNumber)
         }
 
         methodDef
     }
 
-    def checkSymmetry(program: Program, methodDef: MethodDefinition): Boolean = methodDef match
+    def checkSymmetry(program: Program, methodDef: MethodDefinition): Option[Boolean] = methodDef match
     {
         case MethodDefinition(_, BoolType, List(left, right), Return(retExp) :: Nil) if left.typeId == right.typeId =>
             val ctx = new z3.Context()
             val converter = new SyntaxTreeToZ3Converter(ctx, program)
-            val methodExp: z3.Expr = converter.convertExpression(retExp, List(left, right))
+
+
+            val methodExp: z3.Expr =
+                try
+                {
+                    converter.convertExpression(retExp, List(left, right))
+                }
+                catch
+                {
+                    case _: Exception => return None
+                }
 
             val typeName = left.typeId match
             {
@@ -60,7 +71,7 @@ object SymmetryTransformer extends ProgramDefinitionTransformer
                 1,
                 null, null, null, null)
 
-            prove(ctx, check)
-        case _ => false
+            Some(prove(ctx, check))
+        case _ => Some(false)
     }
 }

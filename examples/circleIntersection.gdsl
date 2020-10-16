@@ -5,6 +5,11 @@ bool intersects(a: Circle, b: Circle)
     return (a.x - b.x)^2 + (a.y - b.y)^2 <= (a.r + b.r)^2
 )
 
+bool rel(a: Int, b: Int)
+(
+    return a + b > 4
+)
+
 bool main()
 (
     C: Circle := Circle(4, 2, 1)

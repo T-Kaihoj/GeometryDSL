@@ -9,25 +9,34 @@ object ReflexivityTransformer extends ProgramDefinitionTransformer
     override def transform(programDefinition: ProgramDefinition, context: ProgramContext): ProgramDefinition = programDefinition match
     {
         case methodDef: MethodDefinition =>
-            if (checkReflexivity(methodDef, context))
+            checkReflexivity(methodDef, context) match
             {
-                methodDef.tags = "prop:reflexive" :: methodDef.tags
-                Logger.log(Severity.Info, s"Method '${methodDef.name}' is reflexive", methodDef.lineNumber)
-            }
-            else
-            {
-                Logger.log(Severity.Info, s"Method '${methodDef.name}' is NOT reflexive", methodDef.lineNumber)
+                case Some(true) =>
+                    methodDef.tags = "prop:reflexive" :: methodDef.tags
+                    Logger.log(Severity.Info, s"Method '${methodDef.name}' is reflexive", methodDef.lineNumber)
+                case Some(false) =>
+                    Logger.log(Severity.Info, s"Method '${methodDef.name}' is NOT reflexive", methodDef.lineNumber)
+                case None =>
+                    Logger.log(Severity.Info, s"Was not able determine whether '${methodDef.name}' is reflexive", methodDef.lineNumber)
             }
             methodDef
         case _ => programDefinition
     }
 
-    def checkReflexivity(methodDef: MethodDefinition, context: ProgramContext): Boolean = methodDef match
+    def checkReflexivity(methodDef: MethodDefinition, context: ProgramContext): Option[Boolean] = methodDef match
     {
         case MethodDefinition(_, BoolType, List(leftOp, rightOp), Return(retExp) :: Nil) if leftOp.typeId == rightOp.typeId =>
             val ctx = new z3.Context()
             val converter = new SyntaxTreeToZ3Converter(ctx, Program(context))
-            val methodExp: z3.Expr = converter.convertExpression(retExp, List(leftOp, rightOp))
+            val methodExp: z3.Expr =
+                try
+                {
+                    converter.convertExpression(retExp, List(leftOp, rightOp))
+                }
+                catch
+                {
+                    case e: Exception => return None
+                }
 
             val typeName = leftOp.typeId match
             {
@@ -45,7 +54,7 @@ object ReflexivityTransformer extends ProgramDefinitionTransformer
                 1,
                 null, null, null, null)
 
-            prove(ctx, check)
-        case _ => false
+            Some(prove(ctx, check))
+        case _ => Some(false)
     }
 }
