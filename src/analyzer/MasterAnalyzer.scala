@@ -6,7 +6,8 @@ object MasterAnalyzer extends ProgramTransformer
 {
     var programAnalyzers: List[ProgramTransformer] = List(
         ReflexivityTransformer,
-        SymmetryTransformer
+        SymmetryTransformer,
+        TransitivityTransformer
     )
 
     override def transform(program: Program): Program =

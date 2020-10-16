@@ -45,6 +45,7 @@ public class Main {
             } catch (Exception err) {
                 System.out.println("Optimization of '" + options.programFileName + "' resulted in an exception.");
                 System.out.println("No optimization has therefore been applied.");
+
             }
         }
 
