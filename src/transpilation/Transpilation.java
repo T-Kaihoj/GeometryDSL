@@ -111,7 +111,6 @@ public class Transpilation {
         });
     }
 
-
     public String convertExpression(Expression exp) {
         switch (ClassNames.valueOf(exp.getClass().getSimpleName())) {
             case BoolLiteral:
@@ -126,6 +125,8 @@ public class Transpilation {
                 return convertExpressionIdentifier((Identifier) exp);
             case MemberAccess:
                 return convertExpressionMemberAccess((MemberAccess) exp);
+            case TypeCheck:
+                return convertExpressionTypeCheck((TypeCheck) exp);
             case SetComprehension:
                 return convertExpressionSetComprehension((SetComprehension) exp,"\t");
             case Operation:
@@ -281,6 +282,10 @@ public class Transpilation {
         return  transpilationScala.expressionisSetScala(exp.exp(),  block)? "get("+convertExpression(exp.exp())+",\""+exp.field()+"\")" : convertExpression(exp.exp())+"."+exp.field() ;
     }
 
+    private String convertExpressionTypeCheck(TypeCheck typeCheck) {
+        return "type(" + convertExpression(typeCheck.exp()) + ") is " + transpilationScala.typeToString(typeCheck.typeId());
+    }
+
     private String convertExpressionIdentifier(Identifier exp) {
         return exp.name();
     }
@@ -322,6 +327,7 @@ public class Transpilation {
         SetLiteral(SetLiteral.class,SetLiteral.class.getSimpleName()),
         Identifier(Identifier.class,Identifier.class.getSimpleName()),
         MemberAccess(MemberAccess.class,MemberAccess.class.getSimpleName()),
+        TypeCheck(TypeCheck.class, TypeCheck.class.getSimpleName()),
         SetComprehension(SetComprehension.class,SetComprehension.class.getSimpleName()),
         Operation(Operation.class,Operation.class.getSimpleName()),
         Return(Return.class,Return.class.getSimpleName()),

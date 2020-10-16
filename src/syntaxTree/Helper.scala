@@ -25,15 +25,17 @@ object Helper
         if(exp == targetExp) true
         else exp match
         {
-            case SetLiteral(l) => l.exists(x => containsExpression(x, targetExp))
-    //        case Operation(Forall(ElementDefinition(_, elem)), ops) => containsExpression(elem, targetExp) || ops.exists(x => containsExpression(x, targetExp))
-    //        case Operation(Exists(ElementDefinition(_, elem)), ops) => containsExpression(elem, targetExp) || ops.exists(x => containsExpression(x, targetExp))
-    //        case Operation(_, ops) => ops.exists(x => containsExpression(x, targetExp))
+            case SetLiteral(list) => list.exists(x => containsExpression(x, targetExp))
             case MemberAccess(exp, _) => containsExpression(exp, targetExp)
+            case TypeCheck(exp, _) => containsExpression(exp, targetExp)
             case SetComprehension(ElementDefinition(_, element), check, app) =>
                 containsExpression(element, targetExp) ||
                 containsExpression(check, targetExp) ||
                 containsExpression(app, targetExp)
+            case Operation(Forall(ElementDefinition(_, exp)), operands) => containsExpression(exp, targetExp) || operands.exists(e => containsExpression(e, targetExp))
+            case Operation(Exists(ElementDefinition(_, exp)), operands) => containsExpression(exp, targetExp) || operands.exists(e => containsExpression(e, targetExp))
+            case Operation(Choose(ElementDefinition(_, exp)), operands) => containsExpression(exp, targetExp) || operands.exists(e => containsExpression(e, targetExp))
+            case Operation(_, operands) => operands.exists(e => containsExpression(e, targetExp))
             case _ => false
         }
     }
@@ -59,6 +61,7 @@ object Helper
             case SetLiteral(l) => SetLiteral(l.map(s => replaceExpression(s, oldExp, newExp)))
             case Operation(operator, operands) => Operation(operator, operands.map(x => replaceExpression(x, oldExp, newExp)))
             case MemberAccess(exp, field) => MemberAccess(replaceExpression(exp, oldExp, newExp), field)
+            case TypeCheck(exp, typeId) => TypeCheck(replaceExpression(exp, oldExp, newExp), typeId)
             case SetComprehension(ElementDefinition(name, exp), check, app) => SetComprehension(
                 ElementDefinition(name, replaceExpression(exp, oldExp, newExp)),
                 replaceExpression(check, oldExp, newExp),

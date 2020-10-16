@@ -37,6 +37,7 @@ setElementDefinition: localName=IDENTIFIER IN globalName=expression ;
 
 expression: '(' expression ')' #parenthesisExp
           | '|' expression '|' #absoluteExp
+          | expression IS typeName=IDENTIFIER #typeCheckExp
           | expression '.' IDENTIFIER #dotExp
           | NOT expression #notExp
           | setL=expression operator=(UNION | DIFFERENCE | INTERSECTION | PROPERSUBSET | SUBSET) setR=expression #setOperatorExp
@@ -102,6 +103,7 @@ INTERSECTION: 'inter' |'INTERSECTION' ;
 PROPERSUBSET: 'propersubset';
 SUBSET : 'subset';
 IN: 'in' ;
+IS: 'is' ;
 
 NOVALUE: '(/)' ;
 BOOL: 'true'

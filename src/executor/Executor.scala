@@ -110,6 +110,7 @@ class Executor
         case SetLiteral(exps) => executeSetLiteral(exps, stack)
         case Identifier(name) => executeIdentifier(name, stack)
         case MemberAccess(exp, field) => executeMemberAccess(exp, field, stack).get
+        case TypeCheck(exp, typeId) => executeTypeCheck(exp, typeId, stack).get
         case SetComprehension(elem, cond, app) => executeSetComprehension(elem, cond, app, stack)
         case Operation(operator, operands) => executeOperation(operator, operands, stack)
     }
@@ -119,7 +120,7 @@ class Executor
      */
     def executeSetLiteral(exps: List[Expression], stack: VarStack): SetValue =
     {
-        exps.foldLeft(SetValue())((a, b) => a.union(executeExpression(b, stack)))
+        SetValue(exps.toSet.map(executeExpression(_, stack)))
     }
 
     def executeIdentifier(name: String, stack: VarStack): Value =
@@ -157,34 +158,40 @@ class Executor
     def executeMemberAccess(exp: Expression, fieldName: String, stack: VarStack): Option[Value] = executeExpression(exp, stack) match
     {
         case objVal: ObjectValue => getFieldValue(objVal, fieldName)
-        case SetValue(set) =>
-            Some(SetValue(set.foldLeft(valueToSet())((s, elemVal) =>
+        case set: SetValue =>
+            Some(set.map(getFieldValue(_, fieldName) match
             {
-                getFieldValue(elemVal, fieldName) match
-                {
-                    case Some(fieldVal) => s.union(valueToSet(fieldVal))
-                    case None => s
-                }
-            })))
+                case Some(fieldVal) => fieldVal
+                case None => NoValue
+            }))
         case value => logger.Logger.log(logger.Severity.Error, s"'$value' is not an object", 0); None
     }
 
-    def executeSetComprehension(elem: ElementDefinition, cond: Expression, app: Expression, stack: VarStack): SetValue =
+    /**
+     * Executes type check of the resulting value of the expression.
+     */
+    def executeTypeCheck(exp: Expression, typeId: Type, stack: VarStack): Option[Value] =
     {
-        val setValues: Set[Value] = executeExpression(elem.exp, stack) match
+        Some(BoolValue(compareType(typeId, executeExpression(exp, stack))))
+    }
+
+    def executeSetComprehension(elementDef: ElementDefinition, cond: Expression, app: Expression, stack: VarStack): SetValue =
+    {
+        // Execute expression in element definition
+        val valueSet = executeExpression(elementDef.exp, stack) match
         {
-            case SetValue(elements) => elements
+            case setValue: SetValue => setValue
             case _ => throw new Exception("Element is not in a set")
         }
 
-        SetValue(setValues.foldLeft(valueToSet())((s, elemVal) => s.union(
-            executeExpression(cond, Variable(elem.name, elemVal) :: stack) match
-            {
-                case BoolValue(true) => valueToSet(executeExpression(app, Variable(elem.name, elemVal) :: stack))
-                case BoolValue(false) => valueToSet()
-                case _ => throw new Exception("Condition of set comprehension does not result in a boolean value")
-            }
-        )))
+        // Filter the set of values
+        val filteredSet: SetValue = valueSet.collect(element => executeExpression(cond, Variable(elementDef.name, element) :: stack) match {
+            case BoolValue(value) => value
+            case _ => throw new Exception("Condition of set comprehension does not result in a boolean value")
+        })
+
+        // Apply application
+        filteredSet.map(element => executeExpression(app, Variable(elementDef.name, element) :: stack))
     }
 
     def executeOperation(operator: Operator, operands: List[Expression], stack: VarStack): Value = operator match
@@ -280,14 +287,10 @@ class Executor
             {
                 case (SetType, SetValue(_)) =>
                     callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, argValue) :: newStack)
-                case (_, SetValue(s)) =>
-                    SetValue(s.foldLeft(valueToSet())((s, e) => s.union(
-                        callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, e) :: newStack) match
-                        {
-                            case SetValue(x) => x
-                            case x => valueToSet(x)
-                        }
-                    )))
+                case (_, set: SetValue) => set.map(elem =>
+                {
+                    callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, elem) :: newStack)
+                })
                 case (paramType, argValue) if compareType(paramType, argValue) =>
                     callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, argValue) :: newStack)
                 case _ => throw new Exception(s"'$argValue' is not of type '$paramType'")
@@ -313,14 +316,10 @@ class Executor
             (fieldType, argValue) match
             {
                 case (SetType, SetValue(s)) => callConstructor(name, fieldsTail, invariant, argsTail, stack, Variable(fieldName, SetValue(s)) :: objFields)
-                case (_, SetValue(s)) =>
-                    SetValue(s.foldLeft(valueToSet())((s, e) => s.union(
-                        callConstructor(name, fieldsTail, invariant, argsTail, stack, Variable(fieldName, e) :: objFields) match
-                        {
-                            case SetValue(x) => x
-                            case x => valueToSet(x)
-                        }
-                    )))
+                case (_, set: SetValue) => set.map(elem =>
+                {
+                    callConstructor(name, fieldsTail, invariant, argsTail, stack, Variable(fieldName, elem) :: objFields)
+                })
                 case (ft, av) if compareType(ft, av) => callConstructor(name, fieldsTail, invariant, argsTail, stack, Variable(fieldName, av) :: objFields)
                 case _ => throw new Exception(s"'$argValue' is not of type '$fieldType'")
             }

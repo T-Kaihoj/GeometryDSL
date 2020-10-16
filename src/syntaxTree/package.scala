@@ -50,6 +50,7 @@ package syntaxTree
     case class SetLiteral(values: List[Expression]) extends Expression
     case class Identifier(name: String) extends Expression
     case class MemberAccess(exp: Expression, field: String) extends Expression
+    case class TypeCheck(exp: Expression, typeId: Type) extends Expression
     case class SetComprehension(element: ElementDefinition, condition: Expression, application: Expression) extends Expression
     case class Operation(operator: Operator, operands: List[Expression]) extends Expression
 

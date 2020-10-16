@@ -11,7 +11,7 @@ class SyntaxTreeToZ3Converter(ctx: z3.Context, program: syntaxTree.Program)
 
     val sorts: List[z3.DatatypeSort] = typeDefinitions.map(
     {
-        case syntaxTree.TypeDefinition(name, fields) =>
+        case syntaxTree.TypeDefinition(name, fields, _) =>
             val constructor = ctx.mkConstructor(
                 name,
                 "mk" + name,
@@ -43,6 +43,7 @@ class SyntaxTreeToZ3Converter(ctx: z3.Context, program: syntaxTree.Program)
         case syntaxTree.SetLiteral(_) => throw new Exception("SetLiteral to Z3-Expr not supported")
         case syntaxTree.Identifier(name) => ctx.mkConst(name, convertType(values.find(v => v.name == name).get.typeId).get)
         case syntaxTree.MemberAccess(exp, field) => convertMemberAccess(exp, field, values).get
+        case syntaxTree.TypeCheck(_, _) => throw new Exception("TypeCheck to Z3-Expr not supported")
         case syntaxTree.SetComprehension(_, _, _) => throw new Exception("SetComprehension to Z3-Expr not supported")
         case syntaxTree.Operation(operator, operands) => operator match
         {
@@ -128,7 +129,7 @@ class SyntaxTreeToZ3Converter(ctx: z3.Context, program: syntaxTree.Program)
             val objectSort: z3.DatatypeSort = sorts.find(s => s.getName.toString == typeDef.name).getOrElse(return None)
             val fieldIndex: Int = typeDef match
             {
-                case syntaxTree.TypeDefinition(_, fields) => fields.indexWhere(p => p.name == fieldName)
+                case syntaxTree.TypeDefinition(_, fields, _) => fields.indexWhere(p => p.name == fieldName)
             }
             val accessor: z3.FuncDecl = objectSort.getAccessors()(0)(fieldIndex)
             val targetObject: z3.Expr = ctx.mkConst(objectName, objectSort)
