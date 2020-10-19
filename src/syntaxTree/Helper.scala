@@ -70,18 +70,6 @@ object Helper
         }
     }
 
-    // TODO: Remove
-    @tailrec
-    def getTypeOf(name: String, block: Block): Option[Type] = block match
-    {
-        case head :: tail => head match
-        {
-            case ValueDefinition(ValueDeclaration(n, typeId), _) if n == name => Some(typeId)
-            case _ => getTypeOf(name, tail)
-        }
-        case Nil => None
-    }
-
     def getMethodDefinition(methodName: String, operands: List[Expression], context: ProgramContext): Option[MethodDefinition] = context match
     {
         case head :: tail => head match

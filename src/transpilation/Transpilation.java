@@ -278,8 +278,7 @@ public class Transpilation {
     }
 
     private String convertExpressionMemberAccess(MemberAccess exp) {
-
-        return  transpilationScala.expressionisSetScala(exp.exp(),  block)? "get("+convertExpression(exp.exp())+",\""+exp.field()+"\")" : convertExpression(exp.exp())+"."+exp.field() ;
+        return transpilationScala.expressionisSetScala(exp.exp(), block)? "get(" + convertExpression(exp.exp()) + ",\"" + exp.fieldName() + "\")" : convertExpression(exp.exp()) + "." + exp.fieldName() ;
     }
 
     private String convertExpressionTypeCheck(TypeCheck typeCheck) {

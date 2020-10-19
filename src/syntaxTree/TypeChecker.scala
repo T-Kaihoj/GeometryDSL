@@ -204,7 +204,7 @@ object TypeChecker
         }
     }
 
-    def getTypeOfMemberExpression(exp: Expression, fieldName: String, context: ProgramContext): Option[Type] =
+    private def getTypeOfMemberExpression(exp: Expression, fieldName: String, context: ProgramContext): Option[Type] =
     {
         val innerExpType: ObjectType = getTypeOf(exp, context) match
         {
@@ -212,7 +212,6 @@ object TypeChecker
             case _ => return None
         }
 
-        // Find TypeDefinition
         val typeDef: TypeDefinition = context.collectFirst
         {
             case typeDef: TypeDefinition if typeDef.name == innerExpType.typeName => typeDef
@@ -221,7 +220,7 @@ object TypeChecker
         Some(typeDef.fields.find(f => f.name == fieldName).get.typeId)
     }
 
-    def binaryOperationResultingType(leftExp: Expression, rightExp: Expression, context: ProgramContext): Option[Type] =
+    private def binaryOperationResultingType(leftExp: Expression, rightExp: Expression, context: ProgramContext): Option[Type] =
     {
         (getTypeOf(leftExp, context), getTypeOf(rightExp, context)) match
         {

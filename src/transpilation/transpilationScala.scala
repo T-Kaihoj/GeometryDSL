@@ -34,9 +34,9 @@ object transpilationScala
         case Choose(element) => "Choose"
     }
 
-    def isIdentifierSet(name: String, block:Block): Boolean ={
-
-        syntaxTree.Helper.getTypeOf(name, block ).getOrElse(false) match
+    def isIdentifierSet(name: String, block:Block): Boolean =
+    {
+        syntaxTree.TypeChecker.getTypeOf(Identifier(name), block.collect{case valDef: ValueDefinition => valDef}).getOrElse(false) match
         {
             case syntaxTree.SetType => true
             case _ => false
@@ -45,9 +45,9 @@ object transpilationScala
 
     def isConstructor(methodName:String, program:List[ProgramDefinition]): Boolean = program match
     {
-    case MethodDefinition(name, retType, params, block):: _  if methodName == name => false
-    case TypeDefinition(name, fields, _):: _ if methodName == name => true
-    case _ :: rest  => isConstructor(methodName,rest)
+        case MethodDefinition(name, retType, params, block):: _  if methodName == name => false
+        case TypeDefinition(name, fields, _):: _ if methodName == name => true
+        case _ :: rest  => isConstructor(methodName,rest)
     }
 
     def expressionisSetScala(o: syntaxTree.Expression, block:Block): Boolean = o match
