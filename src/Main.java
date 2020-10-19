@@ -33,7 +33,6 @@ public class Main {
             return;
         }
 
-
         CustomGdslParser parser = new CustomGdslParser();
         Program program = parser.parse(inputStream);
         TypeChecker.check(program);
@@ -69,7 +68,7 @@ public class Main {
         public boolean optimize;
         public boolean execute;
         public boolean transpile;
-        public logger.Severity infoLevel= Severity.Warning;
+        public logger.Severity infoLevel = Severity.Warning;
 
         public ProgramOptions(String[] args) {
             List<String> argList = Arrays.asList(args);

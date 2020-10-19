@@ -70,6 +70,7 @@ object Helper
         }
     }
 
+    // TODO: Remove
     @tailrec
     def getTypeOf(name: String, block: Block): Option[Type] = block match
     {
@@ -81,34 +82,17 @@ object Helper
         case Nil => None
     }
 
-    def getMethodDefinition(methodName: String, program: Program): Option[MethodDefinition] = program.programDefinitions match
+    def getMethodDefinition(methodName: String, operands: List[Expression], context: ProgramContext): Option[MethodDefinition] = context match
     {
         case head :: tail => head match
         {
-            case m: MethodDefinition if m.name == methodName => Some(m)
-            case _ => getMethodDefinition(methodName, Program(tail))
-        }
-        case _ =>  None
-    }
-
-    def getMethodDefinition(methodName: String, context: ProgramContext): Option[MethodDefinition] = context match
-    {
-        case head :: tail => head match
-        {
-            case m: MethodDefinition if m.name == methodName => Some(m)
-            case _ => getMethodDefinition(methodName, tail)
+            case methodDef: MethodDefinition
+                if methodDef.name == methodName &&
+                   operands.map(op => TypeChecker.getTypeOf(op, context).get) == methodDef.params.map(param => param.typeId) =>
+                Some(methodDef)
+            case _ => getMethodDefinition(methodName, operands, tail)
         }
         case Nil => None
-    }
-
-    def getTypeDefinition(typeName: String, program: Program): Option[TypeDefinition] = program.programDefinitions match
-    {
-        case head :: tail => head match
-        {
-            case t: TypeDefinition if t.name == typeName => Some(t)
-            case _ => getTypeDefinition(typeName, Program(tail))
-        }
-        case _ => None
     }
 
     def getTypeDefinition(typeName: String, context: ProgramContext): Option[TypeDefinition] = context match

@@ -19,7 +19,7 @@ object TypeChecker
     def check(typeDefinition: TypeDefinition): Unit = typeDefinition match
     {
         case TypeDefinition(typeName, _, invariant) =>
-            resultsInValueOfType(invariant) match
+            getTypeOf(invariant, Nil) match
             {
                 case None =>
                     Logger.log(
@@ -40,7 +40,7 @@ object TypeChecker
         case MethodDefinition(name, retType, _, block) => block.last match
         {
             case Return(exp) =>
-                val expResType = resultsInValueOfType(exp).getOrElse(return)
+                val expResType = getTypeOf(exp, Nil).getOrElse(return)
                 if(expResType != retType)
                 {
                     Logger.log(Severity.Error, s"Method '$name' does not return a value of type '${typeToString(retType)}' but instead returns '${typeToString(expResType)}'", methodDefinition.lineNumber)
@@ -52,7 +52,7 @@ object TypeChecker
     def check(valueDefinition: ValueDefinition): Unit = valueDefinition match
     {
         case ValueDefinition(ValueDeclaration(name, typeId), exp) =>
-            val expResType = resultsInValueOfType(exp).getOrElse(return)
+            val expResType = getTypeOf(exp, Nil).getOrElse(return)
             if(expResType != typeId)
             {
                 Logger.log(Severity.Error, s"Value '$name' is not assigned a value of type '${typeToString(typeId)}' but is instead assigned a value of type '${typeToString(expResType)}'", valueDefinition.lineNumber)
@@ -76,7 +76,7 @@ object TypeChecker
     def check(conditional: Conditional): Unit = conditional match
     {
         case Conditional(condition, _, _) =>
-            resultsInValueOfType(condition) match
+            getTypeOf(condition, Nil) match
             {
                 case None => Logger.log(
                     Severity.Info,
@@ -111,7 +111,7 @@ object TypeChecker
     def check(memberAccess: MemberAccess, lineNumber: Int): Unit = memberAccess match
     {
         case MemberAccess(exp, _) =>
-            resultsInValueOfType(exp) match
+            getTypeOf(exp, Nil) match
             {
                 case None => Logger.log(
                     Severity.Info,
@@ -134,13 +134,13 @@ object TypeChecker
     def check(setComprehension: SetComprehension, lineNumber: Int): Unit = setComprehension match
     {
         case SetComprehension(ElementDefinition(_, exp), condition, _) =>
-            resultsInValueOfType(exp) match
+            getTypeOf(exp, Nil) match
             {
                 case None =>
                 case Some(resType) if resType != SetType =>
             }
 
-            resultsInValueOfType(condition) match
+            getTypeOf(condition, Nil) match
             {
                 case None => Logger.log(
                     Severity.Info,
@@ -156,46 +156,80 @@ object TypeChecker
             }
     }
 
-    def resultsInValueOfType(expression: Expression): Option[Type] = expression match
+    def getTypeOf(exp: Expression, context: ProgramContext): Option[Type] = exp match
     {
         case NoValueLiteral() => None
         case BoolLiteral(_) => Some(BoolType)
-        case IntLiteral(_) => Some(IntType)
+        case IntLiteral(_) =>  Some(IntType)
         case RealLiteral(_) => Some(RealType)
         case SetLiteral(_) => Some(SetType)
-        case Identifier(_) => None
-        case MemberAccess(_, _) => None
+        case Identifier(name) => context.collectFirst{ case ValueDefinition(ValueDeclaration(valueName, typeId), _) if valueName == name => typeId }
+        case MemberAccess(innerExp, fieldName) => getTypeOfMemberExpression(innerExp, fieldName, context)
         case TypeCheck(_, _) => Some(BoolType)
         case SetComprehension(_, _, _) => Some(SetType)
-        case Operation(operator, operands) => (operator, operands) match
+        case Operation(operator, operands) => operator match
         {
-            case (Negation, List(_)) => None
-            case (Not, List(_)) => Some(BoolType)
-            case (Cardinality, List(_)) => Some(IntType)
-            case (Forall(_), List(_)) => Some(BoolType)
-            case (Exists(_), List(_)) => Some(BoolType)
-            case (Choose(_), List(_)) => None
-            case (Add, List(_, _)) => None
-            case (Sub, List(_, _)) => None
-            case (Mul, List(_, _)) => None
-            case (Div, List(_, _)) => None
-            case (Pow, List(_, _)) => None
-            case (Equal, List(_, _)) => Some(BoolType)
-            case (NotEqual, List(_, _)) => Some(BoolType)
-            case (LessThan, List(_, _)) => Some(BoolType)
-            case (LessThanEqual, List(_, _)) => Some(BoolType)
-            case (GreaterThan, List(_, _)) => Some(BoolType)
-            case (GreaterThanEqual, List(_, _)) => Some(BoolType)
-            case (And, List(_, _)) => Some(BoolType)
-            case (Or, List(_, _)) => Some(BoolType)
-            case (Implies, List(_, _)) => Some(BoolType)
-            case (Union, List(_, _)) => Some(SetType)
-            case (Intersect, List(_, _)) => Some(SetType)
-            case (Difference, List(_, _)) => Some(SetType)
-            case (Subset, List(_, _)) => Some(BoolType)
-            case (PropSubset, List(_, _)) => Some(BoolType)
-            case (InSet, List(_, _)) => Some(BoolType)
-            case (MethodCall(_, _), _) => None
+            case Negation => getTypeOf(operands.head, context) match
+            {
+                case Some(IntType) => Some(IntType)
+                case Some(RealType) => Some(IntType)
+                case _ => None
+            }
+            case Not => Some(BoolType)
+            case Cardinality => Some(IntType)
+            case Forall(_) => Some(BoolType)
+            case Exists(_) => Some(BoolType)
+            case Choose(_) => None
+            case Add => binaryOperationResultingType(operands.head, operands.tail.head, context)
+            case Sub => binaryOperationResultingType(operands.head, operands.tail.head, context)
+            case Mul => binaryOperationResultingType(operands.head, operands.tail.head, context)
+            case Div => binaryOperationResultingType(operands.head, operands.tail.head, context)
+            case Pow => getTypeOf(operands.head, context)
+            case Equal => Some(BoolType)
+            case NotEqual => Some(BoolType)
+            case LessThan => Some(BoolType)
+            case LessThanEqual => Some(BoolType)
+            case GreaterThan => Some(BoolType)
+            case GreaterThanEqual => Some(BoolType)
+            case And => Some(BoolType)
+            case Or => Some(BoolType)
+            case Implies => Some(BoolType)
+            case Union => Some(SetType)
+            case Intersect => Some(SetType)
+            case Difference => Some(SetType)
+            case Subset => Some(BoolType)
+            case PropSubset => Some(BoolType)
+            case InSet => Some(BoolType)
+            case MethodCall(methodName, _) => Some(Helper.getMethodDefinition(methodName, operands, context).getOrElse(return None).retType)
+        }
+    }
+
+    def getTypeOfMemberExpression(exp: Expression, fieldName: String, context: ProgramContext): Option[Type] =
+    {
+        val innerExpType: ObjectType = getTypeOf(exp, context) match
+        {
+            case Some(objType: ObjectType) => objType
+            case _ => return None
+        }
+
+        // Find TypeDefinition
+        val typeDef: TypeDefinition = context.collectFirst
+        {
+            case typeDef: TypeDefinition if typeDef.name == innerExpType.typeName => typeDef
+        }.get
+
+        Some(typeDef.fields.find(f => f.name == fieldName).get.typeId)
+    }
+
+    def binaryOperationResultingType(leftExp: Expression, rightExp: Expression, context: ProgramContext): Option[Type] =
+    {
+        (getTypeOf(leftExp, context), getTypeOf(rightExp, context)) match
+        {
+            case (Some(IntType), Some(IntType)) => Some(IntType)
+            case (Some(RealType), Some(RealType)) => Some(RealType)
+            case (Some(RealType), Some(IntType)) => Some(RealType)
+            case (Some(IntType), Some(RealType)) => Some(RealType)
+            case _ => None
         }
     }
 }
