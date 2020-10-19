@@ -33,9 +33,9 @@ public class Main {
             return;
         }
 
+
         CustomGdslParser parser = new CustomGdslParser();
         Program program = parser.parse(inputStream);
-
         TypeChecker.check(program);
 
         if(options.optimize)
@@ -43,9 +43,8 @@ public class Main {
             try {
                 program = MasterOptimizer.transform(MasterAnalyzer.transform(program));
             } catch (Exception err) {
-                System.out.println("Optimization of '" + options.programFileName + "' resulted in an exception.");
-                System.out.println("No optimization has therefore been applied.");
-
+                Logger.log(Severity.Warning,"Optimization of '" + options.programFileName + "' resulted in an exception.",-1);
+                Logger.log(Severity.Warning,"No optimization has therefore been applied.",-1);
             }
         }
 
@@ -70,11 +69,10 @@ public class Main {
         public boolean optimize;
         public boolean execute;
         public boolean transpile;
-        public logger.Severity infoLevel;
+        public logger.Severity infoLevel= Severity.Warning;
 
         public ProgramOptions(String[] args) {
             List<String> argList = Arrays.asList(args);
-
             argList.forEach(arg -> {
                 if(!arg.startsWith("-"))
                 {
@@ -114,8 +112,6 @@ public class Main {
                     } else if(level.equals("info")) {
                         infoLevel = Severity.Info;
                     }
-                } else {
-                    infoLevel = Severity.Warning;
                 }
             });
         }
