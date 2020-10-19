@@ -3,59 +3,47 @@ package analyzer
 import syntaxTree._
 import com.microsoft.z3
 
-object TransitivityTransformer extends ProgramDefinitionTransformer
+object TransitivityTransformer extends RelationPropertyAnalyzer
 {
-        override def transform(programDefinition: ProgramDefinition, context: ProgramContext): ProgramDefinition = programDefinition match
-        {
-                case m: MethodDefinition => transform(m, context)
-                case _ => programDefinition
-        }
+    def relation: String = "transitive"
 
-        def transform(methodDef: MethodDefinition, context: ProgramContext): MethodDefinition =
-        {
-                if(checkTransitivity(Program(context), methodDef))
+    def checkRelation(methodDef: MethodDefinition, context: ProgramContext): Option[Boolean] = methodDef match
+    {
+        case MethodDefinition(_, BoolType, List(left, right), Return(retExp) :: Nil) if left.typeId == right.typeId =>
+            val ctx = new z3.Context()
+            val converter = new SyntaxTreeToZ3Converter(ctx, Program(context))
+
+            val methodExp: z3.Expr =
+                try
                 {
-                        logger.Logger.log(logger.Severity.Info, s"Method '${methodDef.name}' is Transitivity", methodDef.lineNumber)
-                        methodDef.tags=  "prop:Transitivity" :: methodDef.tags
+                    converter.convertExpression(retExp, List(left, right))
                 }
-                else
+                catch
                 {
-                        logger.Logger.log(logger.Severity.Info,s"Method '${methodDef.name}' is NOT Transitivity", methodDef.lineNumber)
+                    case _: Exception => return None
                 }
 
-                methodDef
-        }
+            val typeName = left.typeId match
+            {
+                case ObjectType(typeName) => typeName
+            }
+            assert(converter.typeDefinitions.exists(td => td.name == typeName))
 
-        def checkTransitivity(program: Program, methodDef: MethodDefinition): Boolean = methodDef match
-        {
+            val sort: z3.Sort = converter.sorts.find(s => s.getName.toString == typeName).get
 
-                case MethodDefinition(_, BoolType, List(left, right), Return(retExp) :: Nil) if left.typeId == right.typeId =>
-                        val ctx = new z3.Context()
-                        val converter = new SyntaxTreeToZ3Converter(ctx, program)
-                        val methodExp: z3.Expr = converter.convertExpression(retExp, List(left, right))
+            val ab = methodExp
+                .substitute(ctx.mkConst(left.name, sort), ctx.mkConst("a", sort))
+                .substitute(ctx.mkConst(right.name, sort), ctx.mkConst("b", sort)).asInstanceOf[z3.BoolExpr]
+            val bc = methodExp
+                .substitute(ctx.mkConst(left.name, sort), ctx.mkConst("b", sort))
+                .substitute(ctx.mkConst(right.name, sort), ctx.mkConst("c", sort)).asInstanceOf[z3.BoolExpr]
+            val ac = methodExp
+                .substitute(ctx.mkConst(left.name, sort), ctx.mkConst("a", sort))
+                .substitute(ctx.mkConst(right.name, sort), ctx.mkConst("c", sort)).asInstanceOf[z3.BoolExpr]
 
-                        val typeName = left.typeId match
-                        {
-                                case ObjectType(typeName) => typeName
-                        }
-                        assert(converter.typeDefinitions.exists(td => td.name == typeName))
+            val check: z3.BoolExpr = ctx.mkImplies(ctx.mkAnd(ab, bc),  ac);
 
-                        val sort: z3.Sort = converter.sorts.find(s => s.getName.toString == typeName).get
-
-                        val ab = methodExp
-                            .substitute(ctx.mkConst(left.name, sort), ctx.mkConst("a", sort))
-                            .substitute(ctx.mkConst(right.name, sort), ctx.mkConst("b", sort)).asInstanceOf[z3.BoolExpr]
-                        val bc = methodExp
-                            .substitute(ctx.mkConst(left.name, sort), ctx.mkConst("b", sort))
-                            .substitute(ctx.mkConst(right.name, sort), ctx.mkConst("c", sort)).asInstanceOf[z3.BoolExpr]
-                        val ac = methodExp
-                            .substitute(ctx.mkConst(left.name, sort), ctx.mkConst("a", sort))
-                            .substitute(ctx.mkConst(right.name, sort), ctx.mkConst("c", sort)).asInstanceOf[z3.BoolExpr]
-
-                        val check: z3.BoolExpr = ctx.mkImplies(ctx.mkAnd(ab, bc),  ac);
-
-
-                        prove(ctx, check)
-                case _ => false
-        }
+            Some(prove(ctx, check))
+        case _ => Some(false)
+    }
 }
