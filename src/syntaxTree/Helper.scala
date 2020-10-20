@@ -70,17 +70,14 @@ object Helper
         }
     }
 
-    def getMethodDefinition(methodName: String, operands: List[Expression], context: ProgramContext): Option[MethodDefinition] = context match
+    def getMethodDefinition(methodName: String, operands: List[Expression], context: ProgramContext): Option[MethodDefinition] =
     {
-        case head :: tail => head match
+        context.collectFirst
         {
             case methodDef: MethodDefinition
                 if methodDef.name == methodName &&
-                   operands.map(op => TypeChecker.getTypeOf(op, context).get) == methodDef.params.map(param => param.typeId) =>
-                Some(methodDef)
-            case _ => getMethodDefinition(methodName, operands, tail)
+                    operands.map(op => TypeChecker.getTypeOf(op, context).get) == methodDef.params.map(param => param.typeId) => methodDef
         }
-        case Nil => None
     }
 
     def getTypeDefinition(typeName: String, context: ProgramContext): Option[TypeDefinition] = context match
