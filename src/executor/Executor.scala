@@ -181,7 +181,7 @@ class Executor
         val valueSet = executeExpression(elementDef.exp, stack) match
         {
             case setValue: SetValue => setValue
-            case _ => throw new Exception("Element is not in a set")
+            case _ => throw new Exception("Element:"+elementDef.exp+ "is not in a set")
         }
 
         // Filter the set of values
@@ -222,7 +222,10 @@ class Executor
         case Subset => OperationExecutor.subset(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
         case PropSubset => OperationExecutor.propSubset(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
         case InSet => OperationExecutor.inSet(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case MethodCall(name, arity) => executeMethodCall(name, arity, operands, stack).get
+        case MethodCall(name, arity) =>  { //println(name+":"+ arity)
+            //logger.Logger.log(logger.Severity.Error, s"Method or Type does not exist '${name}' " , -1 )
+            executeMethodCall(name, arity, operands, stack).get
+        }
     }
 
     def executeForall(element: ElementDefinition, check: Expression, stack: VarStack): BoolValue = executeExpression(element.exp, stack) match

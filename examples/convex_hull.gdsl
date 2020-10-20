@@ -1,0 +1,25 @@
+type Point (x:int,y:int)
+type Line_segment (start:Point,end:Point)
+
+bool main()(
+        A: set := {Point(33, 52), Point(73, 69),Point(31, 80), Point( 8, 79),Point(53, 70), Point(22, 50)}
+        return convexHull(A)
+)
+
+bool identical (a:Point,b:Point)
+(return a.x== b.x && a.y== b.y)
+
+Line_segment Make_seg(start:Point, end:Point)(
+    return Line_segment(start,end)
+)
+
+bool col_left_of(line:Line_segment, p:Point)(
+return ((line.end.x - line.start.x)*(p.y - line.start.y)) - ((line.end.y - line.start.y)*(p.x - line.start.x)) >= 0
+)
+
+set convexHull(A:set)(
+        //L: set := Make_seg(A, A)
+        L: set := Line_segment(A, A)
+        L1 :set := L diff select(l in L,  identical(l.start, l.end))
+        L2 :set := select( l in L1 , all( a in A, col_left_of(l, a )))
+        return L2)
