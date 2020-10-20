@@ -76,17 +76,20 @@ object Helper
         {
             case methodDef: MethodDefinition
                 if methodDef.name == methodName &&
-                    operands.map(op => TypeChecker.getTypeOf(op, context).get) == methodDef.params.map(param => param.typeId) => methodDef
+                    operands.map(op => TypeChecker.getTypeOf(op, context).getOrElse(
+                        {
+                            logger.Logger.log(logger.Severity.Warning, s"Could not determine method definition of method: '${methodName}'", -1)
+                            return None
+                        }
+                    )) == methodDef.params.map(param => param.typeId) => methodDef
         }
     }
 
-    def getTypeDefinition(typeName: String, context: ProgramContext): Option[TypeDefinition] = context match
+    def getTypeDefinition(typeName: String, context: ProgramContext): Option[TypeDefinition] =
     {
-        case head :: tail => head match
+        context.collectFirst
         {
-            case t: TypeDefinition if t.name == typeName => Some(t)
-            case _ => getTypeDefinition(typeName, tail)
+            case typeDef: TypeDefinition if typeDef.name == typeName => typeDef
         }
-        case _ => None
     }
 }

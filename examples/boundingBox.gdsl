@@ -11,7 +11,7 @@ bool larger(r1: Rectangle, r2: Rectangle)
 
 set largest(R: set)
 (
-    return select(r in R,  all(t in R, larger(r, t)))
+    return select(r in R, all(t in R, larger(r, t)))
 )
 
 set main()

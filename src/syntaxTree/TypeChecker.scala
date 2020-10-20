@@ -164,7 +164,7 @@ object TypeChecker
         case RealLiteral(_) => Some(RealType)
         case SetLiteral(_) => Some(SetType)
         case Identifier(name) => context.collectFirst{ case ValueDefinition(ValueDeclaration(valueName, typeId), _) if valueName == name => typeId }
-        case MemberAccess(innerExp, fieldName) => getTypeOfMemberExpression(innerExp, fieldName, context)
+        case MemberAccess(innerExp, fieldName) => getTypeOfMemberAccess(innerExp, fieldName, context)
         case TypeCheck(_, _) => Some(BoolType)
         case SetComprehension(_, _, _) => Some(SetType)
         case Operation(operator, operands) => operator match
@@ -204,12 +204,12 @@ object TypeChecker
         }
     }
 
-    private def getTypeOfMemberExpression(exp: Expression, fieldName: String, context: ProgramContext): Option[Type] =
+    def getTypeOfMemberAccess(exp: Expression, fieldName: String, context: ProgramContext): Option[Type] =
     {
         val innerExpType: ObjectType = getTypeOf(exp, context) match
         {
             case Some(objType: ObjectType) => objType
-            case _ => return None
+            case x => return None
         }
 
         val typeDef: TypeDefinition = context.collectFirst

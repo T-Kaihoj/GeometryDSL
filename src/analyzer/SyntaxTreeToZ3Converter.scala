@@ -1,7 +1,7 @@
 package analyzer
 
 import com.microsoft.z3
-import syntaxTree.{Expression, Identifier, MemberAccess, ObjectType, TypeDefinition, ValueDeclaration}
+import syntaxTree.{Expression, Identifier, MemberAccess, ObjectType, TypeDefinition, ValueDeclaration, ValueDefinition}
 
 class SyntaxTreeToZ3Converter(ctx: z3.Context, program: syntaxTree.Program)
 {
@@ -39,12 +39,7 @@ class SyntaxTreeToZ3Converter(ctx: z3.Context, program: syntaxTree.Program)
         case syntaxTree.RealLiteral(r) => ctx.mkReal(r.toString)
         case syntaxTree.SetLiteral(_) => throw new Exception("SetLiteral to Z3-Expr not supported")
         case syntaxTree.Identifier(name) => ctx.mkConst(name, convertType(sorts, values.find(v => v.name == name).get.typeId).get)
-        case syntaxTree.MemberAccess(innerExp, field) => {
-            //println(exp)
-            //println(innerExp)
-            val memAcc = convertMemberAccess(innerExp, field, values).get
-            println(memAcc)
-            memAcc}
+        case syntaxTree.MemberAccess(innerExp, field) => convertMemberAccess(innerExp, field, values).get
         case syntaxTree.TypeCheck(_, _) => throw new Exception("TypeCheck to Z3-Expr not supported")
         case syntaxTree.SetComprehension(_, _, _) => throw new Exception("SetComprehension to Z3-Expr not supported")
         case syntaxTree.Operation(operator, operands) => operator match
@@ -132,48 +127,24 @@ class SyntaxTreeToZ3Converter(ctx: z3.Context, program: syntaxTree.Program)
 
     def convertMemberAccess(innerExp: syntaxTree.Expression, fieldName: String, values: List[syntaxTree.ValueDeclaration]): Option[z3.Expr] =
     {
-        val innerExpType: syntaxTree.Type = syntaxTree.TypeChecker.getTypeOf(innerExp, values.asInstanceOf[List[syntaxTree.ProgramDefinition]]).get
-        val typeDef: syntaxTree.TypeDefinition = getTypeDefinition(Identifier("Point"), values)
+        val valDefs: List[syntaxTree.ProgramDefinition] = values.map(value => ValueDefinition(value, Identifier(value.name)))
+
+        val programContext: List[syntaxTree.ProgramDefinition] = valDefs ++ program.programDefinitions
+
+        val innerExpType: syntaxTree.ObjectType = syntaxTree.TypeChecker.getTypeOf(innerExp, programContext) match
+        {
+            case Some(objType: ObjectType) => objType
+            case _ => return None
+        }
+        val typeDef: syntaxTree.TypeDefinition = syntaxTree.Helper.getTypeDefinition(innerExpType.typeName, program.programDefinitions).get
         val fieldIndex: Int = typeDef.fields.indexWhere(p => p.name == fieldName)
 
-        innerExp match
-        {
-            case syntaxTree.Identifier(objectName) =>
-                val typeDef: syntaxTree.TypeDefinition = getTypeDefinition(Identifier(objectName), values)
+        val objectSort: z3.DatatypeSort = sorts.find(s => s.getName.toString == typeDef.name).getOrElse(return None)
 
-                val objectSort: z3.DatatypeSort = sorts.find(s => s.getName.toString == typeDef.name) match
-                {
-                    case Some(obSort) => obSort
-                    case None => return None
-                }
+        val accessor: z3.FuncDecl = objectSort.getAccessors()(0)(fieldIndex)
+        val targetObject: z3.Expr = convertExpression(innerExp, values)
 
-                val fieldIndex: Int = typeDef.fields.indexWhere(p => p.name == fieldName)
-                val accessor: z3.FuncDecl = objectSort.getAccessors()(0)(fieldIndex)
-                val targetObject: z3.Expr = ctx.mkConst(objectName, objectSort)
-
-                val app = ctx.mkApp(accessor, targetObject)
-                Some(app)
-
-            case innerExp =>
-                val convExp = convertExpression(innerExp, values)
-                println(convExp)
-
-        //val accessor: z3.FuncDecl = objectSort.getAccessors()(0)(fieldIndex)
-        //val targetObject: z3.Expr = ctx.mkConst(objectName, objectSort)
-
-                Some(convertExpression(innerExp, values))
-        }
-        /*case MemberAccess(memberExp, memberField) =>
-            //println(memberExp + " " + memberField + " : " + fieldName)
-            val objectType: syntaxTree.ObjectType = getObjectType(memberExp, values)
-            val typeDef: syntaxTree.TypeDefinition = typeDefinitions.find(typeDef => typeDef.name == objectType.typeName).get
-            val objectSort: z3.DatatypeSort = sorts.find(s => s.getName.toString == typeDef.name).get
-
-            val innerValue: z3.Expr= convertMemberAccess(memberExp, fieldName, values).get;
-            //val accessor: z3.FuncDecl = innerValue.objectSort.getAccessors()(0)(0)
-            //Some(ctx.mkApp(accessor, targetObject))
-            None
-        case MemberAccess(memberExp, memberField) =>Some(convertExpression(memberExp,values))
-        */
+        val app = ctx.mkApp(accessor, targetObject)
+        Some(app)
     }
 }
