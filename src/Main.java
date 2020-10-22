@@ -44,8 +44,7 @@ public class Main {
             try {
                 program = MasterOptimizer.transform(MasterAnalyzer.transform(program));
             } catch (Exception err) {
-                Logger.log(Severity.Warning,"Optimization of '" + options.programFileName + "' resulted in an exception.",-1);
-                Logger.log(Severity.Warning,"No optimization has therefore been applied.",-1);
+                Logger.log(Severity.Warning,"Optimization of '" + options.programFileName + "' resulted in exception:\n\t " + err,-1);
             }
         }
 

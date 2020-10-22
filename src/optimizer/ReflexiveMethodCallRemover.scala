@@ -7,7 +7,7 @@ object ReflexiveMethodCallRemover extends OperationTransformer
     {
         case Operation(MethodCall(methodName, 2), List(leftOp, rightOp)) =>
             val methodDef: MethodDefinition = Helper.getMethodDefinition(methodName, List(leftOp, rightOp), context).getOrElse({
-                logger.Logger.log(logger.Severity.Info,  s"No method called '$methodName' found", 0)
+                logger.Logger.log(logger.Severity.Info,  s"Could not transform method '${methodName}' in ReflexiveMethodCallRemover", -1)
                 return operation
             })
 
@@ -19,6 +19,7 @@ object ReflexiveMethodCallRemover extends OperationTransformer
             {
                 operation
             }
+
         case op => op
     }
 }
