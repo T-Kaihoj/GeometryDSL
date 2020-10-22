@@ -8,20 +8,20 @@ object StaticTypeChecker
     def check(p: Program): Unit =
     {
         program =p;
-        p.programDefinitions.foreach(pd => check(pd))
+        p.programDefinitions.foreach(pd => check(pd, Nil))
     }
 
-    def check(programDefinition: ProgramDefinition): Unit = programDefinition match
+    def check(programDefinition: ProgramDefinition ,context:ProgramContext): Unit = programDefinition match
     {
-        case typeDef: TypeDefinition => check(typeDef)
-        case methodDef: MethodDefinition => check(methodDef)
-        case valueDef: ValueDefinition => check(valueDef)
+        case typeDef: TypeDefinition => check(typeDef ,context)
+        case methodDef: MethodDefinition => check(methodDef,context)
+        case valueDef: ValueDefinition => check(valueDef,context)
     }
 
-    def check(typeDefinition: TypeDefinition): Unit = typeDefinition match
+    def check(typeDefinition: TypeDefinition, context:ProgramContext): Unit = typeDefinition match
     {
         case TypeDefinition(typeName, _, invariant) =>
-            TypeOfHelp.getTypeOf(invariant, Nil) match
+            TypeOfHelp.getTypeOf(invariant, context) match
             {
                 case None =>
                     Logger.log(
@@ -38,7 +38,7 @@ object StaticTypeChecker
             }
     }
 
-    def check(methodDefinition: MethodDefinition): Unit = methodDefinition match
+    def check(methodDefinition: MethodDefinition,context:ProgramContext): Unit = methodDefinition match
     {
         case MethodDefinition(name, retType, _, block) => block.last match
         {
@@ -50,7 +50,7 @@ object StaticTypeChecker
                 {
                     Logger.log(Severity.Error, s"Method '$name' does not return a value of type '${typeToString(retType)}' but instead returns '${typeToString(expResType)}'", methodDefinition.lineNumber)
                 }
-                check(block)
+                check(block, getProgramContext(name,program.programDefinitions,Nil) )
         }
     }
 
@@ -68,10 +68,10 @@ object StaticTypeChecker
         })
     }
 
-    def check(valueDefinition: ValueDefinition): Unit = valueDefinition match
+    def check(valueDefinition: ValueDefinition, context:ProgramContext): Unit = valueDefinition match
     {
         case ValueDefinition(ValueDeclaration(name, typeId), exp) =>
-            val expResType = TypeOfHelp.getTypeOf(exp,getProgramContext(name,program.programDefinitions, Nil)).getOrElse({
+            val expResType = TypeOfHelp.getTypeOf(exp,context).getOrElse({
                 Logger.log(Severity.Warning, s"Unable to determine, Type in '${name}' ", valueDefinition.lineNumber)
                 NoType
             })
@@ -83,24 +83,24 @@ object StaticTypeChecker
             Logger.log(Severity.Error, s"Type '${typeToString(typeId)}' does not exist", valueDefinition.lineNumber)
     }
 
-    def check(block: Block): Unit = block match
+    def check(block: Block,context:ProgramContext): Unit = block match
     {
-        case head :: tail => check(head); check(tail)
+        case head :: tail => check(head ,context); check(tail,context)
         case Nil =>
     }
 
-    def check(statement: Statement): Unit = statement match
+    def check(statement: Statement,context:ProgramContext): Unit = statement match
     {
-        case valueDefinition: ValueDefinition => check(valueDefinition)
-        case conditional: Conditional => check(conditional)
-        case Return(exp) => check(exp, statement.lineNumber)
+        case valueDefinition: ValueDefinition => check(valueDefinition,context)
+        case conditional: Conditional => check(conditional, context)
+        case Return(exp) => check(exp, statement.lineNumber, context)
         case _ =>
     }
 
-    def check(conditional: Conditional): Unit = conditional match
+    def check(conditional: Conditional,context:ProgramContext): Unit = conditional match
     {
         case Conditional(condition, _, _) =>
-            TypeOfHelp.getTypeOf(condition, Nil) match
+            TypeOfHelp.getTypeOf(condition, context) match
             {
                 case None => Logger.log(
                     Severity.Info,
@@ -114,11 +114,11 @@ object StaticTypeChecker
                     conditional.lineNumber
                 )
 
-                    check(condition, conditional.lineNumber)
+                    check(condition, conditional.lineNumber,context)
             }
     }
 
-    def check(expression: Expression, lineNumber: Int): Unit = expression match
+    def check(expression: Expression, lineNumber: Int, context:ProgramContext): Unit = expression match
     {
         case NoValueLiteral() =>
         case BoolLiteral(_) =>
@@ -126,16 +126,16 @@ object StaticTypeChecker
         case RealLiteral(_) =>
         case SetLiteral(_) =>
         case Identifier(_) =>
-        case memberAccess: MemberAccess => check(memberAccess, lineNumber)
+        case memberAccess: MemberAccess => check(memberAccess, lineNumber,context)
         case typeCheck: TypeCheck =>
-        case setComprehension: SetComprehension => check(setComprehension, lineNumber)
+        case setComprehension: SetComprehension => check(setComprehension, lineNumber,context)
         case Operation(_, _) =>
     }
 
-    def check(memberAccess: MemberAccess, lineNumber: Int): Unit = memberAccess match
+    def check(memberAccess: MemberAccess, lineNumber: Int,context:ProgramContext): Unit = memberAccess match
     {
         case MemberAccess(exp, _) =>
-            TypeOfHelp.getTypeOf(exp, Nil) match
+            TypeOfHelp.getTypeOf(exp, context) match
             {
                 case None => Logger.log(
                     Severity.Info,
@@ -147,24 +147,25 @@ object StaticTypeChecker
                     s"Member access expression does not result in a value of the correct type but instead '${typeToString(typeId)}'",
                     lineNumber)
             }
-            check(exp, lineNumber)
+            check(exp, lineNumber , context)
     }
 
-    def check(typeCheck: TypeCheck, lineNumber: Int): Unit = typeCheck match
+    def check(typeCheck: TypeCheck, lineNumber: Int, context:ProgramContext): Unit = typeCheck match
     {
-        case TypeCheck(exp, _) => check(exp, lineNumber)
+        case TypeCheck(exp, _) => check(exp, lineNumber,context)
     }
 
-    def check(setComprehension: SetComprehension, lineNumber: Int): Unit = setComprehension match
+    def check(setComprehension: SetComprehension, lineNumber: Int,context:ProgramContext): Unit = setComprehension match
     {
-        case SetComprehension(ElementDefinition(_, exp), condition, _) =>
-            TypeOfHelp.getTypeOf(exp, Nil) match
+        case SetComprehension(ElementDefinition(_, exp), condition, _) => SetType
+            /*
+            TypeOfHelp.getTypeOf(exp, context) match
             {
                 case None =>
                 case Some(resType) if resType != SetType =>
             }
 
-            TypeOfHelp.getTypeOf(condition, Nil) match
+            TypeOfHelp.getTypeOf(condition, context) match
             {
                 case None => Logger.log(
                     Severity.Info,
@@ -177,7 +178,7 @@ object StaticTypeChecker
                     s"Condition does not result in a '${typeToString(BoolType)}' but instead a '${typeToString(condType)}'",
                     lineNumber
                 )
-            }
+            }*/
     }
 
     private def getProgramContextMethod(params: List[ValueDeclaration], block: Block, context:List[ProgramDefinition]): ProgramContext = block match
@@ -200,7 +201,8 @@ object StaticTypeChecker
             case (valDef: ValueDefinition)  =>getProgramContext(method,next,valDef::context)
             case (typeDef:TypeDefinition) => getProgramContext(method,next,typeDef::context)
         }
-        case Nil => context
+        case Nil => {
+            context}
     }
 
 }

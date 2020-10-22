@@ -76,7 +76,7 @@ object Helper
         {
             case methodDef: MethodDefinition
                 if methodDef.name == methodName &&
-                    operands.map(op => TypeChecker.getTypeOf(op, context).getOrElse(
+                    operands.map(op => TypeOfHelp.getTypeOf(op, context).getOrElse(
                         {
                             logger.Logger.log(logger.Severity.Warning, s"Could not determine method definition of method: '${methodName}'", -1)
                             return None

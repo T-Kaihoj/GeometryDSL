@@ -9,7 +9,9 @@ object TypeOfHelp
         case IntLiteral(_) =>  Some(IntType)
         case RealLiteral(_) => Some(RealType)
         case SetLiteral(_) => Some(SetType)
-        case Identifier(name) => context.collectFirst{ case ValueDefinition(ValueDeclaration(valueName, typeId), _) if valueName == name => typeId }
+        case Identifier(name) => context.collectFirst{
+            case ValueDefinition(ValueDeclaration(valueName, typeId), _) if valueName == name => typeId
+        }
         case MemberAccess(innerExp, fieldName) => getTypeOfMemberExpression(innerExp, fieldName, context)
         case TypeCheck(_, _) => Some(BoolType)
         case SetComprehension(_, _, _) => Some(SetType)
@@ -46,7 +48,7 @@ object TypeOfHelp
             case Subset => Some(BoolType)
             case PropSubset => Some(BoolType)
             case InSet => Some(BoolType)
-            case MethodCall(methodName, _) => Some(getMethodCallRetType(methodName, operands, context).getOrElse(return None))
+            case MethodCall(methodName, _) => Some(getMethodCallRetType(methodName, operands, context, context).getOrElse(return None))
         }
     }
 
@@ -64,40 +66,44 @@ object TypeOfHelp
         case Nil =>false
     }
 
-    private def getMethodCallRetType(methodName: String, operands: List[Expression], context: ProgramContext): Option[Type] = context match
+    private def getMethodCallRetType(methodName: String, operands: List[Expression], context: ProgramContext,Program: ProgramContext): Option[Type] = Program match
     {
         case head :: tail => head match
         {
-            case methodDef: MethodDefinition
-                if methodDef.name == methodName &&
-                    operands.map(op => TypeOfHelp.getTypeOf(op, context).get) == methodDef.params.map(param => param.typeId) =>
-                Some(methodDef.retType)
-            case TypeDefinition(name, fields, invariant) if name == methodName=> Some(ObjectType( name))
-            case methodDef: MethodDefinition
-                if methodDef.name == methodName && isSetApplication(operands, methodDef.params, context) =>
-                Some(SetType)
-            case _ => getMethodCallRetType(methodName, operands, tail)
+            case MethodDefinition(name, retType, params, block) =>{
+                if (name == methodName &&operands.map(op => {
+                    TypeOfHelp.getTypeOf(op, context).getOrElse(return None)}) == params.map(param => param.typeId))
+                    return Some(retType)
+                else if (name == methodName ||isSetApplication(operands, params,context))
+                    return Some(SetType)
+                getMethodCallRetType(methodName, operands, context,tail)
+            }
+            case TypeDefinition(name, fields, invariant) if name == methodName=>
+                if (name == methodName &&operands.map(op => {
+                    TypeOfHelp.getTypeOf(op, context).getOrElse(return None)}) == fields.map(param => param.typeId))
+                    return Some(ObjectType( name))
+                else if (name == methodName ||isSetApplication(operands, fields, context))
+                    return Some(SetType)
+                getMethodCallRetType(methodName, operands,context, tail)
+            case _ => getMethodCallRetType(methodName, operands, context, tail)
         }
         case Nil =>
-            println(methodName)
             None
     }
 
-    private def getTypeOfMemberExpression(exp: Expression, fieldName: String, context: ProgramContext): Option[Type] =
-    {
-        val innerExpType: ObjectType = getTypeOf(exp, context) match
+    private def getTypeOfMemberExpression(exp: Expression, fieldName: String, context: ProgramContext): Option[Type] = getTypeOf(exp, context) match
         {
-            case Some(objType: ObjectType) => objType
+            case Some(ObjectType(name)) =>
+                Some(
+                context.collectFirst
+                {
+                    case typeDef: TypeDefinition if typeDef.name == name => typeDef
+                }.get.fields.find(f => f.name == fieldName).get.typeId)
+            case Some(SetType) => return Some(SetType)
             case _ => return None
         }
 
-        val typeDef: TypeDefinition = context.collectFirst
-        {
-            case typeDef: TypeDefinition if typeDef.name == innerExpType.typeName => typeDef
-        }.get
 
-        Some(typeDef.fields.find(f => f.name == fieldName).get.typeId)
-    }
 
     private def binaryOperationResultingType(leftExp: Expression, rightExp: Expression, context: ProgramContext): Option[Type] =
     {

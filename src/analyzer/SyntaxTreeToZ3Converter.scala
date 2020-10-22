@@ -131,7 +131,7 @@ class SyntaxTreeToZ3Converter(ctx: z3.Context, program: syntaxTree.Program)
 
         val programContext: List[syntaxTree.ProgramDefinition] = valDefs ++ program.programDefinitions
 
-        val innerExpType: syntaxTree.ObjectType = syntaxTree.TypeChecker.getTypeOf(innerExp, programContext) match
+        val innerExpType: syntaxTree.ObjectType = syntaxTree.TypeOfHelp.getTypeOf(innerExp, programContext) match
         {
             case Some(objType: ObjectType) => objType
             case _ => return None

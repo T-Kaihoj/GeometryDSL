@@ -1,7 +1,7 @@
 type Point (x:int,y:int)
 type Line_segment (start:Point,end:Point)
 
-A: set := {Point(33, 52), Point(73, 69),Point(31, 80), Point( 8, 79),Point(53, 70), Point(22, 50)}
+//A: set := {Point(33, 52), Point(73, 69),Point(31, 80), Point( 8, 79),Point(53, 70), Point(22, 50)}
 set main()(
         A: set := {Point(33, 52), Point(73, 69),Point(31, 80), Point( 8, 79),Point(53, 70), Point(22, 50)}
         return convexHull(A)

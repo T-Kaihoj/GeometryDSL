@@ -115,7 +115,7 @@ trait OperationTransformer extends ExpressionTransformer
         case TypeCheck(exp, typeId) => TypeCheck(transform(exp, context), typeId)
         case SetComprehension(ElementDefinition(name, exp), condition, application) =>
             val newElementDef = ElementDefinition(name, transform(exp, context))
-            val newContext = ValueDefinition(ValueDeclaration(name, /* TODO: This is not correct */TypeChecker.getTypeOf(exp, context).get), Identifier(name)) :: context
+            val newContext = ValueDefinition(ValueDeclaration(name, /* TODO: This is not correct */TypeOfHelp.getTypeOf(exp, context).get), Identifier(name)) :: context
             val newCondition = transform(condition, newContext)
             val newApplication = transform(application, newContext)
             SetComprehension(newElementDef, newCondition, newApplication)
