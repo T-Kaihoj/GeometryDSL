@@ -132,7 +132,7 @@ class SyntaxTreeToZ3Converter(ctx: z3.Context, program: syntaxTree.Program)
 
     def convertMemberAccess(innerExp: syntaxTree.Expression, fieldName: String, values: List[syntaxTree.ValueDeclaration]): Option[z3.Expr] =
     {
-        val innerExpType: syntaxTree.Type = syntaxTree.TypeChecker.getTypeOf(innerExp, values.asInstanceOf[List[syntaxTree.ProgramDefinition]]).get
+        val innerExpType: syntaxTree.Type = syntaxTree.TypeOfHelp.getTypeOf(innerExp, values.asInstanceOf[List[syntaxTree.ProgramDefinition]]).get
         val typeDef: syntaxTree.TypeDefinition = getTypeDefinition(Identifier("Point"), values)
         val fieldIndex: Int = typeDef.fields.indexWhere(p => p.name == fieldName)
 

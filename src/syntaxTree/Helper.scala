@@ -76,7 +76,7 @@ object Helper
         {
             case methodDef: MethodDefinition
                 if methodDef.name == methodName &&
-                   operands.map(op => TypeChecker.getTypeOf(op, context).get) == methodDef.params.map(param => param.typeId) =>
+                   operands.map(op => TypeOfHelp.getTypeOf(op, context).get) == methodDef.params.map(param => param.typeId) =>
                 Some(methodDef)
             case _ => getMethodDefinition(methodName, operands, tail)
         }

@@ -6,6 +6,7 @@ package object syntaxTree
 
     def typeToString(typeId: Type): String = typeId match
     {
+        case NoType => "No type"
         case BoolType => "bool"
         case IntType => "int"
         case RealType => "real"
@@ -26,6 +27,7 @@ package syntaxTree
     sealed case class Program(programDefinitions: List[ProgramDefinition])
 
     sealed trait Type
+    case object NoType extends Type
     case object BoolType extends Type
     case object IntType extends Type
     case object RealType extends Type

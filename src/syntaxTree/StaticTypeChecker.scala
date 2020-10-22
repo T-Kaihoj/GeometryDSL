@@ -2,11 +2,13 @@ package syntaxTree
 
 import logger.{Logger, Severity}
 
-object TypeChecker
+object StaticTypeChecker
 {
-    def check(program: Program): Unit =
+    var program :Program = null
+    def check(p: Program): Unit =
     {
-        program.programDefinitions.foreach(pd => check(pd))
+        program =p;
+        p.programDefinitions.foreach(pd => check(pd))
     }
 
     def check(programDefinition: ProgramDefinition): Unit = programDefinition match
@@ -19,7 +21,7 @@ object TypeChecker
     def check(typeDefinition: TypeDefinition): Unit = typeDefinition match
     {
         case TypeDefinition(typeName, _, invariant) =>
-            getTypeOf(invariant, Nil) match
+            TypeOfHelp.getTypeOf(invariant, Nil) match
             {
                 case None =>
                     Logger.log(
@@ -27,6 +29,7 @@ object TypeChecker
                         s"Could not determine resulting type of invariant for '${typeToString(ObjectType(typeName))}' type",
                         typeDefinition.lineNumber)
                 case Some(BoolType) =>  // Nothing
+                    //todo ask what this is
                 case Some(resType) if resType != BoolType =>
                     Logger.log(
                         Severity.Error,
@@ -40,8 +43,10 @@ object TypeChecker
         case MethodDefinition(name, retType, _, block) => block.last match
         {
             case Return(exp) =>
-                val expResType = getTypeOf(exp, Nil).getOrElse(return)
-                if(expResType != retType)
+                val expResType: Type = TypeOfHelp.getTypeOf (exp, getProgramContext(name,program.programDefinitions,Nil)).getOrElse({Logger.log(Severity.Warning, s"Unable to determine, return type in '${name}' ", methodDefinition.lineNumber)
+                NoType
+                })
+                if(expResType != NoType && expResType != retType )
                 {
                     Logger.log(Severity.Error, s"Method '$name' does not return a value of type '${typeToString(retType)}' but instead returns '${typeToString(expResType)}'", methodDefinition.lineNumber)
                 }
@@ -49,14 +54,33 @@ object TypeChecker
         }
     }
 
+    def typeExists(typeId: Type) :Boolean = typeId match
+    {
+        case BoolType => true
+        case IntType =>true
+        case RealType =>true
+        case SetType =>true
+        case ObjectType(typeName) => program.programDefinitions.exists(p => p match
+        {
+            case TypeDefinition(name, fields, invariant) => name == typeName
+            case MethodDefinition(name, retType, params, block) =>false
+            case ValueDefinition(decl, exp) =>false
+        })
+    }
+
     def check(valueDefinition: ValueDefinition): Unit = valueDefinition match
     {
         case ValueDefinition(ValueDeclaration(name, typeId), exp) =>
-            val expResType = getTypeOf(exp, Nil).getOrElse(return)
+            val expResType = TypeOfHelp.getTypeOf(exp,getProgramContext(name,program.programDefinitions, Nil)).getOrElse({
+                Logger.log(Severity.Warning, s"Unable to determine, Type in '${name}' ", valueDefinition.lineNumber)
+                NoType
+            })
             if(expResType != typeId)
             {
                 Logger.log(Severity.Error, s"Value '$name' is not assigned a value of type '${typeToString(typeId)}' but is instead assigned a value of type '${typeToString(expResType)}'", valueDefinition.lineNumber)
             }
+            if( !typeExists(typeId))
+            Logger.log(Severity.Error, s"Type '${typeToString(typeId)}' does not exist", valueDefinition.lineNumber)
     }
 
     def check(block: Block): Unit = block match
@@ -76,7 +100,7 @@ object TypeChecker
     def check(conditional: Conditional): Unit = conditional match
     {
         case Conditional(condition, _, _) =>
-            getTypeOf(condition, Nil) match
+            TypeOfHelp.getTypeOf(condition, Nil) match
             {
                 case None => Logger.log(
                     Severity.Info,
@@ -111,7 +135,7 @@ object TypeChecker
     def check(memberAccess: MemberAccess, lineNumber: Int): Unit = memberAccess match
     {
         case MemberAccess(exp, _) =>
-            getTypeOf(exp, Nil) match
+            TypeOfHelp.getTypeOf(exp, Nil) match
             {
                 case None => Logger.log(
                     Severity.Info,
@@ -134,13 +158,13 @@ object TypeChecker
     def check(setComprehension: SetComprehension, lineNumber: Int): Unit = setComprehension match
     {
         case SetComprehension(ElementDefinition(_, exp), condition, _) =>
-            getTypeOf(exp, Nil) match
+            TypeOfHelp.getTypeOf(exp, Nil) match
             {
                 case None =>
                 case Some(resType) if resType != SetType =>
             }
 
-            getTypeOf(condition, Nil) match
+            TypeOfHelp.getTypeOf(condition, Nil) match
             {
                 case None => Logger.log(
                     Severity.Info,
@@ -156,79 +180,27 @@ object TypeChecker
             }
     }
 
-    def getTypeOf(exp: Expression, context: ProgramContext): Option[Type] = exp match
+    private def getProgramContextMethod(params: List[ValueDeclaration], block: Block, context:List[ProgramDefinition]): ProgramContext = block match
     {
-        case NoValueLiteral() => None
-        case BoolLiteral(_) => Some(BoolType)
-        case IntLiteral(_) =>  Some(IntType)
-        case RealLiteral(_) => Some(RealType)
-        case SetLiteral(_) => Some(SetType)
-        case Identifier(name) => context.collectFirst{ case ValueDefinition(ValueDeclaration(valueName, typeId), _) if valueName == name => typeId }
-        case MemberAccess(innerExp, fieldName) => getTypeOfMemberExpression(innerExp, fieldName, context)
-        case TypeCheck(_, _) => Some(BoolType)
-        case SetComprehension(_, _, _) => Some(SetType)
-        case Operation(operator, operands) => operator match
+        case ::(head, next) => head match
         {
-            case Negation => getTypeOf(operands.head, context) match
-            {
-                case Some(IntType) => Some(IntType)
-                case Some(RealType) => Some(IntType)
-                case _ => None
-            }
-            case Not => Some(BoolType)
-            case Cardinality => Some(IntType)
-            case Forall(_) => Some(BoolType)
-            case Exists(_) => Some(BoolType)
-            case Choose(_) => None
-            case Add => binaryOperationResultingType(operands.head, operands.tail.head, context)
-            case Sub => binaryOperationResultingType(operands.head, operands.tail.head, context)
-            case Mul => binaryOperationResultingType(operands.head, operands.tail.head, context)
-            case Div => binaryOperationResultingType(operands.head, operands.tail.head, context)
-            case Pow => getTypeOf(operands.head, context)
-            case Equal => Some(BoolType)
-            case NotEqual => Some(BoolType)
-            case LessThan => Some(BoolType)
-            case LessThanEqual => Some(BoolType)
-            case GreaterThan => Some(BoolType)
-            case GreaterThanEqual => Some(BoolType)
-            case And => Some(BoolType)
-            case Or => Some(BoolType)
-            case Implies => Some(BoolType)
-            case Union => Some(SetType)
-            case Intersect => Some(SetType)
-            case Difference => Some(SetType)
-            case Subset => Some(BoolType)
-            case PropSubset => Some(BoolType)
-            case InSet => Some(BoolType)
-            case MethodCall(methodName, _) => Some(Helper.getMethodDefinition(methodName, operands, context).getOrElse(return None).retType)
+            case (valDef: ValueDefinition) => getProgramContextMethod(params,next,valDef::context)
+            case Conditional(condition, trueBlock, falseBlock) =>getProgramContextMethod(params,next,context)
+            case _ =>getProgramContextMethod(params,next,context)
         }
+        case Nil =>params.map(f => ValueDefinition(f,Identifier(f.name)))++ context
     }
 
-    private def getTypeOfMemberExpression(exp: Expression, fieldName: String, context: ProgramContext): Option[Type] =
+    def getProgramContext(method: String, program: List[ProgramDefinition], context:ProgramContext): ProgramContext = program match
     {
-        val innerExpType: ObjectType = getTypeOf(exp, context) match
+        case ::(head, next) => head match
         {
-            case Some(objType: ObjectType) => objType
-            case _ => return None
+            case MethodDefinition(name,retType , params, block) if name == method => getProgramContext(name,next,MethodDefinition(name,retType , params, block)::getProgramContextMethod(params, block, context))
+            case (methodDef: MethodDefinition)  => getProgramContext(method,next,methodDef::context)
+            case (valDef: ValueDefinition)  =>getProgramContext(method,next,valDef::context)
+            case (typeDef:TypeDefinition) => getProgramContext(method,next,typeDef::context)
         }
-
-        val typeDef: TypeDefinition = context.collectFirst
-        {
-            case typeDef: TypeDefinition if typeDef.name == innerExpType.typeName => typeDef
-        }.get
-
-        Some(typeDef.fields.find(f => f.name == fieldName).get.typeId)
+        case Nil => context
     }
 
-    private def binaryOperationResultingType(leftExp: Expression, rightExp: Expression, context: ProgramContext): Option[Type] =
-    {
-        (getTypeOf(leftExp, context), getTypeOf(rightExp, context)) match
-        {
-            case (Some(IntType), Some(IntType)) => Some(IntType)
-            case (Some(RealType), Some(RealType)) => Some(RealType)
-            case (Some(RealType), Some(IntType)) => Some(RealType)
-            case (Some(IntType), Some(RealType)) => Some(RealType)
-            case _ => None
-        }
-    }
 }

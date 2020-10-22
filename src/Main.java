@@ -5,7 +5,7 @@ import logger.Logger;
 import logger.Severity;
 import optimizer.MasterOptimizer;
 import syntaxTree.Program;
-import syntaxTree.TypeChecker;
+import syntaxTree.StaticTypeChecker;
 import transpilation.Transpilation;
 
 import java.io.FileInputStream;
@@ -35,7 +35,9 @@ public class Main {
 
         CustomGdslParser parser = new CustomGdslParser();
         Program program = parser.parse(inputStream);
-        TypeChecker.check(program);
+        StaticTypeChecker.check(program);
+        Logger logger = Logger.getInstance();
+        System.out.print(logger.toString(options.infoLevel));
 
         if(options.optimize)
         {
@@ -56,9 +58,6 @@ public class Main {
             Transpilation transpilation = new Transpilation();
             System.out.println(transpilation.convert(program));
         }
-
-        Logger logger = Logger.getInstance();
-        System.out.print(logger.toString(options.infoLevel));
     }
 
     private static class ProgramOptions {

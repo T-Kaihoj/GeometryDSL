@@ -36,7 +36,7 @@ object transpilationScala
 
     def isIdentifierSet(name: String, block:Block): Boolean =
     {
-        syntaxTree.TypeChecker.getTypeOf(Identifier(name), block.collect{case valDef: ValueDefinition => valDef}).getOrElse(false) match
+        syntaxTree.TypeOfHelp.getTypeOf(Identifier(name), block.collect{case valDef: ValueDefinition => valDef}).getOrElse(false) match
         {
             case syntaxTree.SetType => true
             case _ => false
