@@ -38,17 +38,18 @@ object StaticTypeChecker
             }
     }
 
-    def check(methodDefinition: MethodDefinition,context:ProgramContext): Unit = methodDefinition match
+    def check(methodDefinition: MethodDefinition, context: ProgramContext): Unit = methodDefinition match
     {
-        case MethodDefinition(name, retType, _, block) => block.last match
+        case MethodDefinition(name, retType, params, block) => block.last match
         {
             case Return(exp) =>
-                val expResType: Type = TypeOfHelp.getTypeOf (exp, getProgramContext(name,program.programDefinitions,Nil)).getOrElse({Logger.log(Severity.Warning, s"Unable to determine, return type in '${name}' ", methodDefinition.lineNumber)
+                val expResType: Type = TypeOfHelp.getTypeOf (exp, getProgramContext(name,program.programDefinitions,Nil)).getOrElse({Logger.log(Severity.Warning, s"Unable to determine, return type in '${name}'", methodDefinition.lineNumber)
                 NoType
                 })
                 if(expResType != NoType && expResType != retType )
                 {
-                    Logger.log(Severity.Error, s"Method '$name' does not return a value of type '${typeToString(retType)}' but instead returns '${typeToString(expResType)}'", methodDefinition.lineNumber)
+                    val paramsString: String = params.map(param => param.name + ": " + typeToString(param.typeId)).mkString(", ")
+                    Logger.log(Severity.Error, s"Method '$name($paramsString)' does not return a value of type '${typeToString(retType)}' but instead returns '${typeToString(expResType)}'", methodDefinition.lineNumber)
                 }
                 check(block, getProgramContext(name,program.programDefinitions,Nil) )
         }

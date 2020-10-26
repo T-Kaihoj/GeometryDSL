@@ -6,7 +6,7 @@ package object syntaxTree
 
     def typeToString(typeId: Type): String = typeId match
     {
-        case NoType => "No type"
+        case NoType => "noType"
         case BoolType => "bool"
         case IntType => "int"
         case RealType => "real"
