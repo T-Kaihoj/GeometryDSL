@@ -8,7 +8,7 @@ Documentation of the language can be found in [documentation/languageDocumentati
 Running the program: 
 
 ```
-$ java -jar GeometryDSL programFile.gdsl
+$ java -jar GeometryDSL.jar <fileName>.gdsl -e
 ```
 
 Porgram options:
