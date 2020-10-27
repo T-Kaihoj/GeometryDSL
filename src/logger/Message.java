@@ -1,6 +1,6 @@
 package logger;
 
-public class Message {
+public class Message extends Exception {
     public String message;
     public Severity severity;
     public int lineNumber;
