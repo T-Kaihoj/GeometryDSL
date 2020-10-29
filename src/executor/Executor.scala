@@ -1,5 +1,6 @@
 package executor
 
+import logger.{Logger, Message, Severity}
 import syntaxTree._
 
 class Executor
@@ -7,6 +8,7 @@ class Executor
     var programMemory: List[ProgramDefinition] = List()
     var globalStack: VarStack = List()
 
+    @throws(classOf[Message])
     def executeProgram(program: Program, mainFuncName: String): Value = program match
     {
         case Program(entities) =>
@@ -164,7 +166,7 @@ class Executor
                 case Some(fieldVal) => fieldVal
                 case None => NoValue
             }))
-        case value => logger.Logger.log(logger.Severity.Error, s"'$value' is not an object", 0); None
+        case value => Logger.log(Severity.Error, s"'$value' is not an object", 0); None
     }
 
     /**
@@ -223,7 +225,7 @@ class Executor
         case PropSubset => OperationExecutor.propSubset(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
         case InSet => OperationExecutor.inSet(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
         case MethodCall(name, arity) =>  { //println(name+":"+ arity)
-            //logger.Logger.log(logger.Severity.Error, s"Method or Type does not exist '${name}' " , -1 )
+            //Logger.log(Severity.Error, s"Method or Type does not exist '${name}' " , -1 )
             executeMethodCall(name, arity, operands, stack).get
         }
     }
@@ -255,11 +257,11 @@ class Executor
             {
                 case BoolValue(b) => b
                 case _ =>
-                    logger.Logger.log(logger.Severity.Error, "Execution of choose condition does not result i a boolean", -0)
+                    Logger.log(Severity.Error, "Execution of choose condition does not result i a boolean", -0)
                     false
             })
         case _ =>
-            logger.Logger.log(logger.Severity.Error, "Execution of element definition does not result in a set", -0)
+            Logger.log(Severity.Error, "Execution of element definition does not result in a set", -0)
             None
     }
 
@@ -271,7 +273,7 @@ class Executor
             case TypeDefinition(name, fields, invariant) if name == methodName && fields.size == arity => callConstructor(name, fields, invariant, args, stack)
         } match
         {
-            case None => logger.Logger.log(logger.Severity.Error, s"No method or type called '$methodName' exists", 0); None
+            case None => Logger.log(Severity.Error, s"No method or type called '$methodName' exists", 0); None
             case Some(value) => Some(value)
         }
     }
