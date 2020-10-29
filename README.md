@@ -15,11 +15,15 @@ Porgram options:
 
 | Option                   | Description |
 |:---                      |:---         |
+| `--test`       | Tests the program with an internal sample file validate the installation. When this flag is used all other options are ignored |
 | `-e` / `--execute`       | Executes the provided program. |
 | `-o` / `--optimize`      | Optimizes the provided program before execution and transpilation. |
 | `-t` / `--transpile`     | Transpiles the program to an equivalent python program. |
 | `--function=*`  | Used to specify the entry function of the program. If non is provided, will `main` be used as standard. |
 | `--infolevel=*` | Specifies which level of logged messages should be displayed. `error`, `warning`, and `info` are the possible levels. If non is provided, is `warning` used as standard. |
+
+
+# Instructions to compile the source code
 
 ## Generating Parser
 1. Setup ANTLR accourding to [The ANTLR Mega Tutorial](https://tomassetti.me/antlr-mega-tutorial).
