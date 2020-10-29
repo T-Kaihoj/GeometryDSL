@@ -24,12 +24,12 @@ package object executor
 
 package executor
 {
-    trait Value
-    case object NoValue extends Value
-    case class BoolValue(value: Boolean) extends Value
-    case class IntValue(value: Long) extends Value
-    case class RealValue(value: Double) extends Value
-    case class ObjectValue(typeName: String, fields: List[Value]) extends Value
+    trait Value { def getType: Type }
+    case object NoValue extends Value { def getType: Type = NoType }
+    case class BoolValue(value: Boolean) extends Value  { def getType: Type = BoolType}
+    case class IntValue(value: Long) extends Value { def getType: Type = IntType}
+    case class RealValue(value: Double) extends Value { def getType: Type = RealType}
+    case class ObjectValue(typeName: String, fields: List[Value]) extends Value { def getType: Type = ObjectType(typeName)}
 
     sealed case class Variable(name: String, value: Value)
 }

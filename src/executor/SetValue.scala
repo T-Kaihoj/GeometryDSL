@@ -2,6 +2,8 @@ package executor
 
 case class SetValue(var innerSet: Set[Value] = Set()) extends Value
 {
+    def getType: syntaxTree.Type = syntaxTree.SetType
+
     innerSet = innerSet.foldLeft(Set(): Set[Value])((resSet, element) => element match
     {
         case NoValue => resSet

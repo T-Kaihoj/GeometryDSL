@@ -1,5 +1,6 @@
 package executor
 
+import logger.{Logger, Message, Severity}
 import syntaxTree._
 
 class Executor
@@ -7,6 +8,7 @@ class Executor
     var programMemory: List[ProgramDefinition] = List()
     var globalStack: VarStack = List()
 
+    @throws(classOf[Message])
     def executeProgram(program: Program, mainFuncName: String): Value = program match
     {
         case Program(entities) =>
@@ -164,7 +166,7 @@ class Executor
                 case Some(fieldVal) => fieldVal
                 case None => NoValue
             }))
-        case value => logger.Logger.log(logger.Severity.Error, s"'$value' is not an object", 0); None
+        case value => Logger.log(Severity.Error, s"'$value' is not an object", 0); None
     }
 
     /**
@@ -222,10 +224,7 @@ class Executor
         case Subset => OperationExecutor.subset(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
         case PropSubset => OperationExecutor.propSubset(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
         case InSet => OperationExecutor.inSet(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case MethodCall(name, arity) =>  { //println(name+":"+ arity)
-            //logger.Logger.log(logger.Severity.Error, s"Method or Type does not exist '${name}' " , -1 )
-            executeMethodCall(name, arity, operands, stack).get
-        }
+        case MethodCall(name, arity) => executeMethodCall(name, operands, -1, stack)
     }
 
     def executeForall(element: ElementDefinition, check: Expression, stack: VarStack): BoolValue = executeExpression(element.exp, stack) match
@@ -255,57 +254,163 @@ class Executor
             {
                 case BoolValue(b) => b
                 case _ =>
-                    logger.Logger.log(logger.Severity.Error, "Execution of choose condition does not result i a boolean", -0)
+                    Logger.log(Severity.Error, "Execution of choose condition does not result i a boolean", -0)
                     false
             })
         case _ =>
-            logger.Logger.log(logger.Severity.Error, "Execution of element definition does not result in a set", -0)
+            Logger.log(Severity.Error, "Execution of element definition does not result in a set", -0)
             None
     }
 
-    def executeMethodCall(methodName: String, arity: Int, args: List[Expression], stack: VarStack): Option[Value] =
+    /*
+    def executeMethod(name: String, arity: Int, args: List[Expression], stack: VarStack): Option[Value] =
     {
+        val argValues = args.map(arg => executeExpression(arg, stack))
         programMemory.collectFirst
         {
-            case MethodDefinition(name, _, params, block) if name == methodName && params.size == arity => callMethod(name, params, args, block, stack)
-            case TypeDefinition(name, fields, invariant) if name == methodName && fields.size == arity => callConstructor(name, fields, invariant, args, stack)
+            case MethodDefinition(methodName, _, params, block) if methodName == name && params.zip(argValues).forall{ case (valDecl, value) => println(valDecl + " | " + value); compareType(valDecl.typeId, value) } => callMethod(name, params, argValues, block, stack)
+            case TypeDefinition(typeName, fields, invariant) if typeName == name && fields.size == arity => callConstructor(name, fields, invariant, args, stack)
         } match
         {
-            case None => logger.Logger.log(logger.Severity.Error, s"No method or type called '$methodName' exists", 0); None
+            case None => Logger.log(Severity.Error, s"No method or type called '$name' exists", 0); None
             case Some(value) => Some(value)
         }
     }
+    */
 
+    /*
+    def cartesian(in: Value, lambda: Value => Value): Value = in match
+    {
+        case SetValue(innerSet) => SetValue(innerSet.map(elem => lambda(elem)))
+        case value => lambda(value)
+        case NoValue => NoValue
+    }
+    */
+
+    // TODO:
+    // Got new executeMethodCall function to compile, but i'm not totally sure it works.
+
+    def executeMethodCall(name: String, operands: List[Expression], lineNum: Int, stack: VarStack): Value =
+    {
+        val args: List[Value] = operands.map(op => executeExpression(op, stack))
+
+
+        val correctlyNamedEntities = programMemory.collect
+        {
+            case methodDef: MethodDefinition if methodDef.name == name => methodDef
+            case typeDef: TypeDefinition if typeDef.name == name => typeDef
+        }
+
+        correctlyNamedEntities match
+        {
+            case methodDefs
+                if methodDefs.forall
+                {
+                    case _: MethodDefinition => true
+                    case _ => false
+                } =>
+                val suitableMethods: List[MethodDefinition] = findSuitableMethods(methodDefs.asInstanceOf[List[MethodDefinition]], args.map(_.getType))
+                callMethod(suitableMethods, args, lineNum)
+            case TypeDefinition(name, fields, invariant) :: Nil => NoValue // TODO: callConstructor(name, fields, invariant, operands, stack)
+            case (_: TypeDefinition) :: _ => throw new Message(Severity.Error, s"More than one type or method with name '$name' exists", lineNum)
+            case _ => throw new Message(Severity.Error, "Something went wrong (And i didnt redo this message)", lineNum)
+        }
+    }
+
+    // TODO: Maybe remove, not sure if needed.
+    def findSuitableMethods(methodDefs: List[MethodDefinition], argTypes: List[Type]): List[MethodDefinition] =
+    {
+        methodDefs.filter(methodDef =>
+        {
+            methodDef.params
+                .map(_.typeId)
+                .zip(argTypes)
+                .foldLeft(true)
+            {
+                case (sum, x) =>
+                   val (paramType, argType) = x
+                    (paramType == argType || (paramType != argType && argType == SetType)) && sum
+            }
+        })
+    }
+
+    def callMethod(methodDefs: List[MethodDefinition],
+                   args: List[Value],
+                   lineNum: Int,
+                   newStackTypes: List[Type] = Nil): Value =
+    {
+        val paramIndex = newStackTypes.length
+        val arg = args(paramIndex)
+
+        if(paramIndex < args.length)
+        {
+            arg match
+            {
+                case arg if methodDefs.exists(_.params(paramIndex).typeId == arg.getType) =>
+                    callMethod(methodDefs, args, lineNum, arg.getType :: newStackTypes)
+                case SetValue(innerSet) if !methodDefs.exists(_.params(paramIndex).typeId == SetType) =>
+                    SetValue(innerSet.map(innerArg => callMethod(methodDefs, args, lineNum, innerArg.getType :: newStackTypes)))
+                case _ =>
+                    throw new Message(Severity.Error, "ERROR", lineNum)
+            }
+        }
+        else if(paramIndex == args.length)
+        {
+            methodDefs.filter{ _.params.map(_.typeId).zipWithIndex.forall{ case (paramType, i) => paramType == args(i).getType}} match
+            {
+                case MethodDefinition(_, _, params, block) :: Nil =>
+                    val newStack: VarStack = params.map(_.name).zip(args).map
+                    {
+                        case (varName, value) => Variable(varName, value)
+                    }
+
+                    executeBlock(block, newStack) match
+                    {
+                        case Left(retVal) => retVal
+                        case Right(_) => NoValue
+                    }
+                case _ :: _ => throw new logger.Message(logger.Severity.Error, "Was not able to determine which method to call", lineNum)
+                case Nil => throw new logger.Message(logger.Severity.Error, "No suitable method was found to call", lineNum)
+            }
+        }
+        else
+        {
+            throw new Message(Severity.Error, "ERROR ERROR", lineNum)
+        }
+    }
+
+    /*
     def callMethod(name: String,
                    params: List[ValueDeclaration],
-                   args: List[Expression],
+                   args: List[Value],
                    block: Block,
                    oldStack: VarStack,
                    newStack: VarStack = Nil): Value = (params, args) match
     {
         case (ValueDeclaration(paramName, paramType) :: paramsTail,
-              (arg: Expression) :: argsTail) =>
-            val argValue = executeExpression(arg, oldStack)
-            (paramType, argValue) match
+              (arg: Value) :: argsTail) =>
+            (paramType, arg) match
             {
                 case (SetType, SetValue(_)) =>
-                    callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, argValue) :: newStack)
+                    callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, arg) :: newStack)
                 case (_, set: SetValue) => set.map(elem =>
                 {
                     callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, elem) :: newStack)
                 })
                 case (paramType, argValue) if compareType(paramType, argValue) =>
                     callMethod(name, paramsTail, argsTail, block, oldStack, Variable(paramName, argValue) :: newStack)
-                case _ => throw new Exception(s"'$argValue' is not of type '$paramType'")
+                case _ => throw new Exception(s"'$arg' is not of type '$paramType'")
             }
         case (Nil, Nil) => executeBlock(block, newStack) match
         {
             case Right(_) => NoValue
             case Left(retVal) => retVal
         }
-        case _ => throw new Exception(s"Wrong number of arguments for calling method '$name")
+        case _ => throw new Exception(s"Wrong number of arguments for calling method '$name'")
     }
+    */
 
+    // TODO: Redo this function
     def callConstructor(name: String,
                         fields: List[ValueDeclaration],
                         invariant: Expression,
