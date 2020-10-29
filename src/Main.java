@@ -42,8 +42,6 @@ public class Main {
         CustomGdslParser parser = new CustomGdslParser();
         Program program = parser.parse(inputStream);
         StaticTypeChecker.check(program);
-        Logger logger = Logger.getInstance();
-        System.out.print(logger.toString(options.infoLevel));
 
         if(options.optimize)
         {
@@ -55,13 +53,25 @@ public class Main {
         }
 
         Executor executor = new Executor();
+        String executionOutput = "";
         if (options.execute){
-            System.out.println(ValuePrettifier.toString(executor.executeProgram(program, options.programMainFunctionName), 0));
+            try {
+                executionOutput = ValuePrettifier.toString(executor.executeProgram(program, options.programMainFunctionName), 0);
+            } catch (logger.Message mes) {
+                logger.Logger.getInstance().add(mes);
+            }  catch(Exception err) {
+                throw err;
+                //Logger.log(Severity.Error, err.getMessage(), -1);
+            }
         }
 
         if (options.transpile) {
             Transpilation transpilation = new Transpilation();
             System.out.println(transpilation.convert(program));
         }
+
+        Logger logger = Logger.getInstance();
+        System.out.print(logger.toString(options.infoLevel));
+        System.out.println(executionOutput);
     }
 }
