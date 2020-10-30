@@ -1,0 +1,21 @@
+type Point(x:int, y:int)
+type Rectangle(p1: Point, p2: Point)
+inv p1.x < p2.x && p1.y < p2.y
+
+int getX(p: Point)(return p.x)
+int getY(p: Point)(return p.y)
+
+bool larger(r1: Rectangle , r2: Rectangle)
+(
+return((r1.p1.x - r1.p2.x)^2 * (r1.p1.y - r1.p2.y)^2) >=((r2.p1.x - r2.p2.x)^2 * (r2.p1.y - r2.p2.y)^2))
+
+Rectangle main()(
+    points:set:= {Point(33, 52), Point(73, 69),Point(31, 80), Point( 8, 79),Point(53, 70), Point(22, 50)}
+    xCoords:set:= getX(points)
+    yCoords:set:= getY(points)
+
+    allPoints:set:= Point(xCoords, yCoords)
+    allRects:set:= Rectangle(allPoints , allPoints)
+
+    return choose(r in allRects, all(t in allRects, larger(r, t)))
+    )
