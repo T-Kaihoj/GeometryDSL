@@ -1,7 +1,9 @@
 // Originally produced by Carl Schultz
 
 type Point(x: int, y: int)
+
 type Rectangle(p1: Point, p2: Point)
+inv p1.x < p2.x && p1.y < p2.y
 
 bool larger(r1: Rectangle, r2: Rectangle)
 (
@@ -24,6 +26,5 @@ set main()
     yCoords: set := points.y
     allPoints: set := Point(xCoords, yCoords)
     allRects: set := Rectangle(allPoints, allPoints)
-    allRects: set := select(r in allRects, r.p1.x < r.p2.x && r.p1.y < r.p2.y)
     return largest(allRects)
 )
