@@ -1,47 +1,39 @@
 import analyzer.MasterAnalyzer;
 import executor.Executor;
-import executor.ValuePrettifier;
-import logger.Logger;
-import logger.Severity;
 import optimizer.MasterOptimizer;
 import syntaxTree.Program;
-import syntaxTree.StaticTypeChecker;
 import transpilation.Transpilation;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class SelfTest {
     //private static String optimizerStr;
     private static String executorStr ="type Circle(x: int, y: int, r: int)\n" +"\n" +"bool intersects(a: Circle, b: Circle)\n(\n return (a.x - b.x)^2 + (a.y - b.y)^2 <= (a.r + b.r)^2\n" +")\n" +"\n" +"bool rel(a: Int, b: Int)\n" +"(\n" +"    return a + b > 4\n" +")\n" +            "\n" +            "bool main()\n" +            "(\n" +            "    C: Circle := Circle(4, 2, 1)\n" +            "    return intersects(C, C)\n" +            ")\n";
 
     public static void run() {
-        System.out.println("Running Self test:");
+        System.out.println("Running self test:");
         int i = 0;
-        i =+ testparser();
-        i =+ testOptimization();
+        i =+ testParser();
+        i =+ testOptimizer();
         i =+ testExecutor();
-        i =+ testTranspile();
-        System.out.println();
-        System.out.println(i==0? "Everything is working correctly":"Something went wrong in your installation");
+        i =+ testTranspiler();
+        System.out.println(i == 0 ? "Everything is working correctly" : "Something went wrong in your installation");
     }
 
-    private static int testparser() {
-        System.out.println("Testing parser");
+    private static int testParser() {
+        System.out.print("Testing Parser... ");
 
         try {
             CustomGdslParser parser = new CustomGdslParser();
             Program program = parser.parse(executorStr);
-        }catch (Exception err) {
-            System.out.println("Error: parser is not ok");
+        } catch (Exception err) {
+            System.out.println("Not ok");
             return -1;
         }
-        System.out.println("parser is ok");
+        System.out.println("Ok");
         return 0;
     }
-    private static int testTranspile() {
-        System.out.println("Testing transpile");
+
+    private static int testTranspiler() {
+        System.out.print("Testing Transpiler... ");
 
         try {
             CustomGdslParser parser = new CustomGdslParser();
@@ -49,41 +41,41 @@ public class SelfTest {
             Transpilation transpilation = new Transpilation();
             transpilation.convert(program);
         }catch (Exception err) {
-            System.out.println("Error: Optimization is not ok");
+            System.out.println("Not ok");
             return -1;
         }
-        System.out.println("transpile is ok");
+        System.out.println("Ok");
         return 0;
     }
 
     private static int testExecutor() {
-        System.out.println("Testing Executor");
+        System.out.print("Testing Executor... ");
 
         try {
             Executor executor = new Executor();
             CustomGdslParser parser = new CustomGdslParser();
             Program program = parser.parse(executorStr);
-            executor.executeProgram(program, "Executor");
-        }catch (Exception err) {
-            System.out.println("Error: Executor is not ok");
+            executor.executeProgram(program, "main");
+        } catch (Exception err) {
+            System.out.println("Not Ok");
             return -1;
         }
-        System.out.println("Executor is ok ");
+        System.out.println("Ok");
         return 0;
     }
 
 
-    private static int testOptimization() {
-        System.out.println("Testing Optimization");
+    private static int testOptimizer() {
+        System.out.print("Testing Optimizer... ");
         try {
             CustomGdslParser parser = new CustomGdslParser();
             Program program = parser.parse(executorStr);
-            program = MasterOptimizer.transform(MasterAnalyzer.transform(program));
+            MasterOptimizer.transform(MasterAnalyzer.transform(program));
         } catch (Exception err) {
-            System.out.println("Error: Optimization is not functioning");
+            System.out.println("Not ok");
             return -1;
         }
-        System.out.println("Optimization is ok");
+        System.out.println("Ok");
         return 0;
     }
 
