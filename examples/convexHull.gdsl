@@ -1,0 +1,25 @@
+type Point (x: int, y: int)
+
+type Line(start: Point, end: Point)
+inv start.x != end.x && start.y != end.y
+
+bool leftOf(point: Point, line: Line)
+(
+    return ((line.end.x - line.start.x) * (point.y - line.start.y)) -
+           ((line.end.y - line.start.y) * (point.x - line.start.x)) >= 0
+)
+
+set convexHull(points: set)
+(
+    lines: set := Line(points, points)
+    lines: set := select(l in lines, all(p in points, leftOf(p, l)))
+    return lines
+)
+
+set main()
+(
+    points: set := {Point(33, 52), Point(73, 69),
+                    Point(31, 80), Point( 8, 79),
+                    Point(53, 70), Point(22, 50)}
+    return convexHull(points)
+)
