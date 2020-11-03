@@ -1,7 +1,7 @@
 type Point(x: int, y: int)
 
 type LineSeg(start: Point, end: Point)
-inv start.x != end.x && start.y != end.y
+inv !(start.x == end.x && start.y == end.y)
 
 bool leftOfOrOn(p: Point, l: LineSeg)
 (
