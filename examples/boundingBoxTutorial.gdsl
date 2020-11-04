@@ -3,9 +3,6 @@ type Point(x: int, y: int)
 type Rectangle(p1: Point, p2: Point)
 inv p1.x < p2.x && p1.y < p2.y
 
-int getX(p: Point)(return p.x)
-int getY(p: Point)(return p.y)
-
 bool larger(r1: Rectangle, r2: Rectangle)
 (
     return ((r1.p1.x - r1.p2.x)^2 * (r1.p1.y - r1.p2.y)^2) >=
