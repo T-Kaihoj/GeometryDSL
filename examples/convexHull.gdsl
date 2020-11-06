@@ -1,0 +1,21 @@
+type Point(x: int, y: int)
+
+type LineSeg(start: Point, end: Point)
+inv !(start.x == end.x && start.y == end.y)
+
+bool leftOfOrOn(p: Point, l: LineSeg)
+(
+    return ((l.end.x - l.start.x) * (p.y - l.start.y)) -
+           ((l.end.y - l.start.y) * (p.x - l.start.x)) >= 0
+)
+
+set main()
+(
+    points: set := {Point(33, 52), Point(73, 69),
+                    Point(31, 80), Point( 8, 79),
+                    Point(53, 70), Point(22, 50)}
+    lines: set := LineSeg(points, points)
+    hullLines: set := select(l in lines, all(p in points, leftOfOrOn(p, l)))
+    hullPoints: set := hullLines.start
+    return hullPoints
+)

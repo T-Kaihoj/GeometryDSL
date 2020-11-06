@@ -43,7 +43,7 @@ object StaticTypeChecker
         case MethodDefinition(name, retType, params, block) => block.last match
         {
             case Return(exp) =>
-                val expResType: Type = TypeOfHelp.getTypeOf (exp, getProgramContext(name,program.programDefinitions,Nil)).getOrElse({Logger.log(Severity.Warning, s"Unable to determine, return type in '${name}'", methodDefinition.lineNumber)
+                val expResType: Type = TypeOfHelp.getTypeOf (exp, getProgramContext(name,program.programDefinitions,Nil)).getOrElse({Logger.log(Severity.Info, s"Unable to determine, return type in '${name}'", methodDefinition.lineNumber)
                 NoType
                 })
                 if(expResType != NoType && expResType != retType )

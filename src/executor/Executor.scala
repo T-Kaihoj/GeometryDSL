@@ -224,7 +224,7 @@ class Executor
         case Subset => OperationExecutor.subset(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
         case PropSubset => OperationExecutor.propSubset(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
         case InSet => OperationExecutor.inSet(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
-        case MethodCall(name, arity) => executeMethodCall(name, operands, lineNum, stack)
+        case MethodCall(name, _) => executeMethodCall(name, operands, lineNum, stack)
     }
 
     def executeForall(element: ElementDefinition, check: Expression, lineNum: Int, stack: VarStack): BoolValue = executeExpression(element.exp, lineNum, stack) match
