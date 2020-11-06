@@ -19,7 +19,7 @@ class Executor
             {
                 case MethodDefinition(name, _, params, _) => name == mainFuncName && params.isEmpty
                 case _ => false
-            }).getOrElse(throw new Exception(s"No method named '$mainFuncName' exists")) match
+            }).getOrElse(throw new Message(Severity.Error, s"No method named '$mainFuncName' exists", 0)) match
             {
                 case MethodDefinition(_, _, _, block) => executeBlock(block, Nil) match
                 {
@@ -37,7 +37,7 @@ class Executor
                                 _globalStack: VarStack = List()):(List[ProgramDefinition], VarStack) = program match
     {
         case (valDef: ValueDefinition) :: tail =>
-            prepareProgramExecution(tail, _programMemory, defToVar(valDef, _globalStack) :: _globalStack)
+            prepareProgramExecution(tail, _programMemory, defToVar(valDef, valDef.lineNumber, _globalStack) :: _globalStack)
         case (methodDef: MethodDefinition) :: tail =>
             prepareProgramExecution(tail, methodDef :: _programMemory, _globalStack)
         case (typeDef: TypeDefinition) :: tail =>
@@ -54,7 +54,7 @@ class Executor
     def executeBlock(block: Block, stack: VarStack): Either[Value, VarStack] = block match
     {
         case Nil => Right(stack)
-        case Return(exp) :: _ => Left(executeExpression(exp, stack))
+        case Return(exp) :: _ => Left(executeExpression(exp, block.head.lineNumber, stack))
         case h :: t =>
             executeStatement(h, stack) match
             {
@@ -71,8 +71,8 @@ class Executor
      */
     def executeStatement(stm: Statement, stack: VarStack): Either[Value, VarStack] = stm match
     {
-        case ValueDefinition(decl, exp) => Right(Variable(decl.name, executeExpression(exp, stack)) :: stack)
-        case Conditional(cond, trueBlock, falseBlock) => executeConditional(cond, trueBlock, falseBlock, stack)
+        case ValueDefinition(decl, exp) => Right(Variable(decl.name, executeExpression(exp, stm.lineNumber, stack)) :: stack)
+        case Conditional(cond, trueBlock, falseBlock) => executeConditional(cond, trueBlock, falseBlock, stm.lineNumber, stack)
         case _: Return => throw new Exception("Should not happen")
     }
 
@@ -82,9 +82,9 @@ class Executor
      * Returns either a (potentially) modified variable stack or a single value.
      * If a single value is returned, the block contained a Return statement.
      */
-    def executeConditional(cond: Expression, trueBlock: Block, falseBlock: Block, stack: VarStack): Either[Value, VarStack] =
+    def executeConditional(cond: Expression, trueBlock: Block, falseBlock: Block, lineNum: Int, stack: VarStack): Either[Value, VarStack] =
     {
-        if(executeExpression(cond, stack) match
+        if(executeExpression(cond, lineNum, stack) match
         {
             case BoolValue(true) => true
             case BoolValue(false) => false
@@ -92,7 +92,7 @@ class Executor
             case IntValue(_) => true
             case RealValue(0.0) => false
             case RealValue(_) => true
-            case x => throw new Exception(s"Conditionals on ${x.getClass} is not supported")
+            case x => throw new Message(Severity.Error, s"Conditionals on ${x.getClass} is not supported", lineNum)
         })
         {
             executeBlock(trueBlock, stack)
@@ -103,33 +103,33 @@ class Executor
         }
     }
 
-    def executeExpression(exp: Expression, stack: VarStack): Value = exp match
+    def executeExpression(exp: Expression, lineNum: Int, stack: VarStack): Value = exp match
     {
         case NoValueLiteral() => NoValue
         case BoolLiteral(b) => BoolValue(b)
         case IntLiteral(i) => IntValue(i)
         case RealLiteral(r) => RealValue(r)
-        case SetLiteral(exps) => executeSetLiteral(exps, stack)
-        case Identifier(name) => executeIdentifier(name, stack)
-        case MemberAccess(exp, field) => executeMemberAccess(exp, field, stack).get
-        case TypeCheck(exp, typeId) => executeTypeCheck(exp, typeId, stack).get
-        case SetComprehension(elem, cond, app) => executeSetComprehension(elem, cond, app, stack)
-        case Operation(operator, operands) => executeOperation(operator, operands, stack)
+        case SetLiteral(exps) => executeSetLiteral(exps, lineNum, stack)
+        case Identifier(name) => executeIdentifier(name, lineNum, stack)
+        case MemberAccess(exp, field) => executeMemberAccess(exp, field, lineNum, stack).get
+        case TypeCheck(exp, typeId) => executeTypeCheck(exp, typeId, lineNum, stack).get
+        case SetComprehension(elem, cond, app) => executeSetComprehension(elem, cond, app, lineNum, stack)
+        case Operation(operator, operands) => executeOperation(operator, operands, lineNum, stack)
     }
 
     /**
      * Executes set literals and is responsible for flattening nested sets.
      */
-    def executeSetLiteral(exps: List[Expression], stack: VarStack): SetValue =
+    def executeSetLiteral(exps: List[Expression], lineNum: Int, stack: VarStack): SetValue =
     {
-        SetValue(exps.toSet.map(executeExpression(_, stack)))
+        SetValue(exps.toSet.map(executeExpression(_, lineNum, stack)))
     }
 
-    def executeIdentifier(name: String, stack: VarStack): Value =
+    def executeIdentifier(name: String, lineNum: Int, stack: VarStack): Value =
     {
         stack.find(v => v.name == name).getOrElse(
-            globalStack.find(v => v.name == name).getOrElse(
-                throw new Exception(s"No variable with name '$name' exists"))
+            globalStack.find(v => v.name == name)
+                .getOrElse(throw new Message(Severity.Error, s"No variable with name '$name' exists", lineNum))
         ).value
     }
 
@@ -157,7 +157,7 @@ class Executor
      *
      * Given a set as input, it will return field values with the correct names.
      */
-    def executeMemberAccess(exp: Expression, fieldName: String, stack: VarStack): Option[Value] = executeExpression(exp, stack) match
+    def executeMemberAccess(exp: Expression, fieldName: String, lineNum: Int, stack: VarStack): Option[Value] = executeExpression(exp, lineNum, stack) match
     {
         case objVal: ObjectValue => getFieldValue(objVal, fieldName)
         case set: SetValue =>
@@ -166,105 +166,101 @@ class Executor
                 case Some(fieldVal) => fieldVal
                 case None => NoValue
             }))
-        case value => Logger.log(Severity.Error, s"'$value' is not an object", 0); None
+        case value => throw new Message(Severity.Error, s"'$value' is not an object", lineNum)
     }
 
     /**
      * Executes type check of the resulting value of the expression.
      */
-    def executeTypeCheck(exp: Expression, typeId: Type, stack: VarStack): Option[Value] =
+    def executeTypeCheck(exp: Expression, typeId: Type, lineNum: Int, stack: VarStack): Option[Value] =
     {
-        Some(BoolValue(compareType(typeId, executeExpression(exp, stack))))
+        Some(BoolValue(compareType(typeId, executeExpression(exp, lineNum, stack))))
     }
 
-    def executeSetComprehension(elementDef: ElementDefinition, cond: Expression, app: Expression, stack: VarStack): SetValue =
+    def executeSetComprehension(elementDef: ElementDefinition, cond: Expression, app: Expression, lineNum: Int, stack: VarStack): SetValue =
     {
         // Execute expression in element definition
-        val valueSet = executeExpression(elementDef.exp, stack) match
+        val valueSet = executeExpression(elementDef.exp, lineNum, stack) match
         {
             case setValue: SetValue => setValue
-            case _ => throw new Exception("Element:"+elementDef.exp+ "is not in a set")
+            case _ => throw new Message(Severity.Error, "Element:"+elementDef.exp+ "is not in a set", lineNum)
         }
 
         // Filter the set of values
-        val filteredSet: SetValue = valueSet.collect(element => executeExpression(cond, Variable(elementDef.name, element) :: stack) match {
+        val filteredSet: SetValue = valueSet.collect(element => executeExpression(cond, lineNum, Variable(elementDef.name, element) :: stack) match {
             case BoolValue(value) => value
-            case _ => throw new Exception("Condition of set comprehension does not result in a boolean value")
+            case _ => throw new Message(Severity.Error, "Condition of set comprehension does not result in a boolean value", lineNum)
         })
 
         // Apply application
-        filteredSet.map(element => executeExpression(app, Variable(elementDef.name, element) :: stack))
+        filteredSet.map(element => executeExpression(app, lineNum, Variable(elementDef.name, element) :: stack))
     }
 
-    def executeOperation(operator: Operator, operands: List[Expression], stack: VarStack): Value = operator match
+    def executeOperation(operator: Operator, operands: List[Expression], lineNum: Int, stack: VarStack): Value = operator match
     {
-        case Negation => OperationExecutor.negation(executeExpression(operands.head, stack))
-        case Not => OperationExecutor.not(executeExpression(operands.head, stack))
-        case Cardinality => OperationExecutor.cardinality(executeExpression(operands.head, stack))
-        case Forall(element) => executeForall(element, operands.head, stack)
-        case Exists(element) => executeExists(element, operands.head, stack)
-        case Choose(element) => executeChoose(element, operands.head, stack).get
-        case Add => OperationExecutor.add(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case Sub => OperationExecutor.sub(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case Mul => OperationExecutor.mul(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case Div => OperationExecutor.div(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case Pow => OperationExecutor.pow(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case Equal => OperationExecutor.equal(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case NotEqual => OperationExecutor.notEqual(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case LessThan => OperationExecutor.lessThan(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case LessThanEqual => OperationExecutor.lessThanEqual(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case GreaterThan => OperationExecutor.greaterThan(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case GreaterThanEqual => OperationExecutor.greaterThanEqual(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case And => OperationExecutor.and(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case Or => OperationExecutor.or(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case Implies => OperationExecutor.implies(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case Union => OperationExecutor.union(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case Intersect => OperationExecutor.intersect(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case Difference => OperationExecutor.difference(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case Subset => OperationExecutor.subset(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case PropSubset => OperationExecutor.propSubset(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case InSet => OperationExecutor.inSet(executeExpression(operands.head, stack), executeExpression(operands.tail.head, stack))
-        case MethodCall(name, arity) => executeMethodCall(name, operands, -1, stack)
+        case Negation => OperationExecutor.negation(executeExpression(operands.head, lineNum, stack))
+        case Not => OperationExecutor.not(executeExpression(operands.head, lineNum, stack))
+        case Cardinality => OperationExecutor.cardinality(executeExpression(operands.head, lineNum, stack))
+        case Forall(element) => executeForall(element, operands.head, lineNum, stack)
+        case Exists(element) => executeExists(element, operands.head, lineNum, stack)
+        case Choose(element) => executeChoose(element, operands.head, lineNum, stack).get
+        case Add => OperationExecutor.add(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case Sub => OperationExecutor.sub(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case Mul => OperationExecutor.mul(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case Div => OperationExecutor.div(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case Pow => OperationExecutor.pow(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case Equal => OperationExecutor.equal(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case NotEqual => OperationExecutor.notEqual(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case LessThan => OperationExecutor.lessThan(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case LessThanEqual => OperationExecutor.lessThanEqual(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case GreaterThan => OperationExecutor.greaterThan(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case GreaterThanEqual => OperationExecutor.greaterThanEqual(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case And => OperationExecutor.and(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case Or => OperationExecutor.or(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case Implies => OperationExecutor.implies(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case Union => OperationExecutor.union(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case Intersect => OperationExecutor.intersect(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case Difference => OperationExecutor.difference(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case Subset => OperationExecutor.subset(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case PropSubset => OperationExecutor.propSubset(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case InSet => OperationExecutor.inSet(executeExpression(operands.head, lineNum, stack), executeExpression(operands.tail.head, lineNum, stack))
+        case MethodCall(name, arity) => executeMethodCall(name, operands, lineNum, stack)
     }
 
-    def executeForall(element: ElementDefinition, check: Expression, stack: VarStack): BoolValue = executeExpression(element.exp, stack) match
+    def executeForall(element: ElementDefinition, check: Expression, lineNum: Int, stack: VarStack): BoolValue = executeExpression(element.exp, lineNum, stack) match
     {
-        case SetValue(s) => BoolValue(s.forall(elem => executeExpression(check, Variable(element.name, elem) :: stack) match
+        case SetValue(s) => BoolValue(s.forall(elem => executeExpression(check, lineNum, Variable(element.name, elem) :: stack) match
         {
             case BoolValue(b) => b
-            case _ => throw new Exception("Execution of check expression does not result in a boolean")
+            case _ => throw new Message(Severity.Error, "Execution of check expression does not result in a boolean", lineNum)
         }))
-        case _ => throw new Exception("Execution of element definition does not result in a set")
+        case _ => throw new Message(Severity.Error, "Execution of element definition does not result in a set", lineNum)
     }
 
-    def executeExists(element: ElementDefinition, check: Expression, stack: VarStack): BoolValue = executeExpression(element.exp, stack) match
+    def executeExists(element: ElementDefinition, check: Expression, lineNum: Int, stack: VarStack): BoolValue = executeExpression(element.exp, lineNum, stack) match
     {
-        case SetValue(s) => BoolValue(s.exists(elem => executeExpression(check, Variable(element.name, elem) :: stack) match
+        case SetValue(s) => BoolValue(s.exists(elem => executeExpression(check, lineNum, Variable(element.name, elem) :: stack) match
         {
             case BoolValue(b) => b
-            case _ => throw new Exception("Execution of check expression does not result in a boolean")
+            case _ => throw new Message(Severity.Error, "Execution of exists check does not result in a boolean", lineNum)
         }))
-        case _ => throw new Exception("Execution of element definition does not result in a set")
+        case _ => throw new Message(Severity.Error, "Execution of element definition does not result in a set", lineNum)
     }
 
-    def executeChoose(element: ElementDefinition, cond: Expression, stack: VarStack): Option[Value] = executeExpression(element.exp, stack) match
+    def executeChoose(element: ElementDefinition, cond: Expression, lineNum: Int, stack: VarStack): Option[Value] = executeExpression(element.exp, lineNum, stack) match
     {
         case SetValue(set) =>
-            set.find(elementValue => executeExpression(cond, Variable(element.name, elementValue) :: stack) match
+            set.find(elementValue => executeExpression(cond, lineNum, Variable(element.name, elementValue) :: stack) match
             {
                 case BoolValue(b) => b
-                case _ =>
-                    Logger.log(Severity.Error, "Execution of choose condition does not result i a boolean", -0)
-                    false
+                case _ => throw new Message(Severity.Error, "Execution of condition in choose operation does not result in a boolean", lineNum)
             })
-        case _ =>
-            Logger.log(Severity.Error, "Execution of element definition does not result in a set", -0)
-            None
+        case _ => throw new Message(Severity.Error, "Execution of choose element definition does not result in a set", lineNum)
     }
 
     def executeMethodCall(name: String, operands: List[Expression], lineNum: Int, stack: VarStack): Value =
     {
-        val args: List[Value] = operands.map(op => executeExpression(op, stack))
+        val args: List[Value] = operands.map(op => executeExpression(op, lineNum, stack))
 
 
         val correctlyNamedEntities = programMemory.collect
@@ -345,7 +341,7 @@ class Executor
                     case arg => throw new Message(Severity.Error, s"Type '${typeDef.name}' does not take ${arg.getType} as its argument nr. ${index + 1}", lineNum)
                 }
             case Nil =>
-                executeExpression(typeDef.invariant, params.reverse) match
+                executeExpression(typeDef.invariant, lineNum, params.reverse) match
                 {
                     case BoolValue(true) => ObjectValue(typeDef.name, params.reverse.map(_.value))
                     case BoolValue(false) => NoValue
@@ -353,11 +349,11 @@ class Executor
         }
     }
 
-    def defToVar(valDef: ValueDefinition, stack: VarStack): Variable = valDef match
+    def defToVar(valDef: ValueDefinition, lineNum: Int, stack: VarStack): Variable = valDef match
     {
-        case ValueDefinition(ValueDeclaration(name, BoolType), exp) => Variable(name, executeExpression(exp, stack))
-        case ValueDefinition(ValueDeclaration(name, IntType), exp) => Variable(name, executeExpression(exp, stack))
-        case ValueDefinition(ValueDeclaration(name, RealType), exp) => Variable(name, executeExpression(exp, stack))
-        case ValueDefinition(ValueDeclaration(name, SetType), exp) => Variable(name, executeExpression(exp, stack))
+        case ValueDefinition(ValueDeclaration(name, BoolType), exp) => Variable(name, executeExpression(exp, lineNum, stack))
+        case ValueDefinition(ValueDeclaration(name, IntType), exp) => Variable(name, executeExpression(exp, lineNum, stack))
+        case ValueDefinition(ValueDeclaration(name, RealType), exp) => Variable(name, executeExpression(exp, lineNum, stack))
+        case ValueDefinition(ValueDeclaration(name, SetType), exp) => Variable(name, executeExpression(exp, lineNum, stack))
     }
 }
