@@ -53,7 +53,7 @@ public class Main {
                 executionOutput = ValuePrettifier.toString(executor.executeProgram(program, options.programMainFunctionName), 0);
             } catch (logger.Message mes) {
                 logger.Logger.getInstance().add(mes);
-            }  catch(Exception err) {
+            } catch(Exception err) {
                 throw err;
                 //Logger.log(Severity.Error, err.getMessage(), -1);
             }

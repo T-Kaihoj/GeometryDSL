@@ -311,7 +311,7 @@ class Executor
                 } =>
                 val suitableMethods: List[MethodDefinition] = findSuitableMethods(methodDefs.asInstanceOf[List[MethodDefinition]], args.map(_.getType))
                 callMethod(suitableMethods, args, lineNum)
-            case TypeDefinition(name, fields, invariant) :: Nil => NoValue // TODO: callConstructor(name, fields, invariant, operands, stack)
+            case (typeDef: TypeDefinition) :: Nil => constructObject(typeDef, args, lineNum)
             case (_: TypeDefinition) :: _ => throw new Message(Severity.Error, s"More than one type or method with name '$name' exists", lineNum)
             case _ => throw new Message(Severity.Error, "Something went wrong (And i didnt redo this message)", lineNum)
         }
@@ -410,33 +410,31 @@ class Executor
     }
     */
 
-    // TODO: Redo this function
-    def callConstructor(name: String,
-                        fields: List[ValueDeclaration],
-                        invariant: Expression,
-                        args: List[Expression],
-                        stack: VarStack,
-                        objFields: VarStack = Nil): Value = (fields, args) match
+    def constructObject(typeDef: TypeDefinition, args: List[Value], lineNum: Int, params: List[Variable] = Nil): Value =
     {
-        case (ValueDeclaration(fieldName, fieldType) :: fieldsTail,
-              (arg: Expression) :: argsTail) =>
-            val argValue = executeExpression(arg, stack)
-            (fieldType, argValue) match
-            {
-                case (SetType, SetValue(s)) => callConstructor(name, fieldsTail, invariant, argsTail, stack, Variable(fieldName, SetValue(s)) :: objFields)
-                case (_, set: SetValue) => set.map(elem =>
-                {
-                    callConstructor(name, fieldsTail, invariant, argsTail, stack, Variable(fieldName, elem) :: objFields)
-                })
-                case (ft, av) if compareType(ft, av) => callConstructor(name, fieldsTail, invariant, argsTail, stack, Variable(fieldName, av) :: objFields)
-                case _ => throw new Exception(s"'$argValue' is not of type '$fieldType'")
-            }
-        case (Nil, Nil) => executeExpression(invariant, objFields.reverse ++ stack) match
+        args match
         {
-            case BoolValue(true) => ObjectValue(name, objFields.map(variable => variable.value).reverse)
-            case BoolValue(false) => NoValue
+            case arg :: argsTail =>
+                val index = params.length
+                arg match
+                {
+                    case arg if arg.getType == typeDef.fields(index).typeId =>
+                        val param = Variable(typeDef.fields(index).name, arg)
+                        constructObject(typeDef, argsTail, lineNum, param :: params)
+                    case SetValue(innerSet) =>
+                        SetValue(innerSet.map(innerVal =>
+                        {
+                            val param = Variable(typeDef.fields(index).name, innerVal)
+                            constructObject(typeDef, argsTail, lineNum, param :: params)
+                        }))
+                }
+            case Nil =>
+                executeExpression(typeDef.invariant, params.reverse) match
+                {
+                    case BoolValue(true) => ObjectValue(typeDef.name, params.reverse.map(_.value))
+                    case BoolValue(false) => NoValue
+                }
         }
-        case _ => throw new Exception(s"Wrong number of arguments for constructing '$name'")
     }
 
     def defToVar(valDef: ValueDefinition, stack: VarStack): Variable = valDef match
