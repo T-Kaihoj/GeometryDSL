@@ -306,7 +306,7 @@ class Executor
         case Nil =>
             val methodToUse: MethodDefinition = methodDefs.find(methodDef =>
             {
-                methodDef.params.zip(params).forall(x => x._1.typeId == x._2.getType)
+                methodDef.params.zip(params.reverse).forall(x => x._1.typeId == x._2.getType)
             }).getOrElse(throw new Message(Severity.Error, noMethodMessage(methodDefs.head, args), lineNum))
 
             val newStack: VarStack = methodToUse.params.zip(params.reverse).map(x =>
