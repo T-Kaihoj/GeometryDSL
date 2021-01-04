@@ -42,6 +42,11 @@ object transpilationScala
             case _ => false
         }
     }
+    def appendBlock(block:Block,values: List[syntaxTree.ValueDeclaration]): Block =
+    {
+        val valDefs: List[syntaxTree.Statement] = values.map(value => ValueDefinition(value, Identifier(value.name)))
+        valDefs ::: block
+    }
 
     def isConstructor(methodName:String, program:List[ProgramDefinition]): Boolean = program match
     {

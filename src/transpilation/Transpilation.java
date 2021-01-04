@@ -241,7 +241,7 @@ public class Transpilation {
     private String setApplication(MethodCall call, List<Expression> expressions, List<Boolean> isSetlist) {
         p = p+1;
         int indent =1 ;
-        String forString = "\t".repeat(indent)+"p"+p +"=set({})\n";
+        String forString = "\t".repeat(indent)+"p"+p +"=setGDSL({})\n";
         List<String> parameterString = new ArrayList<>();
 
         for (int i = 0; i < isSetlist.size() ; i++) {
@@ -302,7 +302,8 @@ public class Transpilation {
     public void convertMethodDefinition(MethodDefinition methodDefinition) {
         List<String> stringList = new ArrayList();
         List<String> statement = new ArrayList();
-        block = methodDefinition.block();
+        List<Statement> statementList = new ArrayList<>();
+        block = transpilationScala.appendBlock(methodDefinition.block(), methodDefinition.params());
         methodDefinition.params().foreach(v1 -> stringList.add(v1.name()));
         python.add("def "+methodDefinition.name()+"("+ String.join(",", stringList) +"):");
         methodDefinition.block().foreach(v1 -> {
